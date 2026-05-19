@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "scripts":{
+    "start":"concurrently \"cd ./client/ && npm run dev\" \"cd ./server/ && nodemon index.ts\""
+  }
+}
