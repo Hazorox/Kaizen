@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 .env
 .gitignore
+NOTES.txt
+design.png
+colors.png
