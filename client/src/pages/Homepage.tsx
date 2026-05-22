@@ -8,15 +8,17 @@ import { IoDiamondOutline } from "react-icons/io5";
 import { RiSwordFill } from "react-icons/ri";
 import WordRow from "../components/WordRow";
 import { FaArrowRight } from "react-icons/fa";
+import Furi from "../components/Furi";
 
 const Homepage = () => {
-  const authenticated = true;
+  const authenticated = false;
   const time = new Date().getHours();
   const streak = 3;
   const username = "Hazoro";
   return (
     // Main Homepage Body
-    <div className="w-full h-full select-none text-[#1a1a2e] bg-[#fffbe6] font-extrabold flex justify-center items-center">
+    <div className="w-full select-none h-full text-[#1a1a2e] bg-[#fffbe6] font-extrabold flex justify-center items-center">
+      {/* DASHBOARD */}
       {authenticated ? (
         // Dashboard
         <>
@@ -48,7 +50,7 @@ const Homepage = () => {
                 : 12 <= time && time < 18
                   ? "こんにちは"
                   : "こんばんは"}
-              , {username.length > 14? "":username} !
+              , {username.length > 14 ? "" : username} !
               {/* //TODO: TERNARY OPERATOR HERE IF CARDS is 1, MAKE CARD NOT CARDS */}
             </span>
             {/* Cards */}
@@ -57,7 +59,6 @@ const Homepage = () => {
                 style={"bg-[#ff9a3c] !border-[#e06500]"}
                 title={"Anki"}
                 txt={0 + " Cards Due"}
-                txt2={"+12 Today"}
                 icon={"anki.svg"}
               />
               <Card
@@ -84,20 +85,47 @@ const Homepage = () => {
               {/* Header */}
               <div className="bg-[#1a1a2e] rounded-t-xl text-[#fffbe6] py-1.5 px-6 flex justify-between">
                 <span>Recent Words</span>
-                <span className="opacity-60 hover:opacity-120 cursor-pointer">もっと最近の言葉 <FaArrowRight className="inline -mt-1" /> </span>
+                <span className="opacity-60 hover:opacity-120 cursor-pointer">
+                  もっと最近の言葉{" "}
+                  <FaArrowRight className="inline -mt-1" />{" "}
+                </span>
               </div>
               {/* Body */}
               <div className="select-text">
-                <WordRow content="犬" furigana="いぬ" meaning="Dog" source="Anki" learntDate={1779291006000} />
-                <WordRow content="本" furigana="ほん" meaning="Book" source="Immersion" learntDate={1779405341000} />
-                <WordRow content="勉強する" furigana="べんきょうする" meaning="To Study" source="Kanji" learntDate={1770405311000} />
-                <WordRow content="改善" furigana="かいぜん" meaning="Self Improvement" source="Matches" learntDate={1779391006000} />
+                <WordRow
+                  content="犬"
+                  furigana="いぬ"
+                  meaning="Dog"
+                  source="Anki"
+                  learntDate={1779291006000}
+                />
+                <WordRow
+                  content="本"
+                  furigana="ほん"
+                  meaning="Book"
+                  source="Immersion"
+                  learntDate={1779405341000}
+                />
+                <WordRow
+                  content="勉強する"
+                  furigana="べんきょうする"
+                  meaning="To Study"
+                  source="Kanji"
+                  learntDate={1770405311000}
+                />
+                <WordRow
+                  content="改善"
+                  furigana="かいぜん"
+                  meaning="Self Improvement"
+                  source="Matches"
+                  learntDate={1779391006000}
+                />
               </div>
             </div>
           </div>
-                <div className="footer hover:cursor-pointer flex font-extrabold text-xl justify-center items-center fixed bottom-4 bg-[#032d66] text-[#eb6614] rounded-full w-[8%] p-4">
-                  Profile
-                </div>
+          <div className="footer w-fit p-4 hover:cursor-pointer flex font-extrabold text-xl justify-center items-center fixed bottom-4 bg-[#032d66] text-[#eb6614] rounded-full">
+            Profile
+          </div>
           {/* Footer : Me & Logout
           <div className=" footer text-xl px-4 bg-[#032d66] text-[#eb6614] flex justify-between w-full items-center absolute bottom-0 p-1.5">
             <span className="left flex justify-center items-center">
@@ -122,7 +150,39 @@ const Homepage = () => {
           </div> */}
         </>
       ) : (
-        <>NOT AUTHENTICATED</>
+        // LOGIN / Register
+        <div className="bg-[#ff6b6b] select-text border h-[60%] rounded-2xl w-[60%] flex justify-between items-center">
+          {/* Left */}
+          <div className="p-6 w-1/2 border-r-2 pl-3.5  h-full flex flex-col justify-center">
+            <p className="text-7xl ">改善</p>
+            <p className="text-2xl ml-5 opacity-80 font-normal">かいぜん</p>
+            <br />
+            <p className="text-2xl font-normal">
+              {" "}
+              <b>1.</b> Betterment, Improvement
+            </p>
+            <span className="ml-6 inline mb-0">
+            {
+            [
+              ["2国間","にこくかん"],
+              ['の',""],
+              ["貿易上","ぼうえきじょう"],
+              ["のアンバランスを",""],
+              ["改善","かいぜん"],
+              ["しなければならない。",""],
+              
+            ].map(([txt,reading])=>{
+              return <Furi txt={txt} reading={reading} />
+            })}</span>
+            <p className="ml-6 mt-0 opacity-70" >The trade imbalance between two nations should be improved.</p>
+            
+            <span className="font-normal text-2xl">
+              <b>2.</b> Kaizen
+              <p className="ml-7 text-lg">Kaizen {"(Japanese business philosophy of continuous improvement)​"}</p>
+            </span>
+          </div>
+          <div className="p-6 w-1/2 h-full ">Right</div>
+        </div>
       )}
     </div>
   );
