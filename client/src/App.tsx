@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import Homepage from "./pages/Homepage"
 import Immerse from "./pages/Immerse"
 import Battle from "./pages/Battle"
-import UserProfile from "./pages/userProfile"
+import UserProfile from "./pages/UserProfile"
 function App() {
 
   return (
