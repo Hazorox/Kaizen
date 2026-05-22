@@ -12,11 +12,11 @@ const Card = ({ title, icon, txt, txt2, style }: cardProps) => {
     <div
       className={
         style +
-        " flex h-36 border-4 w-120  self-center rounded-2xl p-2 gap-2 m-5"
+        " flex h-30 border-4 w-100  self-center rounded-2xl p-2 gap-2 m-5"
       }
     >
       {icon == "字" ? (
-        <span className="text-[120px] text-center self-center font-bold">字</span>
+        <span className="text-[100px] mb-3 text-center self-center font-bold">字</span>
       ) : typeof icon == "string" ? (
         <img src={"./" + icon} className="inline " />
       ) : (
