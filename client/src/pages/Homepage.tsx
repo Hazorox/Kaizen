@@ -1,5 +1,5 @@
 
-import Dashboard from "./dashboard";
+import Dashboard from "./Dashboard";
 import LogReg from "./LogReg";
 
 const Homepage = () => {
