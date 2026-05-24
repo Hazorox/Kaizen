@@ -3,6 +3,7 @@ import Homepage from "./pages/Homepage"
 import Immerse from "./pages/Immerse"
 import Battle from "./pages/Battle"
 import UserProfile from "./pages/UserProfile"
+import Recents from "./pages/Recents"
 function App() {
 
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path = "/immerse/" element={<Immerse /> }/>
         <Route path = "/battle/:id" element={<Battle /> }/>
         <Route path = "/profile/:id" element={<UserProfile /> }/>
+        <Route path = "/profile/:id" element={<Recents /> }/>
       </Routes>
     </Router>
   )

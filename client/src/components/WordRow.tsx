@@ -1,3 +1,5 @@
+import { AnimatePresence, motion } from "motion/react";
+
 type Source = "Anki" | "Immersion" | "Kanji" | "Matches";
 
 interface wordRowProps {
@@ -14,6 +16,13 @@ const WordRow = ({
   source,
   learntDate,
 }: wordRowProps) => {
+  // Got some help for this const with Claude
+  const glowColors: Record<Source, string> = {
+    Anki: "rgba(255, 224, 102, 0.7)",
+    Immersion: "rgba(201, 177, 255, 0.7)",
+    Kanji: "rgba(79, 179, 232, 0.7)",
+    Matches: "rgba(255, 154, 60, 0.7)",
+  };
   const diffMs = Date.now() - new Date(learntDate).getTime();
   const diffMins = Math.floor(diffMs / 1000 / 60);
   const diffHrs = Math.floor(diffMins / 60);
@@ -24,35 +33,47 @@ const WordRow = ({
       : diffHrs > 0
         ? `${diffHrs}h`
         : `${diffMins}m`;
-  let style="";
+  let style = "";
   // const style = source == "Anki"? "" : source=="Immersion"?  : source == "Kanji"
   switch (source) {
     case "Anki":
       style = "bg-[#ff9a3c] !border-[#e06500]";
       break;
     case "Immersion":
-      style="bg-[#c9b1ff] !border-[#7c3aed]"
-      break
+      style = "bg-[#c9b1ff] !border-[#7c3aed]";
+      break;
     case "Kanji":
-      style="bg-[#4fb3e8] !border-[#0099d4]"
-      break
+      style = "bg-[#4fb3e8] !border-[#0099d4]";
+      break;
     case "Matches":
-      style="bg-[#ffe066] !border-[#ffcb00]"
+      style = "bg-[#ffe066] !border-[#ffcb00]";
   }
   return (
-    <div className="flex p-2 justify-between">
-      <div className="flex gap-8">
-        <span className="text-xl font-normal">{content}</span>
-        <span className="opacity-75">{furigana}</span>
-        <span>{meaning}</span>
+    <AnimatePresence>
+      <div className="flex p-2 justify-between">
+        <div className="flex gap-8">
+          <span className="text-xl font-normal">{content}</span>
+          <span className="opacity-75">{furigana}</span>
+          <span>{meaning}</span>
+        </div>
+        <div className="gap-12 relative flex select-none">
+          <motion.span
+            whileHover={{
+              scale:1.15,
+              boxShadow: `0 0 8px 3px ${glowColors[source]}`,
+            }}
+            transition={{ duration: 0.2 }}
+            className={
+              style +
+              " w-28 absolute cursor-pointer right-20 border-2 text-center px-2 rounded-xl"
+            }
+          >
+            {source}
+          </motion.span>
+          <span className="absolute right-1">{timePassed}</span>
+        </div>
       </div>
-      <div className="gap-12 relative flex select-none">
-        <span className={style+" w-28 absolute right-20 border-2 text-center px-2 rounded-xl"}>
-          {source}
-        </span>
-        <span className="absolute right-1">{timePassed}</span>
-      </div>
-    </div>
+    </AnimatePresence>
   );
 };
 

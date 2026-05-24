@@ -8,16 +8,21 @@ import { IoDiamondOutline } from "react-icons/io5";
 import { RiSwordFill } from "react-icons/ri";
 import WordRow from "../components/WordRow";
 import { FaArrowRight } from "react-icons/fa";
-
+import { AnimatePresence, motion } from "motion/react";
 const Dashboard = () => {
   const time = new Date().getHours();
   const streak = 3;
   const username = "Hazoro";
   return (
     // Dashboard
-    <>
+    <AnimatePresence>
       {/* Navbar : Streak, Title, Immerse | Battle */}
-      <div className="nav h-16  items-center justify-around bg-[#ff6b6b] mt-2 mx-2 w-[94%] rounded-3xl absolute p-2 text-3xl top-0 flex">
+      <motion.div
+        initial={{ y: -40, opacity: 0.1 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3, ease: "linear" }}
+        className="nav h-16  items-center justify-around bg-[#ff6b6b] mt-2 mx-2 w-[94%] rounded-3xl absolute p-2 text-3xl top-0 flex"
+      >
         <span className="left flex-1">
           {streak > 0 ? (
             <MdLocalFireDepartment className="inline mb-1 mx-1" />
@@ -34,10 +39,16 @@ const Dashboard = () => {
           <span className="border h-10 mx-2 w-0.75 rounded-4xl bg-[#1a1a2e]"></span>
           <LuSwords className="inline icon " /> Battle
         </span>
-      </div>
+      </motion.div>
 
       {/* Main Content : User Welcome, Stats, And Recent Words */}
-      <div className="main h-[80%] flex flex-col border-2  p-4 justify-center items-center rounded-md w-[70%] bg-[#4ecdc4]">
+      <motion.div
+        layout
+        initial={{ scale: 0.3, opacity: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeIn" }}
+        className="main h-[80%] flex flex-col border-2  p-4 justify-center items-center rounded-md w-[70%] bg-[#4ecdc4]"
+      >
         <span className="text-8xl flex-1 mt-6 justify-center">
           {time >= 5 && time < 12
             ? "おはよう"
@@ -79,9 +90,15 @@ const Dashboard = () => {
           {/* Header */}
           <div className="bg-[#1a1a2e] rounded-t-xl text-[#fffbe6] py-1.5 px-6 flex justify-between">
             <span>Recent Words</span>
-            <span className="opacity-60 hover:opacity-120 cursor-pointer">
+            <motion.span
+              whileTap={{ x: 20 }}
+              whileHover={{ opacity: "100%" }}
+              transition={{ duration: 0.1, ease: "easeInOut" }}
+              initial={{ x: 0, opacity: "60%" }}
+              className="cursor-pointer"
+            >
               もっと最近の言葉 <FaArrowRight className="inline -mt-1" />{" "}
-            </span>
+            </motion.span>
           </div>
           {/* Body */}
           <div className="select-text">
@@ -115,10 +132,18 @@ const Dashboard = () => {
             />
           </div>
         </div>
-      </div>
-      <div className="footer w-fit p-4 hover:cursor-pointer flex font-extrabold text-xl justify-center items-center fixed bottom-4 bg-[#032d66] text-[#eb6614] rounded-full">
+      </motion.div>
+      <motion.div
+        initial={{ y: 80 }}
+        animate={{ y: 0 }}
+        // boxShadow: "0 0 0 3px rgba(0,0,0, 0.2)",
+                      // borderColor: "#FF9A3C",
+        whileHover={{scale:1.15,boxShadow:"0 0 0 2px rgba(0,0,0,0.9)"}}
+        transition={{ duration: 0.2, ease: "linear" }}
+        className="footer w-fit p-4 hover:cursor-pointer flex font-extrabold text-xl justify-center items-center fixed bottom-4 bg-[#032d66] text-[#eb6614] rounded-full"
+      >
         Profile
-      </div>
+      </motion.div>
       {/* Footer : Me & Logout
           <div className=" footer text-xl px-4 bg-[#032d66] text-[#eb6614] flex justify-between w-full items-center absolute bottom-0 p-1.5">
             <span className="left flex justify-center items-center">
@@ -141,7 +166,7 @@ const Dashboard = () => {
                 Hazoro</span>
             </span>
           </div> */}
-    </>
+    </AnimatePresence>
   );
 };
 
