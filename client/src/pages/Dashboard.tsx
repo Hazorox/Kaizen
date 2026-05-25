@@ -1,46 +1,20 @@
-import { LuPickaxe, LuSwords } from "react-icons/lu";
-import {
-  MdLocalFireDepartment,
-  MdOutlineLocalFireDepartment,
-} from "react-icons/md";
+
 import Card from "../components/Card";
 import { IoDiamondOutline } from "react-icons/io5";
 import { RiSwordFill } from "react-icons/ri";
 import WordRow from "../components/WordRow";
 import { FaArrowRight } from "react-icons/fa";
 import { AnimatePresence, motion } from "motion/react";
+import Nav from "../components/Nav"
 const Dashboard = () => {
   const time = new Date().getHours();
-  const streak = 3;
   const username = "Hazoro";
+  const ankiCards = 1;
   return (
     // Dashboard
     <AnimatePresence>
       {/* Navbar : Streak, Title, Immerse | Battle */}
-      <motion.div
-        initial={{ y: -40, opacity: 0.1 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3, ease: "linear" }}
-        className="nav h-16  items-center justify-around bg-[#ff6b6b] mt-2 mx-2 w-[94%] rounded-3xl absolute p-2 text-3xl top-0 flex"
-      >
-        <span className="left flex-1">
-          {streak > 0 ? (
-            <MdLocalFireDepartment className="inline mb-1 mx-1" />
-          ) : (
-            <MdOutlineLocalFireDepartment className="inline mb-1 mx-1" />
-          )}
-          {streak}
-        </span>
-        <span className="center absolute left-1/2 -translate-x-1/2">
-          改善 • Kaizen
-        </span>
-        <span className="right flex-1 flex items-center mr-2 justify-end">
-          <LuPickaxe className="inline icon" /> Immerse{" "}
-          <span className="border h-10 mx-2 w-0.75 rounded-4xl bg-[#1a1a2e]"></span>
-          <LuSwords className="inline icon " /> Battle
-        </span>
-      </motion.div>
-
+      <Nav />
       {/* Main Content : User Welcome, Stats, And Recent Words */}
       <motion.div
         layout
@@ -56,14 +30,13 @@ const Dashboard = () => {
               ? "こんにちは"
               : "こんばんは"}
           , {username.length > 14 ? "" : username} !
-          {/* //TODO: TERNARY OPERATOR HERE IF CARDS is 1, MAKE CARD NOT CARDS */}
         </span>
         {/* Cards */}
         <div className="grid grid-cols-2 gap-y-2 gap-x-6 place-content-center justify-items-center items-center h-full">
           <Card
             style={"bg-[#ff9a3c] !border-[#e06500]"}
             title={"Anki"}
-            txt={0 + " Cards Due"}
+            txt={ankiCards == 1 ? "1 Card Due" : `${ankiCards} Cards Due`}
             icon={"anki.svg"}
           />
           <Card
@@ -136,36 +109,12 @@ const Dashboard = () => {
       <motion.div
         initial={{ y: 80 }}
         animate={{ y: 0 }}
-        // boxShadow: "0 0 0 3px rgba(0,0,0, 0.2)",
-                      // borderColor: "#FF9A3C",
-        whileHover={{scale:1.15,boxShadow:"0 0 0 2px rgba(0,0,0,0.9)"}}
+        whileHover={{ scale: 1.15, boxShadow: "0 0 0 2px rgba(0,0,0,0.9)" }}
         transition={{ duration: 0.2, ease: "linear" }}
         className="footer w-fit p-4 hover:cursor-pointer flex font-extrabold text-xl justify-center items-center fixed bottom-4 bg-[#032d66] text-[#eb6614] rounded-full"
       >
         Profile
       </motion.div>
-      {/* Footer : Me & Logout
-          <div className=" footer text-xl px-4 bg-[#032d66] text-[#eb6614] flex justify-between w-full items-center absolute bottom-0 p-1.5">
-            <span className="left flex justify-center items-center">
-              <span>Hazoro</span>
-            </span>
-            <span className="center underline underline-offset-1 cursor-pointer hover:animate-pulse">
-              Logout
-            </span>
-            <span className="right flex justify-center items-center">
-              
-              <span
-                onClick={() => open("https://github.com/hazorox", "_blank")}
-                className="hover:underline cursor-pointer flex items-center"
-              >
-                <img
-                  onClick={() => open("https://github.com/hazorox", "_blank")}
-                  src="https://avatars.githubusercontent.com/u/126866424"
-                  className="h-10 hover:border hover:border-gray-100 cursor-pointer  mx-2 rounded-full object-cover inline"
-                />
-                Hazoro</span>
-            </span>
-          </div> */}
     </AnimatePresence>
   );
 };

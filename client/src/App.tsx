@@ -13,7 +13,7 @@ function App() {
         <Route path = "/immerse/" element={<Immerse /> }/>
         <Route path = "/battle/:id" element={<Battle /> }/>
         <Route path = "/profile/:id" element={<UserProfile /> }/>
-        <Route path = "/profile/:id" element={<Recents /> }/>
+        <Route path = "/recents/" element={<Recents /> }/>
       </Routes>
     </Router>
   )
