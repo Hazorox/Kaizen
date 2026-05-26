@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { glowColors } from "../constants";
 import Nav from "../components/Nav";
 import { useState } from "react";
+import { nav } from "motion/react-client";
 
 const Recents = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,7 +52,7 @@ const Recents = () => {
         hour: "18:45:30",
       },
     ],
-    
+
     "2026-5-23": [
       {
         word: "遊ぶ",
@@ -85,7 +86,7 @@ const Recents = () => {
           initial={{ opacity: 0, scale: 0.01 }}
           transition={{ duration: 0.8, ease: "anticipate" }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-[70%] mt-12 flex flex-col gap-4 border-4 items-center h-[80%] p-12 bg-[#4ecdc4] rounded-xl"
+          className="w-[70%] relative mt-12 flex flex-col gap-4 border-4 items-center h-[80%] p-12 bg-[#4ecdc4] rounded-xl"
         >
           <motion.div
             layout
@@ -210,10 +211,24 @@ const Recents = () => {
                     <motion.div layout className="flex flex-col gap-1">
                       {wordRows.map(
                         ({ word, meaning, reading, source, hour }) => {
+                          const styles =
+                            source == "Anki"
+                              ? filterStyles.anki
+                              : source == "Immersion"
+                                ? filterStyles.immersion
+                                : source == "Kanji"
+                                  ? filterStyles.kanji
+                                  : filterStyles.matches;
                           if (filter != source.toLowerCase() && filter != "all")
                             return;
                           return (
                             <motion.div
+                              onClick={() => {
+                                window.open(
+                                  `https://jisho.org/search/${word}`,
+                                  "_blank",
+                                );
+                              }}
                               layout
                               className="flex border-b-2 py-3 justify-between px-8"
                             >
@@ -228,11 +243,16 @@ const Recents = () => {
                                   {meaning[0].toUpperCase() + meaning.slice(1)}
                                 </span>
                               </span>
-                              <span className="flex text-center justify-around gap-12 items-center">
-                                <span className="w-24 text-center">
+                              <span className="flex items-center gap-8">
+                                <span
+                                  className={
+                                    styles +
+                                    " border-2 rounded-full w-28 py-1 text-center font-bold block"
+                                  }
+                                >
                                   {source}
                                 </span>
-                                <span>{hour}</span>
+                                <span className="w-16 text-right">{hour}</span>
                               </span>
                             </motion.div>
                           );
@@ -244,6 +264,12 @@ const Recents = () => {
               );
             })}
           </motion.div>
+          <motion.span layout className="absolute bottom-1">
+            Psst, click on a row to check definiton on{" "}
+            <a className="underline text-blue-900" href="https://jisho.org" target="_blank">
+              Jisho
+            </a>
+          </motion.span>
         </motion.div>
       </div>
     </AnimatePresence>
