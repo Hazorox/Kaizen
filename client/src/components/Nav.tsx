@@ -6,7 +6,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { motion } from "motion/react";
-const Nav = () => {
+const Nav = ({ showImmerse=true, showBattle=true }:{showImmerse:boolean,showBattle:boolean}) => {
   const streak = 3;
   const nav = useNavigate();
 
@@ -34,23 +34,27 @@ const Nav = () => {
         whileHover={{ color: "#fffbe6", opacity: 0.9 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
         className="absolute cursor-pointer left-1/2 -translate-x-1/2"
-        onClick={()=>{nav("/")}}
+        onClick={() => {
+          nav("/");
+        }}
       >
         改善 • Kaizen
       </motion.span>
       <span className="flex-1 flex items-center gap-4 mr-2 justify-end">
-        <motion.span
-          initial={{ color: "#1a1a2e" }}
-          whileHover={{ color: "#fffbe6", opacity: 0.9 }}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
-          className="cursor-pointer"
-          onClick={() => {
-            nav("/immerse");
-          }}
-        >
-          <LuPickaxe className="inline bottom-1 relative" /> Immerse
-        </motion.span>
-        <span className="border h-10 mx-2 w-0.75 rounded-4xl bg-[#1a1a2e]"></span>
+        {showImmerse && (
+          <motion.span
+            initial={{ color: "#1a1a2e" }}
+            whileHover={{ color: "#fffbe6", opacity: 0.9 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="cursor-pointer"
+            onClick={() => {
+              nav("/immerse");
+            }}
+          >
+            <LuPickaxe className="inline bottom-1 relative" /> Immerse
+          </motion.span>
+        )}
+        {showImmerse && showBattle && <span className="border h-10 mx-2 w-0.75 rounded-4xl bg-[#1a1a2e]"></span>}
         <motion.span
           initial={{ color: "#1a1a2e" }}
           whileHover={{ color: "#fffbe6", opacity: 0.9 }}

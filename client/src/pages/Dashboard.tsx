@@ -71,6 +71,7 @@ const Dashboard = () => {
               transition={{ duration: 0.1, ease: "easeInOut" }}
               initial={{ x: 0, opacity: "60%" }}
               className="cursor-pointer"
+              onClick={()=>{nav("/recents")}}
             >
               もっと最近の言葉 <FaArrowRight className="inline -mt-1" />{" "}
             </motion.span>
