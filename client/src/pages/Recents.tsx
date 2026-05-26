@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import { glowColors } from "../constants";
 import Nav from "../components/Nav";
 import { useState } from "react";
-import { nav } from "motion/react-client";
 
 const Recents = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,22 +19,6 @@ const Recents = () => {
     return wordRows.some(({ source }) => source.toLowerCase() === filter);
   };
   const recents = {
-    "2026-5-24": [
-      {
-        word: "犬",
-        reading: "いぬ",
-        meaning: "dog",
-        source: "Anki",
-        hour: "12:00:01",
-      },
-      {
-        word: "本",
-        reading: "ほん",
-        meaning: "book",
-        source: "Matches",
-        hour: "16:40:55",
-      },
-    ],
     "2026-5-25": [
       {
         word: "読む",
@@ -52,7 +35,22 @@ const Recents = () => {
         hour: "18:45:30",
       },
     ],
-
+    "2026-5-24": [
+      {
+        word: "犬",
+        reading: "いぬ",
+        meaning: "dog",
+        source: "Anki",
+        hour: "12:00:01",
+      },
+      {
+        word: "本",
+        reading: "ほん",
+        meaning: "book",
+        source: "Matches",
+        hour: "16:40:55",
+      },
+    ],
     "2026-5-23": [
       {
         word: "遊ぶ",
@@ -266,7 +264,11 @@ const Recents = () => {
           </motion.div>
           <motion.span layout className="absolute bottom-1">
             Psst, click on a row to check definiton on{" "}
-            <a className="underline text-blue-900" href="https://jisho.org" target="_blank">
+            <a
+              className="underline text-blue-900"
+              href="https://jisho.org"
+              target="_blank"
+            >
               Jisho
             </a>
           </motion.span>
