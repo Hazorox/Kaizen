@@ -3,16 +3,11 @@ import { useSearchParams } from "react-router-dom";
 import { glowColors } from "../constants";
 import Nav from "../components/Nav";
 import { useState } from "react";
-
+import {colors} from "../constants"
 const Recents = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const filter = searchParams.get("type") ?? "all";
-  const filterStyles = {
-    anki: "bg-[#ff9a3c] !border-[#e06500]",
-    immersion: "bg-[#c9b1ff] !border-[#7c3aed]",
-    kanji: "bg-[#4fb3e8] !border-[#0099d4]",
-    matches: "bg-[#ffe066] !border-[#ffcb00]",
-  };
+  const filterStyles = colors
   const open = useState(false);
   const filterKey = (wordRows: { source: string }[]) => {
     if (filter === "all") return true;

@@ -38,7 +38,7 @@ const Nav = () => {
       >
         改善 • Kaizen
       </motion.span>
-      <span className="flex-1 flex items-center mr-2 justify-end">
+      <span className="flex-1 flex items-center gap-4 mr-2 justify-end">
         <motion.span
           initial={{ color: "#1a1a2e" }}
           whileHover={{ color: "#fffbe6", opacity: 0.9 }}

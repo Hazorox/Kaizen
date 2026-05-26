@@ -6,7 +6,9 @@ import WordRow from "../components/WordRow";
 import { FaArrowRight } from "react-icons/fa";
 import { AnimatePresence, motion } from "motion/react";
 import Nav from "../components/Nav"
+import { useNavigate } from "react-router-dom";
 const Dashboard = () => {
+  const nav = useNavigate()
   const time = new Date().getHours();
   const username = "Hazoro";
   const ankiCards = 1;
@@ -107,6 +109,7 @@ const Dashboard = () => {
         </div>
       </motion.div>
       <motion.div
+      onClick={()=>{nav("/profile/")}}
         initial={{ y: 80 }}
         animate={{ y: 0 }}
         whileHover={{ scale: 1.15, boxShadow: "0 0 0 2px rgba(0,0,0,0.9)" }}
