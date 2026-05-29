@@ -6,7 +6,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { motion } from "motion/react";
-const Nav = ({ showImmerse=true, showBattle=true }:{showImmerse:boolean,showBattle:boolean}) => {
+const Nav = ({ showImmerse=true, showBattle=true }:{showImmerse?:boolean,showBattle?:boolean}) => {
   const streak = 3;
   const nav = useNavigate();
 
