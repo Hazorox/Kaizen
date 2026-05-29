@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import Nav from "../components/Nav";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PiFilePdfDuotone, PiFileVideoFill } from "react-icons/pi";
 import { FaArrowCircleRight, FaYoutube } from "react-icons/fa";
 // import useParser, { type Cue } from "../hooks/useParser";
@@ -26,6 +26,27 @@ const Immerse = () => {
     : fileType == "video"
       ? "w-[90%] h-[90%] mt-16"
       : "w-[90%] h-[90%] mt-16";
+  const subBarRef = useRef<HTMLDivElement>(null);
+  const activeCueIDRef = useRef<string>("");
+  useEffect(() => {
+    const activeIndex = data.entries.findIndex(
+      (cue) => time >= cue.from / 1000 && time <= cue.to / 1000,
+    );
+
+    if (activeIndex === -1 || activeIndex === Number(activeCueIDRef.current))
+      return;
+
+    activeCueIDRef.current = String(activeIndex);
+
+    requestAnimationFrame(() => {
+      subBarRef.current
+        ?.querySelector(`[data-cue-id="${activeIndex}"]`)
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+    });
+  }, [time, data.entries]);
   return (
     <AnimatePresence>
       <div className="w-full h-full bg-[#fffbe6] flex justify-center items-center">
@@ -127,7 +148,7 @@ const Immerse = () => {
                   <PiFileVideoFill size={64} />
                   <span className="font-bold">Upload Video + Subtitles</span>
                   <span className="opacity-90 text-center">
-                    Upload a video with a supported subtitles file
+                    Upload a video with a supported subtitles file<br/>{"(.vtt is recommended)"}
                   </span>
                 </motion.div>
               </div>
@@ -185,28 +206,35 @@ const Immerse = () => {
                   />
                 </video>
               </motion.div>
-              <motion.div className="w-[30%] border-l-4 overflow-y-scroll scrollable flex flex-col bg-[#fffbe6]/50">
-                {data.entries.map((cue) => {
+              <motion.div
+                ref={subBarRef}
+                className="w-[30%] border-l-4 overflow-y-scroll scrollable flex flex-col bg-[#fffbe6]/50"
+              >
+                {data.entries.map((cue, index) => {
                   const focused =
                     time < cue.to / 1000 && time > cue.from / 1000;
                   return (
                     <motion.span
-                      key={cue.id}
+                      key={index}
+                      data-cue-id={index}
                       layout
                       className="w-full pt-4 relative block"
                     >
                       <motion.span
-                      
+                        key={index + " text"}
                         animate={{
-                          fontSize: focused ? "40px" : "30px",
-                          opacity: focused ? 1 : 0.6,
+                          fontSize: focused ? "36px" : "30px",
+                          opacity: focused ? 1 : 0.55,
                         }}
                         transition={{ duration: 0.2 }}
                         className="pl-4 block"
                       >
                         {cue.text}
                       </motion.span>
-                      <motion.div className="h-1.5 mt-4 bg-black/70 w-full" />
+                      <motion.div
+                        key={index + " divider"}
+                        className="h-1.5 mt-4 bg-black/70 w-full"
+                      />
                     </motion.span>
                   );
                 })}
