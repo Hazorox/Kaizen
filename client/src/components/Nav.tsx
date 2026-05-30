@@ -12,12 +12,14 @@ const Nav = ({ showImmerse=true, showBattle=true }:{showImmerse?:boolean,showBat
 
   return (
     <motion.div
+    key={"navDiv"}
       initial={{ y: -40, opacity: 0.1 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: "linear" }}
       className="nav h-16  items-center justify-around bg-[#ff6b6b] mt-2 mx-2 w-[94%] rounded-3xl absolute p-2 text-3xl top-0 flex"
     >
       <motion.span
+      key={"streak"}
         initial={{ color: "#1a1a2e" }}
         whileHover={{ color: "#fffbe6", opacity: 0.9 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
@@ -30,6 +32,7 @@ const Nav = ({ showImmerse=true, showBattle=true }:{showImmerse?:boolean,showBat
         {streak}
       </motion.span>
       <motion.span
+      key={"title"}
         initial={{ color: "#1a1a2e" }}
         whileHover={{ color: "#fffbe6", opacity: 0.9 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
