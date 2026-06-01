@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
+import axios from "axios";
 import Nav from "../components/Nav";
 import { useEffect, useRef, useState } from "react";
 import { PiFilePdfDuotone, PiFileVideoFill } from "react-icons/pi";
@@ -11,6 +12,7 @@ import {
 } from "react-icons/tb";
 
 const Immerse = () => {
+  const ytVidRef = useRef<HTMLInputElement>(null);
   const [vidSrc, setVidSrc] = useState<string>("");
   const [navCollapsed, setNavCollapsed] = useState<boolean>(false);
   const [vttSrc, setVttSrc] = useState<string>("");
@@ -199,7 +201,7 @@ const Immerse = () => {
                     <FaYoutube size={36} />
                   </motion.span>
                   <motion.input
-                    initial={{}}
+                    ref={ytVidRef}
                     type="url"
                     className="h-full flex-1 select-text bg-transparent text-[#fffbe6] rounded-full px-14 placeholder:text-[#fffbe6]/60 outline-none"
                     placeholder="YouTube Video Link"
@@ -211,7 +213,20 @@ const Immerse = () => {
                     initial={{ x: 0, opacity: "60%" }}
                     className="rounded-full w-16 cursor-pointer h-16 bg-transparent flex absolute right-0 items-center justify-center"
                   >
-                    <FaArrowCircleRight className="text-[#fffbe6]" size={36} />
+                    <FaArrowCircleRight
+                      onClick={async (e) => {
+                        try {
+                          const res = await axios.get(
+                            `/api/transcript/${ytVidRef.current?.value}`,
+                          );
+                          console.log(res.data);
+                        } catch (err) {
+                          console.error(`Error Encountered ! : \n${err}`);
+                        }
+                      }}
+                      className="text-[#fffbe6]"
+                      size={36}
+                    />
                   </motion.span>
                 </span>
               </motion.div>

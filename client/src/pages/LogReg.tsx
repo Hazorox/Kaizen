@@ -110,7 +110,7 @@ const LogReg = ({ loginInit }: { loginInit: boolean }) => {
                   </span>
                 </div>
                 <div className="relative w-[70%] justify-center items-center">
-                  <MdMail
+                  <FaUserCircle
                     size={20}
                     className="absolute left-3 top-1/2 -translate-y-1/2 opacity-80"
                   />
@@ -119,36 +119,13 @@ const LogReg = ({ loginInit }: { loginInit: boolean }) => {
                       boxShadow: "0 0 0 3px rgba(0,0,0, 0.2)",
                       borderColor: "#FF9A3C",
                     }}
-                    transition={{ duration: 0.1, ease: "linear" }}
-                    type="email"
+                    type="text"
                     className="px-2 pl-10 w-full border-2 h-12 rounded-md"
-                    placeholder="E-Mail Address"
+                    placeholder="Username"
                   />
                 </div>
 
-                {!login && (
-                  <motion.div
-                    initial={{ scale: 0.01 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0.01 }}
-                    transition={{ duration: 0.25, ease: "easeInOut" }}
-                    className="relative w-[70%] justify-center items-center"
-                  >
-                    <FaUserCircle
-                      size={20}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 opacity-80"
-                    />
-                    <motion.input
-                    whileFocus={{
-                      boxShadow: "0 0 0 3px rgba(0,0,0, 0.2)",
-                      borderColor: "#FF9A3C",
-                    }}
-                      type="text"
-                      className="px-2 pl-10 w-full border-2 h-12 rounded-md"
-                      placeholder="Username"
-                    />
-                  </motion.div>
-                )}
+                
                 <div className="relative w-[70%] justify-center items-center">
                   <MdVpnKey
                     size={20}
@@ -203,9 +180,9 @@ const LogReg = ({ loginInit }: { loginInit: boolean }) => {
                     />
                     <motion.input
                       whileFocus={{
-                      boxShadow: "0 0 0 3px rgba(0,0,0, 0.2)",
-                      borderColor: "#FF9A3C",
-                    }}
+                        boxShadow: "0 0 0 3px rgba(0,0,0, 0.2)",
+                        borderColor: "#FF9A3C",
+                      }}
                       type={showRepeated ? "text" : "password"}
                       value={repeatedPass}
                       onChange={(e) => setRepeatedPassInput(e.target.value)}
