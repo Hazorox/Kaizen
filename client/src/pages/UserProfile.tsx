@@ -4,6 +4,7 @@ import Nav from "../components/Nav";
 import { FaEdit } from "react-icons/fa";
 import { colors } from "../constants";
 import { LuPickaxe, LuSwords } from "react-icons/lu";
+import Guide from "../components/Guide";
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -15,6 +16,8 @@ const UserProfile = () => {
   return (
     <AnimatePresence>
       <div className="w-full select-none h-full relative bg-[#fffbe6] justify-center items-center flex">
+        <Guide />
+
         <Nav />
         <motion.div
           layout

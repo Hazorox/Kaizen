@@ -5,12 +5,17 @@ import { PiFilePdfDuotone, PiFileVideoFill } from "react-icons/pi";
 import { FaArrowCircleRight, FaYoutube } from "react-icons/fa";
 // import useParser, { type Cue } from "../hooks/useParser";
 import { parse } from "@plussub/srt-vtt-parser";
+import {
+  TbLayoutBottombarCollapseFilled,
+  TbLayoutNavbarCollapseFilled,
+} from "react-icons/tb";
+
 const Immerse = () => {
   const [vidSrc, setVidSrc] = useState<string>("");
+  const [navCollapsed, setNavCollapsed] = useState<boolean>(false);
   const [vttSrc, setVttSrc] = useState<string>("");
-  const [pdfSrc, setPdfSrc] = useState<string>("");
-
   const [vttContent, setVttContent] = useState<string>("");
+  const [pdfURL, setPdfURL] = useState("");
   const data = parse(vttContent);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const vttInputRef = useRef<HTMLInputElement>(null);
@@ -19,13 +24,11 @@ const Immerse = () => {
   const [time, setTime] = useState<number>(0);
   // Hard coded conditons
   const [preUpload, setPreUpload] = useState(true);
-  const fileType: "pdf" | "video" = "video";
+  const [fileType, setFileType] = useState<"pdf" | "video" | "">("");
   // Dimensions for each condition
   const dimensions = preUpload
     ? "w-[50%] h-[60%]"
-    : fileType == "video"
-      ? "w-[90%] h-[90%] mt-16"
-      : "w-[90%] h-[90%] mt-16";
+    : `w-[90%] ${navCollapsed ? "h-[98%]" : "h-[90%] mt-16"}`;
   const subBarRef = useRef<HTMLDivElement>(null);
   const activeCueIDRef = useRef<string>("");
   useEffect(() => {
@@ -47,9 +50,33 @@ const Immerse = () => {
         });
     });
   }, [time, data.entries]);
+
   return (
     <AnimatePresence>
-      <div className="w-full h-full bg-[#fffbe6] flex justify-center items-center">
+      <div
+        className={`w-full h-full relative items-center overflow-hidden bg-[#fffbe6] flex justify-center`}
+      >
+        <motion.div
+          layout
+          onClick={() => {
+            setNavCollapsed((prev) => !prev);
+          }}
+          className={`${preUpload ? "hidden " : ""}absolute right-1.5 bottom-1 bg-[#1a1a2e] p-2 cursor-pointer rounded-full`}
+          whileHover={{ scale: 1.15, y: -20 }}
+          whileTap={{ scale: 1.25 }}
+        >
+          {navCollapsed ? (
+            <TbLayoutBottombarCollapseFilled
+              size={48}
+              className="text-[#fffbe6]"
+            />
+          ) : (
+            <TbLayoutNavbarCollapseFilled
+              size={48}
+              className="text-[#fffbe6]"
+            />
+          )}
+        </motion.div>
         <input
           key="vid"
           ref={videoInputRef}
@@ -59,15 +86,10 @@ const Immerse = () => {
           id="vid"
           onChange={(e) => {
             const file = e.target.files?.[0];
-            console.log("1. video file picked:", file?.name, file?.size);
             if (!file) return;
             const url = URL.createObjectURL(file);
-            console.log("2. video url:", url);
             setVidSrc(url);
-            setTimeout(() => {
-              console.log("3. clicking vtt input");
-              vttInputRef.current?.click();
-            }, 400);
+            vttInputRef.current?.click();
           }}
         />
         <input
@@ -86,17 +108,33 @@ const Immerse = () => {
               setVttContent(content);
               const url = URL.createObjectURL(file);
               setVttSrc(url);
+              setFileType("video");
               setPreUpload(false);
             };
             reader.readAsText(file);
           }}
         />
-        <Nav showImmerse={false} />
+        <input
+          ref={pdfInputRef}
+          id={"pdf"}
+          type="file"
+          key={"pdfUpload"}
+          accept=".pdf,.txt"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            setPdfURL(URL.createObjectURL(file));
+            setFileType("pdf");
+            setPreUpload(false);
+          }}
+        />
+        <Nav shown={!navCollapsed} showImmerse={false} />
         <motion.div
           layout
           className={
             dimensions +
-            " flex-col gap-16 rounded-3xl flex justify-around border-4 items-center bg-[#4ecdc4] overflow-hidden"
+            ` flex-col gap-16 rounded-3xl flex justify-around border-4 items-center bg-[#4ecdc4] overflow-hidden`
           }
         >
           {/* Upload */}
@@ -107,6 +145,9 @@ const Immerse = () => {
               </motion.div>
               <div className="flex select-none justify-center gap-16 w-full">
                 <motion.div
+                  onClick={() => {
+                    pdfInputRef.current?.click();
+                  }}
                   initial={{ scale: 1 }}
                   whileHover={{
                     scale: 1.2,
@@ -116,16 +157,6 @@ const Immerse = () => {
                   whileTap={{ scale: 1.25 }}
                   className="flex bg-[#fffbe6] relative px-2 py-4 border-4 cursor-pointer rounded-3xl w-[30%] flex-col gap-2 justify-around items-center"
                 >
-                  <input
-                    ref={pdfInputRef}
-                    type="file"
-                    accept=".pdf,.txt"
-                    className="opacity-0 z-100 cursor-pointer w-full h-full absolute left-0"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) setPdfSrc(URL.createObjectURL(file));
-                    }}
-                  />
                   <PiFilePdfDuotone size={64} />
                   <span className="font-bold">Upload PDF</span>
                   <span className="opacity-90 text-center">
@@ -148,7 +179,9 @@ const Immerse = () => {
                   <PiFileVideoFill size={64} />
                   <span className="font-bold">Upload Video + Subtitles</span>
                   <span className="opacity-90 text-center">
-                    Upload a video with a supported subtitles file<br/>{"(.vtt is recommended)"}
+                    Upload a video with a supported subtitles file
+                    <br />
+                    {"(.vtt is recommended)"}
                   </span>
                 </motion.div>
               </div>
@@ -239,6 +272,20 @@ const Immerse = () => {
                   );
                 })}
               </motion.div>
+            </motion.div>
+          )}
+          {!preUpload && fileType == "pdf" && (
+            <motion.div className="w-full h-full flex scrollable">
+              <div className="w-full h-full flex">
+                <object
+                  data={pdfURL}
+                  type="application/pdf"
+                  className="w-[70%] h-full"
+                />
+                <div className="w-[30%] h-full border-l-2 bg-[#fffbe6]/50 flex flex-col">
+                  {/* definition panel */}
+                </div>
+              </div>
             </motion.div>
           )}
         </motion.div>
