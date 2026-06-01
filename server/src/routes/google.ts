@@ -28,7 +28,7 @@ router.get('/google/callback',
   passport.authenticate('google', { session: false }),
   (req, res) => {
     const user = req.user as any
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET ?? 'secret', { expiresIn: '7d' })
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET ?? 'secret', { expiresIn: '14d' })
     // redirect to frontend with token
     res.redirect(`http://localhost:5173/auth/callback?token=${token}`)
   }

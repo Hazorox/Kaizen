@@ -10,17 +10,20 @@ import passport from "passport"
 const app = express();
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
+app.use(session({ secret: process.env.JWT_SECRET ?? 'secret', resave: true, saveUninitialized: true }))
+app.use(passport.initialize())
+app.use(passport.session())
+app.use("/api/auth",authRoutes)
+app.use('/api/auth', googleRoutes)
 
 app.get("/", (req, res) => {
   res.json("Kaizen is Running :D");
 });
-app.use("/api/auth",authRoutes)
 app.get("/api/transcript/:videoId", async (req, res) => {
   const id = req.params.videoId;
   const sub = await getYtSub(id);
   res.json(sub);
 });
-app.use("/api/auth",authRoutes)
 mongoose
   .connect(process.env.MONGO_URI ?? "")
   .then(() => {
@@ -29,11 +32,10 @@ mongoose
   .catch((err) => {
     console.error(`Error while connecting to Database : \n${err}`);
   });
+  
+  app.listen(process.env.PORT, () => {
+    "Kaizen Running on port 9898";
+  });
 
-app.listen(process.env.PORT, () => {
-  "Kaizen Running on port 9898";
-});
-app.use(session({ secret: process.env.JWT_SECRET ?? 'secret', resave: false, saveUninitialized: false }))
-app.use(passport.initialize())
-app.use(passport.session())
-app.use('/api/auth', googleRoutes)
+
+ 
