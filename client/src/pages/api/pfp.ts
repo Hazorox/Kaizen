@@ -9,8 +9,6 @@ export const updatePFP = async (blob: Blob) => {
     form.append("username", username);
     form.append("file", blob);
     const res = await API.put("/updatePFP", form);
-    console.log(res);
-    console.log("Upload Successful");
     return res.data;
   }
 };

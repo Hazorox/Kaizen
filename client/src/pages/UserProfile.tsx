@@ -25,7 +25,6 @@ const UserProfile = () => {
   useEffect(() => {
   getPFP(username).then(setUserPic);
 }, [username]);
-console.log(`USERNAME : ${username}\nUSERPIC : ${userPic}`);
 const ankiConnected = false;
   const ankiClickable = ankiConnected ? "" : "cursor-pointer ";
 

@@ -38,7 +38,7 @@ app.get("/api/transcript/:videoId", async (req, res) => {
 mongoose
   .connect(process.env.MONGO_URI ?? "")
   .then(() => {
-    console.log("Connected to Mongoose !");
+    console.log("Connected to MongoDB !");
     app.listen(process.env.PORT, () => {
       console.log("Server Running");
     });

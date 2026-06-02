@@ -1,38 +1,48 @@
 import { AnimatePresence, motion } from "motion/react";
-import axios from "axios";
 import Nav from "../components/Nav";
 import { useEffect, useRef, useState } from "react";
 import { PiFilePdfDuotone, PiFileVideoFill } from "react-icons/pi";
 import { FaArrowCircleRight, FaYoutube } from "react-icons/fa";
-// import useParser, { type Cue } from "../hooks/useParser";
+import YouTube from "react-youtube";
 import { parse } from "@plussub/srt-vtt-parser";
 import {
   TbLayoutBottombarCollapseFilled,
   TbLayoutNavbarCollapseFilled,
 } from "react-icons/tb";
+import { getSub } from "./api/ytSub";
 
 const Immerse = () => {
-  const ytVidRef = useRef<HTMLInputElement>(null);
+  // STATES
   const [vidSrc, setVidSrc] = useState<string>("");
   const [navCollapsed, setNavCollapsed] = useState<boolean>(false);
   const [vttSrc, setVttSrc] = useState<string>("");
   const [vttContent, setVttContent] = useState<string>("");
   const [pdfURL, setPdfURL] = useState("");
-  const data = parse(vttContent);
+  const [ytSub, setYtSub] = useState([]);
+  const [time, setTime] = useState<number>(0);
+  const [preUpload, setPreUpload] = useState(true);
+  const [fileType, setFileType] = useState<"pdf" | "video" | "YT" | "">("");
+  const [ytInput, setYtInput] = useState("");
+
+  // REFS
+  const ytPlayerRef = useRef<any>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const vttInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const vidRef = useRef<HTMLVideoElement>(null);
-  const [time, setTime] = useState<number>(0);
-  // Hard coded conditons
-  const [preUpload, setPreUpload] = useState(true);
-  const [fileType, setFileType] = useState<"pdf" | "video" | "">("");
+  const subBarRef = useRef<HTMLDivElement>(null);
+  const activeCueIDRef = useRef<string>("");
+
+  // NORMAL
+  const data = parse(vttContent);
+
   // Dimensions for each condition
   const dimensions = preUpload
     ? "w-[50%] h-[60%]"
     : `w-[90%] ${navCollapsed ? "h-[98%]" : "h-[90%] mt-16"}`;
-  const subBarRef = useRef<HTMLDivElement>(null);
-  const activeCueIDRef = useRef<string>("");
+
+  // UseEffects for the subs syncing
+  // Manual File Upload
   useEffect(() => {
     const activeIndex = data.entries.findIndex(
       (cue) => time >= cue.from / 1000 && time <= cue.to / 1000,
@@ -53,6 +63,41 @@ const Immerse = () => {
     });
   }, [time, data.entries]);
 
+  // YouTube
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (typeof ytPlayerRef.current?.getCurrentTime === "function") {
+        const t = ytPlayerRef.current.getCurrentTime();
+        if (t !== undefined) setTime(t);
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // YouTube Synced Auto-Scroll
+  // Uhhh just copied it from above, with some edits ;)
+  useEffect(() => {
+    const activeIndex = ytSub.findIndex(
+      (cue: any) =>
+        time >= cue.offset / 1000 &&
+        time <= (cue.duration / 1000 + cue.offset / 1000),
+        );
+    console.log(activeIndex)
+    if (activeIndex === -1 || activeIndex === Number(activeCueIDRef.current))
+      return;
+
+    activeCueIDRef.current = String(activeIndex);
+
+    requestAnimationFrame(() => {
+      subBarRef.current
+        ?.querySelector(`[data-cue-id="${activeIndex}"]`)
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+    });
+  }, [time, ytSub]);
+  // Page
   return (
     <AnimatePresence>
       <div
@@ -189,7 +234,7 @@ const Immerse = () => {
               </div>
               <motion.div className="flex select-none gap-4 flex-col justify-center items-center w-full">
                 <span className="opacity-70 text-xl font-bold">
-                  Or Upload YouTube Video Link
+                  Or Upload YouTube Video ID
                 </span>
                 <span className="relative bg-[#1a1a2e]/80 h-16 w-[60%] flex items-center px-4 mb-4 rounded-full">
                   <motion.span
@@ -201,32 +246,35 @@ const Immerse = () => {
                     <FaYoutube size={36} />
                   </motion.span>
                   <motion.input
-                    ref={ytVidRef}
-                    type="url"
+                    onChange={(e) => {
+                      setYtInput(e.target.value);
+                    }}
+                    type="id"
                     className="h-full flex-1 select-text bg-transparent text-[#fffbe6] rounded-full px-14 placeholder:text-[#fffbe6]/60 outline-none"
                     placeholder="YouTube Video Link"
                   />
                   <motion.span
+                    onClick={async () => {
+                      try {
+                        if (!ytInput) return;
+                        setYtSub(
+                          (await getSub(ytInput)).filter(
+                            (cue: any) => cue.lang === "ja",
+                          ),
+                        );
+                        setPreUpload(false);
+                        setFileType("YT");
+                      } catch (error) {
+                        console.error(`An Error Occured\n${error}`);
+                      }
+                    }}
                     whileTap={{ x: 10 }}
                     whileHover={{ opacity: "100%" }}
                     transition={{ duration: 0.1, ease: "easeInOut" }}
                     initial={{ x: 0, opacity: "60%" }}
                     className="rounded-full w-16 cursor-pointer h-16 bg-transparent flex absolute right-0 items-center justify-center"
                   >
-                    <FaArrowCircleRight
-                      onClick={async (e) => {
-                        try {
-                          const res = await axios.get(
-                            `/api/transcript/${ytVidRef.current?.value}`,
-                          );
-                          console.log(res.data);
-                        } catch (err) {
-                          console.error(`Error Encountered ! : \n${err}`);
-                        }
-                      }}
-                      className="text-[#fffbe6]"
-                      size={36}
-                    />
+                    <FaArrowCircleRight className="text-[#fffbe6]" size={36} />
                   </motion.span>
                 </span>
               </motion.div>
@@ -301,6 +349,58 @@ const Immerse = () => {
                   {/* definition panel */}
                 </div>
               </div>
+            </motion.div>
+          )}
+          {!preUpload && fileType == "YT" && (
+            <motion.div className="w-full h-full overflow-hidden flex">
+              <motion.div className="w-[70%] h-full">
+                <YouTube
+                  onReady={(e) => {
+                    ytPlayerRef.current = e.target;
+                  }}
+                  videoId={ytInput}
+                  ref={ytPlayerRef}
+                  className="w-full h-full"
+                  opts={{ width: "100%", height: "100%" }}
+                />
+              </motion.div>
+              <motion.div
+                layout
+                ref={subBarRef}
+                className="w-[30%] border-l-4 overflow-y-scroll overflow-x-hidden scrollable flex flex-col bg-[#fffbe6]/50"
+              >
+                {ytSub.length == 0 &&
+                  "No Japanese Subtitles Available for This Video"}
+                {ytSub.map((cue: any, index) => {
+                  const start = cue.offset / 1000;
+                  const end = start + cue.duration / 1000;
+                  const focused = time < end && time > start;
+                  return (
+                    <motion.span
+                      key={index}
+                      data-cue-id={index}
+                      layout
+                      className="w-full pt-4 relative block"
+                    >
+                      <motion.span
+                        key={index + " text"}
+                        animate={{
+                          fontSize: focused ? "36px" : "30px",
+                          opacity: focused ? 1 : 0.55,
+                        }}
+                        transition={{ duration: 0.2 }}
+                        className="pl-4 block"
+                      >
+                        {cue.text}
+                      </motion.span>
+                      <motion.div
+                        key={index + " divider"}
+                        className="h-1.5 mt-4 bg-black/70 w-full"
+                      />
+                    </motion.span>
+                  );
+                })}
+              </motion.div>
             </motion.div>
           )}
         </motion.div>
