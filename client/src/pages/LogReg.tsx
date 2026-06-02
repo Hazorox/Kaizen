@@ -13,7 +13,7 @@ import { saveToken } from "./utils/token";
 import { useNavigate } from "react-router-dom";
 const LogReg = () => {
   const nav = useNavigate();
-  const [loginState, setLoginState] = useState(false);
+  const [loginState, setLoginState] = useState(true);
   const [repeatedPass, setRepeatedPassInput] = useState("");
   const [showRepeated, setShowRepeated] = useState(false);
   const [show, setShow] = useState(true);
@@ -26,10 +26,15 @@ const LogReg = () => {
         : await register(username, passInput);
       saveToken(data.token);
       nav("/");
-    } catch (err) {
-      console.error(err.response?.data?.error ?? "Something went wrong");
+    } catch (error) {
+      let errorMessage = "Something went wrong during authentication";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      console.log(errorMessage);
     }
   };
+
   return (
     // LOGIN / Register
     <AnimatePresence>

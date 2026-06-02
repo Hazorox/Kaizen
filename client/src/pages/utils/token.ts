@@ -7,7 +7,8 @@ export const isLoggedIn = () => {
   const token = getToken();
   if (!token) return false;
   try {
-    const decoded = jwtDecode<{ exp: number }>(token);
+    const decoded = jwtDecode<{ exp: number}>(token);
+    console.log(decoded)
     return decoded.exp * 1000 > Date.now();
   } catch {
     return false;

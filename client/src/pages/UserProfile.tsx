@@ -1,24 +1,54 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Nav from "../components/Nav";
 import { FaEdit } from "react-icons/fa";
 import { colors } from "../constants";
 import { LuPickaxe, LuSwords } from "react-icons/lu";
 import Guide from "../components/Guide";
+import { delAcc } from "./api/auth";
+import { getPFP, updatePFP } from "./api/pfp";
+import { useEffect, useRef, useState } from "react";
+import { getUsername } from "./utils/getUsername";
 
 const UserProfile = () => {
+  const pfpRef = useRef<HTMLInputElement>(null);
+  const nav = useNavigate();
   const { id } = useParams();
-  console.log(id);
-  const userPic = "/hazoro.png";
-  const username = "Hazoro";
+  let username;
+  if (!id) {
+    username = getUsername();
+  } else {
+    username = id;
+  }
+  const [userPic, setUserPic] = useState("");
+
+  useEffect(() => {
+    getPFP(username).then(setUserPic);
+    
+  }, [username]);
+  console.log(`USERNAME : ${username}\nUSERPIC : ${userPic}`);
   const ankiConnected = false;
   const ankiClickable = ankiConnected ? "" : "cursor-pointer ";
+
   return (
     <AnimatePresence>
       <div className="w-full select-none h-full relative bg-[#fffbe6] justify-center items-center flex">
         <Guide />
 
         <Nav />
+        <input
+          type="file"
+          ref={pfpRef}
+          key="pfp"
+          id="pfp"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            await updatePFP(file);
+            window.location.reload()
+          }}
+        />
         <motion.div
           layout
           initial={{ scale: 0.3, opacity: 0 }}
@@ -33,6 +63,9 @@ const UserProfile = () => {
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 0.6 }}
                 transition={{ duration: 0.2, ease: "linear" }}
+                onClick={() => {
+                  pfpRef.current?.click();
+                }}
                 className="cursor-pointer absolute top-0 flex justify-center items-center z-100 rounded-full bg-gray-400 opacity-80 h-48 w-48"
               >
                 <FaEdit size={64} className="relative left-1" />
@@ -94,10 +127,18 @@ const UserProfile = () => {
               whileTap={{ scale: 1.25 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
               className="w-64 bg-[#fffbe6] cursor-pointer text-3xl rounded-full border-2 h-16"
+              onClick={() => {
+                localStorage.removeItem("token");
+                nav("/login");
+              }}
             >
               Logout
             </motion.button>
             <motion.button
+              onClick={() => {
+                delAcc();
+                nav("/login");
+              }}
               initial={{ scale: 1 }}
               whileTap={{ scale: 1.25 }}
               whileHover={{ scale: 1.15 }}
