@@ -4,9 +4,9 @@ import { User } from "../models/User";
 const router = Router();
 
 router.delete("/api/auth/deleteAcc", authMiddleware, async (req, res) => {
-  const requester = (req as any).user
-
-  await User.findOneAndDelete({ requester });
+  const requester = (req as any).user;
+  const username = requester.username;
+  await User.findOneAndDelete({ username });
   res.json({ message: "Account deleted" });
 });
 

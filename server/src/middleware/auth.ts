@@ -10,6 +10,7 @@ export const authMiddleware = (
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET ?? "secret");
     (req as any).user = decoded;
+
     next();
   } catch (err) {
     res.status(400).json({ error: "Invalid Request" });

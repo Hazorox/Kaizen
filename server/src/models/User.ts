@@ -7,8 +7,7 @@ const userModel = new schema({
   pass: { type: String },
   googleId: { type: String, unique: true, sparse: true },
   createdAt: { type: Date, default: Date.now },
-  profilePic:{type:String,default:""},
-  cdnId:{type:String,default:""}
+  profilePic:{type:String,default:""}
 });
 
 export const User = mongoose.model("User", userModel);

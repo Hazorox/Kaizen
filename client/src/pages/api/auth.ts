@@ -12,8 +12,8 @@ export const register = async (username: string, pass: string) => {
 export const delAcc = async () => {
   const token = getToken() ?? "";
   if (!token) return "Invalid Token";
-  localStorage.removeItem("token")
   const res = await API.delete("/auth/deleteAcc");
+  localStorage.removeItem("token")
   
   return res.data;
 };

@@ -5,12 +5,12 @@ import { User } from "../models/User";
 const router = Router();
 const upload = multer();
 
-router.get("/api/pfp/:username", async (req, res) => {
-  const username = req.params.username;
-  const user = await User.findOne({ username });
-  if (!user) return res.status(404).json("User Not Found");
-  return res.status(200).json(user.profilePic);
-});
+router.get("/api/pfp/:username",async (req,res)=>{
+  const username = req.params.username
+  const user = await User.findOne({username})
+  if(!user) return res.status(404).json("User Not Found")
+  return res.status(200).json(user.profilePic)
+})
 
 router.put("/api/updatePFP", upload.single("file"), async (req, res) => {
   try {
@@ -32,7 +32,7 @@ router.put("/api/updatePFP", upload.single("file"), async (req, res) => {
     const data = await result.json();
     await User.updateOne(
       { username: req.body.username },
-      { $set: { profilePic: data.url, cdnId: data.id } },
+      { $set: { profilePic: data.url } },
     );
     res.json(data);
   } catch (error) {

@@ -23,11 +23,10 @@ const UserProfile = () => {
   const [userPic, setUserPic] = useState("");
 
   useEffect(() => {
-    getPFP(username).then(setUserPic);
-    
-  }, [username]);
-  console.log(`USERNAME : ${username}\nUSERPIC : ${userPic}`);
-  const ankiConnected = false;
+  getPFP(username).then(setUserPic);
+}, [username]);
+console.log(`USERNAME : ${username}\nUSERPIC : ${userPic}`);
+const ankiConnected = false;
   const ankiClickable = ankiConnected ? "" : "cursor-pointer ";
 
   return (
@@ -42,11 +41,10 @@ const UserProfile = () => {
           key="pfp"
           id="pfp"
           className="hidden"
-          onChange={async (e) => {
+          onChange={(e) => {
             const file = e.target.files?.[0];
             if (!file) return;
-            await updatePFP(file);
-            window.location.reload()
+            updatePFP(file);
           }}
         />
         <motion.div

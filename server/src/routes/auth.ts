@@ -15,7 +15,7 @@ router.post("/register", async (req, res) => {
       username,
       pass: (await hashed).toString(),
     });
-    const token = jwt.sign({ username: username }, SECRET, {
+    const token = jwt.sign({ username:username }, SECRET, {
       expiresIn: "14d",
     });
     res.json({ token, username });
@@ -32,7 +32,9 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Invalid credentials" });
     const match = await bcrypt.compare(pass, user.pass);
     if (!match) return res.status(400).json({ error: "Invalid credentials" });
-    const token = jwt.sign({ username: username }, SECRET, { expiresIn: "14d" });
+    const token = jwt.sign({ username: username }, SECRET, {
+      expiresIn: "14d",
+    });
     res.json({ token, username: user.username });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
