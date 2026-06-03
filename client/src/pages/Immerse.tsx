@@ -9,12 +9,8 @@ import {
 } from "react-icons/fa";
 import YouTube from "react-youtube";
 import { parse } from "@plussub/srt-vtt-parser";
-import {
-  TbLayoutBottombarCollapseFilled,
-  TbLayoutNavbarCollapseFilled,
-} from "react-icons/tb";
+
 import { getSub } from "../api/ytSub";
-import { RiExpandDiagonal2Line } from "react-icons/ri";
 import { LuShrink } from "react-icons/lu";
 import LookUp from "../components/lookUp";
 
@@ -70,6 +66,29 @@ const Immerse = () => {
     });
   }, [time, data.entries, fileType, preUpload]);
 
+  // Esc to revert fullscreen
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && navCollapsed) {
+        setNavCollapsed(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, [navCollapsed]);
+
+  // Managin Full Screen Status
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setNavCollapsed(false);
+      }
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
   // Lookup
   useEffect(() => {
     if (preUpload || fileType == "pdf") return;
@@ -83,7 +102,7 @@ const Immerse = () => {
     };
     document.addEventListener("mouseup", handleMouseUp);
     return () => document.removeEventListener("mouseup", handleMouseUp);
-  }, [preUpload, fileType]);
+  }, [preUpload, fileType, navCollapsed]);
 
   // YouTube
   useEffect(() => {
