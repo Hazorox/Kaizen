@@ -8,8 +8,8 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { login, register } from "./api/auth";
-import { saveToken } from "./utils/token";
+import { login, register } from "../api/auth";
+import { saveToken } from "../utils/token";
 import { useNavigate } from "react-router-dom";
 const LogReg = () => {
   const nav = useNavigate();

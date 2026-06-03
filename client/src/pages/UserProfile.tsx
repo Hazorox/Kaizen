@@ -5,10 +5,10 @@ import { FaEdit } from "react-icons/fa";
 import { colors } from "../constants";
 import { LuPickaxe, LuSwords } from "react-icons/lu";
 import Guide from "../components/Guide";
-import { delAcc } from "./api/auth";
-import { getPFP, updatePFP } from "./api/pfp";
+import { delAcc } from "../api/auth";
+import { getPFP, updatePFP } from "../api/pfp";
 import { useEffect, useRef, useState } from "react";
-import { getUsername } from "./utils/getUsername";
+import { getUsername } from "../utils/getUsername";
 
 const UserProfile = () => {
   const pfpRef = useRef<HTMLInputElement>(null);
@@ -23,9 +23,9 @@ const UserProfile = () => {
   const [userPic, setUserPic] = useState("");
 
   useEffect(() => {
-  getPFP(username).then(setUserPic);
-}, [username]);
-const ankiConnected = false;
+    getPFP(username).then(setUserPic);
+  }, [username]);
+  const ankiConnected = false;
   const ankiClickable = ankiConnected ? "" : "cursor-pointer ";
 
   return (

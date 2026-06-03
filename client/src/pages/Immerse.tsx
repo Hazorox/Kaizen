@@ -2,14 +2,21 @@ import { AnimatePresence, motion } from "motion/react";
 import Nav from "../components/Nav";
 import { useEffect, useRef, useState } from "react";
 import { PiFilePdfDuotone, PiFileVideoFill } from "react-icons/pi";
-import { FaArrowCircleRight, FaYoutube } from "react-icons/fa";
+import {
+  FaArrowCircleRight,
+  FaExpandArrowsAlt,
+  FaYoutube,
+} from "react-icons/fa";
 import YouTube from "react-youtube";
 import { parse } from "@plussub/srt-vtt-parser";
 import {
   TbLayoutBottombarCollapseFilled,
   TbLayoutNavbarCollapseFilled,
 } from "react-icons/tb";
-import { getSub } from "./api/ytSub";
+import { getSub } from "../api/ytSub";
+import { RiExpandDiagonal2Line } from "react-icons/ri";
+import { LuShrink } from "react-icons/lu";
+import LookUp from "../components/lookUp";
 
 const Immerse = () => {
   // STATES
@@ -23,7 +30,7 @@ const Immerse = () => {
   const [preUpload, setPreUpload] = useState(true);
   const [fileType, setFileType] = useState<"pdf" | "video" | "YT" | "">("");
   const [ytInput, setYtInput] = useState("");
-
+  const [lookup, setLookup] = useState("");
   // REFS
   const ytPlayerRef = useRef<any>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -39,11 +46,11 @@ const Immerse = () => {
   // Dimensions for each condition
   const dimensions = preUpload
     ? "w-[50%] h-[60%]"
-    : `w-[90%] ${navCollapsed ? "h-[98%]" : "h-[90%] mt-16"}`;
+    : `w-[90%] ${navCollapsed ? "w-[100%] !rounded-none h-[100%]" : "h-[90%] mt-16"}`;
 
   // UseEffects for the subs syncing
-  // Manual File Upload
   useEffect(() => {
+    if (fileType != "video" || preUpload) return;
     const activeIndex = data.entries.findIndex(
       (cue) => time >= cue.from / 1000 && time <= cue.to / 1000,
     );
@@ -61,10 +68,26 @@ const Immerse = () => {
           block: "center",
         });
     });
-  }, [time, data.entries]);
+  }, [time, data.entries, fileType, preUpload]);
+
+  // Lookup
+  useEffect(() => {
+    if (preUpload || fileType == "pdf") return;
+    const handleMouseUp = () => {
+      const word = window.getSelection()?.toString().trim();
+      if (!word) {
+        setLookup("");
+        return;
+      }
+      setLookup(word);
+    };
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => document.removeEventListener("mouseup", handleMouseUp);
+  }, [preUpload, fileType]);
 
   // YouTube
   useEffect(() => {
+    if (fileType != "YT" || preUpload) return;
     const interval = setInterval(() => {
       if (typeof ytPlayerRef.current?.getCurrentTime === "function") {
         const t = ytPlayerRef.current.getCurrentTime();
@@ -72,17 +95,18 @@ const Immerse = () => {
       }
     }, 500);
     return () => clearInterval(interval);
-  }, []);
+  }, [fileType, preUpload]);
 
   // YouTube Synced Auto-Scroll
   // Uhhh just copied it from above, with some edits ;)
   useEffect(() => {
+    if (fileType != "YT" || preUpload) return;
+
     const activeIndex = ytSub.findIndex(
       (cue: any) =>
         time >= cue.offset / 1000 &&
-        time <= (cue.duration / 1000 + cue.offset / 1000),
-        );
-    console.log(activeIndex)
+        time <= cue.duration / 1000 + cue.offset / 1000,
+    );
     if (activeIndex === -1 || activeIndex === Number(activeCueIDRef.current))
       return;
 
@@ -96,7 +120,7 @@ const Immerse = () => {
           block: "center",
         });
     });
-  }, [time, ytSub]);
+  }, [fileType, preUpload, time, ytSub]);
   // Page
   return (
     <AnimatePresence>
@@ -105,23 +129,22 @@ const Immerse = () => {
       >
         <motion.div
           layout
-          onClick={() => {
+          onClick={async () => {
             setNavCollapsed((prev) => !prev);
+            if (document.fullscreenElement) {
+              await document.exitFullscreen();
+            } else {
+              await document.body.requestFullscreen();
+            }
           }}
-          className={`${preUpload ? "hidden " : ""}absolute right-1.5 bottom-1 bg-[#1a1a2e] p-2 cursor-pointer rounded-full`}
+          className={`${preUpload ? "hidden " : ""}absolute right-1.5 bottom-1 z-100 bg-[#1a1a2e] p-2 cursor-pointer rounded-full${navCollapsed ? " right-4 bottom-3" : ""}`}
           whileHover={{ scale: 1.15, y: -20 }}
           whileTap={{ scale: 1.25 }}
         >
           {navCollapsed ? (
-            <TbLayoutBottombarCollapseFilled
-              size={48}
-              className="text-[#fffbe6]"
-            />
+            <LuShrink size={36} className="text-[#fffbe6]" />
           ) : (
-            <TbLayoutNavbarCollapseFilled
-              size={48}
-              className="text-[#fffbe6]"
-            />
+            <FaExpandArrowsAlt size={36} className="text-[#fffbe6]" />
           )}
         </motion.div>
         <input
@@ -283,7 +306,7 @@ const Immerse = () => {
           {/* Immerse */}
           {!preUpload && fileType == "video" && (
             <motion.div className="w-full flex h-full overflow-hidden">
-              <motion.div className="w-[70%] h-full">
+              <motion.div className="w-[65%] h-full">
                 <video
                   ref={vidRef}
                   src={vidSrc}
@@ -302,58 +325,62 @@ const Immerse = () => {
                   />
                 </video>
               </motion.div>
-              <motion.div
-                ref={subBarRef}
-                className="w-[30%] border-l-4 overflow-y-scroll scrollable flex flex-col bg-[#fffbe6]/50"
-              >
-                {data.entries.map((cue, index) => {
-                  const focused =
-                    time < cue.to / 1000 && time > cue.from / 1000;
-                  return (
-                    <motion.span
-                      key={index}
-                      data-cue-id={index}
-                      layout
-                      className="w-full pt-4 relative block"
-                    >
+              <motion.div className="w-[35%] flex-col h-full border-l-4  flex ">
+                <motion.div
+                  ref={subBarRef}
+                  layout
+                  className="h-[45%] overflow-y-scroll scrollable bg-[#fffbe6]/50"
+                >
+                  {data.entries.map((cue, index) => {
+                    const focused =
+                      time < cue.to / 1000 && time > cue.from / 1000;
+                    return (
                       <motion.span
-                        key={index + " text"}
-                        animate={{
-                          fontSize: focused ? "36px" : "30px",
-                          opacity: focused ? 1 : 0.55,
-                        }}
-                        transition={{ duration: 0.2 }}
-                        className="pl-4 block"
+                        key={index}
+                        data-cue-id={index}
+                        layout
+                        className="w-full pt-4 relative block"
                       >
-                        {cue.text}
+                        <motion.span
+                          key={index + " text"}
+                          animate={{
+                            fontSize: focused ? "36px" : "30px",
+                            opacity: focused ? 1 : 0.55,
+                          }}
+                          transition={{ duration: 0.2 }}
+                          className="pl-4 block"
+                        >
+                          {cue.text}
+                        </motion.span>
+                        <motion.div
+                          key={index + " divider"}
+                          className="h-1.5 mt-4 bg-black/70 w-full"
+                        />
                       </motion.span>
-                      <motion.div
-                        key={index + " divider"}
-                        className="h-1.5 mt-4 bg-black/70 w-full"
-                      />
-                    </motion.span>
-                  );
-                })}
+                    );
+                  })}
+                </motion.div>
+                <LookUp text={lookup} />
               </motion.div>
             </motion.div>
           )}
           {!preUpload && fileType == "pdf" && (
             <motion.div className="w-full h-full flex scrollable">
-              <div className="w-full h-full flex">
+              <motion.div className="w-full h-full flex">
                 <object
                   data={pdfURL}
                   type="application/pdf"
                   className="w-[70%] h-full"
                 />
-                <div className="w-[30%] h-full border-l-2 bg-[#fffbe6]/50 flex flex-col">
+                <motion.div className="w-[30%] h-full border-l-2 bg-[#fffbe6]/50 flex flex-col">
                   {/* definition panel */}
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </motion.div>
           )}
           {!preUpload && fileType == "YT" && (
             <motion.div className="w-full h-full overflow-hidden flex">
-              <motion.div className="w-[70%] h-full">
+              <motion.div className="w-[65%] h-full">
                 <YouTube
                   onReady={(e) => {
                     ytPlayerRef.current = e.target;
@@ -364,42 +391,44 @@ const Immerse = () => {
                   opts={{ width: "100%", height: "100%" }}
                 />
               </motion.div>
-              <motion.div
-                layout
-                ref={subBarRef}
-                className="w-[30%] border-l-4 overflow-y-scroll overflow-x-hidden scrollable flex flex-col bg-[#fffbe6]/50"
-              >
-                {ytSub.length == 0 &&
-                  "No Japanese Subtitles Available for This Video"}
-                {ytSub.map((cue: any, index) => {
-                  const start = cue.offset / 1000;
-                  const end = start + cue.duration / 1000;
-                  const focused = time < end && time > start;
-                  return (
-                    <motion.span
-                      key={index}
-                      data-cue-id={index}
-                      layout
-                      className="w-full pt-4 relative block"
-                    >
+              <motion.div layout className="flex w-[35%] flex-col">
+                <motion.div
+                  ref={subBarRef}
+                  className="w-full h-[45%] border-l-4 border-b-4 overflow-y-scroll overflow-x-hidden scrollable flex flex-col bg-[#fffbe6]/50"
+                >
+                  {ytSub.length == 0 &&
+                    "No Japanese Subtitles Available for This Video"}
+                  {ytSub.map((cue: any, index) => {
+                    const start = cue.offset / 1000;
+                    const end = start + cue.duration / 1000;
+                    const focused = time < end && time > start;
+                    return (
                       <motion.span
-                        key={index + " text"}
-                        animate={{
-                          fontSize: focused ? "36px" : "30px",
-                          opacity: focused ? 1 : 0.55,
-                        }}
-                        transition={{ duration: 0.2 }}
-                        className="pl-4 block"
+                        key={index}
+                        data-cue-id={index}
+                        layout
+                        className="w-full pt-4 relative block"
                       >
-                        {cue.text}
+                        <motion.span
+                          key={index + " text"}
+                          animate={{
+                            fontSize: focused ? "36px" : "30px",
+                            opacity: focused ? 1 : 0.55,
+                          }}
+                          transition={{ duration: 0.2 }}
+                          className="pl-4 block"
+                        >
+                          {cue.text}
+                        </motion.span>
+                        <motion.div
+                          key={index + " divider"}
+                          className="h-1.5 mt-4 bg-black/70 w-full"
+                        />
                       </motion.span>
-                      <motion.div
-                        key={index + " divider"}
-                        className="h-1.5 mt-4 bg-black/70 w-full"
-                      />
-                    </motion.span>
-                  );
-                })}
+                    );
+                  })}
+                </motion.div>
+                <LookUp text={lookup} />
               </motion.div>
             </motion.div>
           )}

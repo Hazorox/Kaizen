@@ -13,7 +13,7 @@ export const delAcc = async () => {
   const token = getToken() ?? "";
   if (!token) return "Invalid Token";
   const res = await API.delete("/auth/deleteAcc");
-  localStorage.removeItem("token")
-  
+  localStorage.removeItem("token");
+
   return res.data;
 };
