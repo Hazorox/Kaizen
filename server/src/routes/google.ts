@@ -14,21 +14,32 @@ passport.use(
       callbackURL: "/api/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
-      const email = profile.emails?.[0].value;
-      let user = await User.findOne({ googleId: profile.id });
-      if (!user) {
-        user = await User.create({
-          googleId: profile.id,
-          username: profile.displayName,
-          profilePic: profile.photos?.[0]?.value ?? "",
-        });
+      try {
+        const profilePic =
+          profile.photos?.[0]?.value?.replace("=s96-c", "") ?? "";
+        let user = await User.findOne({ googleId: profile.id });
+        if (!user) {
+          user = await User.create({
+            googleId: profile.id,
+            username: profile.displayName,
+            profilePic,
+          });
+        } else {
+          user.profilePic = profilePic;
+          await user.save();
+        }
+        done(null, user);
+      } catch (err) {
+        done(err as Error);
       }
-      done(null, user);
     },
   ),
 );
 
-router.get("/google", passport.authenticate("google", { scope: ["profile"] }));
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] }),
+);
 
 router.get(
   "/google/callback",
@@ -36,11 +47,13 @@ router.get(
   (req, res) => {
     const user = req.user as any;
     const token = jwt.sign(
-      { username: user.username },
+      {
+        username: user.username,
+        profilePic: user.profilePic,
+      },
       process.env.JWT_SECRET ?? "secret",
       { expiresIn: "14d" },
     );
-    // redirect to frontend with token
     res.redirect(`http://localhost:5173/auth/callback?token=${token}`);
   },
 );

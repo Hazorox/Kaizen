@@ -1,10 +1,15 @@
 import { AnimatePresence, motion } from "motion/react";
 import Nav from "../components/Nav";
 import { useEffect, useRef, useState } from "react";
-import { PiFilePdfDuotone, PiFileVideoFill } from "react-icons/pi";
+import {
+  PiFilePdfDuotone,
+  PiFileVideoFill,
+  PiSubtitlesBold,
+} from "react-icons/pi";
 import {
   FaArrowCircleRight,
   FaExpandArrowsAlt,
+  FaSearch,
   FaYoutube,
 } from "react-icons/fa";
 import YouTube from "react-youtube";
@@ -13,7 +18,6 @@ import { parse } from "@plussub/srt-vtt-parser";
 import { getSub } from "../api/ytSub";
 import { LuShrink } from "react-icons/lu";
 import LookUp from "../components/lookUp";
-
 const Immerse = () => {
   // STATES
   const [vidSrc, setVidSrc] = useState<string>("");
@@ -24,24 +28,32 @@ const Immerse = () => {
   const [ytSub, setYtSub] = useState([]);
   const [time, setTime] = useState<number>(0);
   const [preUpload, setPreUpload] = useState(true);
-  const [fileType, setFileType] = useState<"pdf" | "video" | "YT" | "">("");
+  const [fileType, setFileType] = useState<
+    "pdf" | "video" | "vidNoSub" | "YT" | ""
+  >("");
   const [ytInput, setYtInput] = useState("");
   const [lookup, setLookup] = useState("");
+  const [lookupInput, setLookupInput] = useState("");
+  const [ytPlaceholder, setYtPlaceholder] = useState("YouTube Video ID");
+  const [ytError, setYtError] = useState(false);
   // REFS
   const ytPlayerRef = useRef<any>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const vidNoSubRef = useRef<HTMLInputElement>(null);
   const vttInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const vidRef = useRef<HTMLVideoElement>(null);
   const subBarRef = useRef<HTMLDivElement>(null);
   const activeCueIDRef = useRef<string>("");
+  const lookupRef = useRef<HTMLInputElement>(null);
+  const ytInputRef = useRef<HTMLInputElement>(null);
 
   // NORMAL
   const data = parse(vttContent);
 
   // Dimensions for each condition
   const dimensions = preUpload
-    ? "w-[50%] h-[60%]"
+    ? "w-[60%] h-[60%]"
     : `w-[90%] ${navCollapsed ? "w-[100%] !rounded-none h-[100%]" : "h-[90%] mt-16"}`;
 
   // UseEffects for the subs syncing
@@ -100,8 +112,13 @@ const Immerse = () => {
       }
       setLookup(word);
     };
-    document.addEventListener("mouseup", handleMouseUp);
-    return () => document.removeEventListener("mouseup", handleMouseUp);
+    document
+      .getElementById("subBar")
+      ?.addEventListener("mouseup", handleMouseUp);
+    return () =>
+      document
+        .getElementById("subBar")
+        ?.removeEventListener("mouseup", handleMouseUp);
   }, [preUpload, fileType, navCollapsed]);
 
   // YouTube
@@ -140,6 +157,26 @@ const Immerse = () => {
         });
     });
   }, [fileType, preUpload, time, ytSub]);
+  const submitYTID = async () => {
+    try {
+      if (!ytInput) return;
+      const res = await getSub(ytInput);
+      if (!res || res === "invalid") {
+        setYtPlaceholder("Invalid ID");
+        setYtError(true);
+        setYtInput("");
+        return;
+      }
+      const filtered = res.filter((cue: any) => cue.lang === "ja");
+      setYtSub(filtered);
+      setPreUpload(false);
+      setFileType("YT");
+    } catch (error) {
+      setYtPlaceholder("Invalid ID");
+      setYtError(true);
+      setYtInput("");
+    }
+  };
   // Page
   return (
     <AnimatePresence>
@@ -179,6 +216,22 @@ const Immerse = () => {
             const url = URL.createObjectURL(file);
             setVidSrc(url);
             vttInputRef.current?.click();
+          }}
+        />
+        <input
+          key="vid"
+          ref={vidNoSubRef}
+          type="file"
+          accept="video/mp4"
+          className="hidden"
+          id="vid"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            setVidSrc(url);
+            setFileType("vidNoSub");
+            setPreUpload(false);
           }}
         />
         <input
@@ -223,7 +276,7 @@ const Immerse = () => {
           layout
           className={
             dimensions +
-            ` flex-col gap-16 rounded-3xl flex justify-around border-4 items-center bg-[#4ecdc4] overflow-hidden`
+            ` flex-col gap-16 rounded-3xl flex justify-evenly border-4 items-center bg-[#4ecdc4] overflow-hidden`
           }
         >
           {/* Upload */}
@@ -232,7 +285,7 @@ const Immerse = () => {
               <motion.div className="w-full mt-4 select-none text-center font-bold text-4xl">
                 Upload Contents
               </motion.div>
-              <div className="flex select-none justify-center gap-16 w-full">
+              <div className="flex select-none justify-around gap-6 w-full">
                 <motion.div
                   onClick={() => {
                     pdfInputRef.current?.click();
@@ -244,12 +297,31 @@ const Immerse = () => {
                   }}
                   transition={{ duration: 0.2 }}
                   whileTap={{ scale: 1.25 }}
-                  className="flex bg-[#fffbe6] relative px-2 py-4 border-4 cursor-pointer rounded-3xl w-[30%] flex-col gap-2 justify-around items-center"
+                  className="flex bg-[#fffbe6] relative px-2 py-4 border-4 cursor-pointer rounded-3xl w-[25%] flex-col gap-2 justify-around items-center"
                 >
                   <PiFilePdfDuotone size={64} />
                   <span className="font-bold">Upload PDF</span>
                   <span className="opacity-90 text-center">
                     Upload a book, an article, or a scanned manga
+                  </span>
+                </motion.div>
+                <motion.div
+                  onClick={() => {
+                    vidNoSubRef.current?.click();
+                  }}
+                  initial={{ scale: 1 }}
+                  whileHover={{
+                    scale: 1.2,
+                    boxShadow: "0 0 0 2px rgba(255,251,230,0.3)",
+                  }}
+                  transition={{ duration: 0.2 }}
+                  whileTap={{ scale: 1.25 }}
+                  className="flex bg-[#fffbe6] relative px-2 py-4 border-4 cursor-pointer rounded-3xl w-[25%] flex-col gap-2 justify-around items-center"
+                >
+                  <PiFileVideoFill size={64} />
+                  <span className="font-bold">Upload Video</span>
+                  <span className="opacity-90 text-center">
+                    Upload a video and lookup the words yourself.
                   </span>
                 </motion.div>
                 <motion.div
@@ -263,9 +335,12 @@ const Immerse = () => {
                     videoInputRef.current?.click();
                   }}
                   transition={{ duration: 0.2 }}
-                  className="flex bg-[#fffbe6] px-2 relative py-4 border-4 cursor-pointer rounded-3xl w-[30%] flex-col gap-2 justify-around items-center"
+                  className="flex bg-[#fffbe6] px-2 relative py-4 border-4 cursor-pointer rounded-3xl w-[25%] flex-col gap-2 justify-around items-center"
                 >
-                  <PiFileVideoFill size={64} />
+                  <span className="flex text-4xl justify-center items-center gap-4">
+                    <PiFileVideoFill size={64} /> +
+                    <PiSubtitlesBold size={64} />
+                  </span>
                   <span className="font-bold">Upload Video + Subtitles</span>
                   <span className="opacity-90 text-center">
                     Upload a video with a supported subtitles file
@@ -288,27 +363,24 @@ const Immerse = () => {
                     <FaYoutube size={36} />
                   </motion.span>
                   <motion.input
+                    ref={ytInputRef}
+                    value={ytInput}
+                    onKeyPress={async(e)=>{
+                      if(e.key==="Enter"){
+                        await submitYTID()
+                      }
+                    }}
                     onChange={(e) => {
                       setYtInput(e.target.value);
+                      setYtError(false);
+                      setYtPlaceholder("YouTube Video ID");
                     }}
-                    type="id"
-                    className="h-full flex-1 select-text bg-transparent text-[#fffbe6] rounded-full px-14 placeholder:text-[#fffbe6]/60 outline-none"
-                    placeholder="YouTube Video Link"
+                    placeholder={ytPlaceholder}
+                    className={`h-full flex-1 select-text bg-transparent rounded-full px-14 outline-none ${ytError ? "placeholder:text-red-400" : "placeholder:text-[#fffbe6]/60"} text-[#fffbe6]`}
                   />
                   <motion.span
                     onClick={async () => {
-                      try {
-                        if (!ytInput) return;
-                        setYtSub(
-                          (await getSub(ytInput)).filter(
-                            (cue: any) => cue.lang === "ja",
-                          ),
-                        );
-                        setPreUpload(false);
-                        setFileType("YT");
-                      } catch (error) {
-                        console.error(`An Error Occured\n${error}`);
-                      }
+                      await submitYTID();
                     }}
                     whileTap={{ x: 10 }}
                     whileHover={{ opacity: "100%" }}
@@ -347,6 +419,7 @@ const Immerse = () => {
               <motion.div className="w-[35%] flex-col h-full border-l-4  flex ">
                 <motion.div
                   ref={subBarRef}
+                  id="subBar"
                   layout
                   className="h-[45%] overflow-y-scroll scrollable bg-[#fffbe6]/50"
                 >
@@ -383,16 +456,53 @@ const Immerse = () => {
               </motion.div>
             </motion.div>
           )}
-          {!preUpload && fileType == "pdf" && (
+          {!preUpload && (fileType == "pdf" || fileType == "vidNoSub") && (
             <motion.div className="w-full h-full flex scrollable">
               <motion.div className="w-full h-full flex">
-                <object
-                  data={pdfURL}
-                  type="application/pdf"
-                  className="w-[70%] h-full"
-                />
-                <motion.div className="w-[30%] h-full border-l-2 bg-[#fffbe6]/50 flex flex-col">
-                  {/* definition panel */}
+                {fileType == "pdf" && (
+                  <object
+                    data={pdfURL}
+                    type="application/pdf"
+                    className="w-[65%] h-full"
+                  />
+                )}
+                {fileType === "vidNoSub" && (
+                  <video
+                    src={vidSrc}
+                    controls
+                    className="w-[65%] bg-black h-full"
+                  ></video>
+                )}
+                <motion.div className="w-[35%] h-full border-l-2 bg-[#fffbe6]/50 flex flex-col">
+                  <motion.span className="flex items-center h-fit relative w-[85%] self-center my-2">
+                    <motion.input
+                      ref={lookupRef}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          setLookup(lookupInput);
+                        }
+                      }}
+                      onChange={(e) => {
+                        setLookupInput(e.target.value);
+                      }}
+                      className="w-full h-full  p-4 placeholder:text-[#fffbe6]/90 text-[#fffbe6]/90 text-lg pl-16 rounded-xl  bg-[#1a1a2e]/70"
+                      placeholder="Text to Lookup"
+                    />
+                    <FaSearch size={48} className="inline absolute left-2" />
+                    <motion.span
+                      initial={{ opacity: "85%" }}
+                      transition={{ duration: 0.15 }}
+                      whileTap={{ x: 10 }}
+                      onClick={() => {
+                        setLookup(lookupRef.current?.value ?? "");
+                      }}
+                      whileHover={{ opacity: "100%", scale: 1.1 }}
+                      className="flex cursor-pointer text-[#fffbe6] absolute right-2 justify-center items-center w-fit h-fit"
+                    >
+                      <FaArrowCircleRight size={40} />
+                    </motion.span>
+                  </motion.span>
+                  <LookUp text={lookup} sub={false} />
                 </motion.div>
               </motion.div>
             </motion.div>
@@ -413,6 +523,7 @@ const Immerse = () => {
               <motion.div layout className="flex w-[35%] flex-col">
                 <motion.div
                   ref={subBarRef}
+                  id="subBar"
                   className="w-full h-[45%] border-l-4 border-b-4 overflow-y-scroll overflow-x-hidden scrollable flex flex-col bg-[#fffbe6]/50"
                 >
                   {ytSub.length == 0 &&

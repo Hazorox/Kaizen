@@ -7,6 +7,7 @@ import LogReg from "./pages/LogReg";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import AuthCallback from "./components/AuthCallback"
+import 'react-tooltip/dist/react-tooltip.css'
 function App() {
   return (
     <Router>

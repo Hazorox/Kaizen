@@ -1,6 +1,10 @@
 import { YoutubeTranscript } from "youtube-transcript"
 
 export  const getYtSub = async (id:string)=>{
-    const result = await YoutubeTranscript.fetchTranscript(id)
-    return result
+    try{
+        const result = await YoutubeTranscript.fetchTranscript(id)
+        return result
+    }catch(err){
+        return "invalid"
+    }
 }

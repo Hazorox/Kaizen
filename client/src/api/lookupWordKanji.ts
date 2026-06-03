@@ -6,6 +6,6 @@ export const lookupKanji =  async (kanji:string)=>{
 export const lookupWord = async (word:string)=>{
     
     const res = await API.get(`/lookup/word/${word}`)
-    return res.data.data
+    return res.data.words
 }
 
