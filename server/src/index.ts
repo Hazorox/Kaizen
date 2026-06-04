@@ -10,6 +10,7 @@ import passport from "passport";
 import { updatePFP } from "./utils/pfpUtils";
 import { delAcc } from "./utils/deleteAcc";
 import { fetchWord } from "./utils/fetchKanji";
+import { ankiUtils } from "./utils/anki";
 const app = express();
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
@@ -27,6 +28,7 @@ app.use("/api/auth", googleRoutes);
 app.use(delAcc)
 app.use(updatePFP);
 app.use(fetchWord)
+app.use(ankiUtils)
 app.get("/", (req, res) => {
   res.json("Kaizen is Running :D");
 });
