@@ -3,6 +3,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User";
+import { UserStat } from "../models/UserStat";
 
 const router = Router();
 
@@ -24,6 +25,9 @@ passport.use(
             username: profile.displayName,
             profilePic,
           });
+          const stats = await UserStat.create({
+            username:profile.displayName
+          })
         } else {
           if (
             !user.profilePic ||

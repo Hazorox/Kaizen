@@ -2,6 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User";
+import { UserStat } from "../models/UserStat";
 const router = Router();
 const SECRET = process.env.JWT_SECRET ?? "secret";
 // Register
@@ -15,7 +16,10 @@ router.post("/register", async (req, res) => {
       username,
       pass: (await hashed).toString(),
     });
-    const token = jwt.sign({ username:username }, SECRET, {
+    const stats = await UserStat.create({
+      username,
+    });
+    const token = jwt.sign({ username: username }, SECRET, {
       expiresIn: "14d",
     });
     res.json({ token, username });
