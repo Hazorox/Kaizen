@@ -9,6 +9,8 @@ import { delAcc } from "../api/auth";
 import { getPFP, updatePFP } from "../api/pfp";
 import { useEffect, useRef, useState } from "react";
 import { getUsername } from "../utils/getUsername";
+import { ankiConnect } from "../api/anki";
+import { IoRefresh } from "react-icons/io5";
 
 const UserProfile = () => {
   const pfpRef = useRef<HTMLInputElement>(null);
@@ -20,14 +22,13 @@ const UserProfile = () => {
   } else {
     username = id;
   }
-  const [userPic, setUserPic] = useState("");
-
+  const [userPic, setUserPic] = useState<string | null>(null);
   useEffect(() => {
     getPFP(username).then(setUserPic);
   }, [username]);
-  const ankiConnected = false;
-  const ankiClickable = ankiConnected ? "" : "cursor-pointer ";
-
+  const [ankiDeck, setAnkiDeck] = useState(
+    localStorage.getItem("deckName") ?? "",
+  );
   return (
     <AnimatePresence>
       <div className="w-full select-none h-full relative bg-[#fffbe6] justify-center items-center flex">
@@ -54,8 +55,12 @@ const UserProfile = () => {
           className="main h-[80%] px-4 font-bold flex flex-col border-2  p-4 justify-around items-center rounded-md w-[70%] bg-[#4ecdc4]"
         >
           <span className="flex flex-col gap-8 font-extrabold text-4xl justify-center items-center">
-            <div className="relative">
-              <img src={userPic} className="h-48 w-48 rounded-full" />
+            <div className="relative h-48 w-48">
+              {userPic ? (
+                <img src={userPic} className="h-48 w-48 rounded-full" />
+              ) : (
+                <div className="h-48 w-48 rounded-full bg-[#1a1a2e]/20 animate-pulse" />
+              )}
               <motion.div
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 0.6 }}
@@ -74,9 +79,8 @@ const UserProfile = () => {
             <span className="flex w-fit flex-wrap items-center justify-center gap-6">
               <motion.span
                 className={
-                  ankiClickable +
                   colors.anki +
-                  " flex justify-center w-fit relative flex-col items-center rounded-full h-24 border-4 pl-20 pr-4 py-4"
+                  " flex cursor-pointer justify-center w-fit relative flex-col items-center rounded-full h-24 border-4 pl-20 pr-16 py-4"
                 }
               >
                 <img
@@ -84,7 +88,19 @@ const UserProfile = () => {
                   className="absolute left-1 mr-2 h-16 w-16"
                 />
                 <span className="text-3xl">Anki</span>
-                <span>{ankiConnected ? "Connected" : "Not Connected"}</span>
+                <span>{ankiDeck ?? "Not Connected"}</span>
+                <motion.span
+                  onClick={async () => {
+                    const res = await ankiConnect();
+                    setAnkiDeck(res?.toString() ?? "");
+                  }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ rotate: 45 }}
+                  transition={{ ease: "linear", duration: 0.1 }}
+                  className="absolute right-1"
+                >
+                  <IoRefresh size={48} />
+                </motion.span>
               </motion.span>
 
               <motion.span

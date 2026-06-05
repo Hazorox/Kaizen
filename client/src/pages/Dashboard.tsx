@@ -7,12 +7,20 @@ import { AnimatePresence, motion } from "motion/react";
 import Nav from "../components/Nav";
 import { useNavigate } from "react-router-dom";
 import Guide from "../components/Guide";
+import { useEffect, useState } from "react";
+import { ankiGetDue } from "../api/anki";
 
 const Dashboard = () => {
   const nav = useNavigate();
   const time = new Date().getHours();
   const username = "Hazoro";
-  const ankiCards = 99;
+  const [ankiDue,setAnkiDue] = useState<number|null>(null);
+  useEffect(()=>{
+    const fetchDue = async ()=>{
+      await ankiGetDue().then(setAnkiDue);
+    }
+    fetchDue()
+  },[])
   return (
     // Dashboard
     <AnimatePresence>
@@ -42,7 +50,7 @@ const Dashboard = () => {
             <Card
               style={"bg-[#ff9a3c] !border-[#e06500]"}
               title={"Anki"}
-              txt={ankiCards == 1 ? "1 Card Due" : `${ankiCards} Cards Due`}
+              txt={!ankiDue? "Anki Not Connected":ankiDue == 1 ? "1 Card Due" : `${ankiDue} Cards Due`}
               icon={"anki.svg"}
             />
             <Card
@@ -51,14 +59,9 @@ const Dashboard = () => {
               txt={0 + " Words Mined Today"}
               icon={<IoDiamondOutline className="h-26 w-30" />}
             />
+            
             <Card
-              style={"bg-[#4fb3e8] !border-[#0099d4]"}
-              title={"Kanji"}
-              txt={0 + " Kanji Practised Today"}
-              icon={"字"}
-            />
-            <Card
-              style={"bg-[#ffe066] !border-[#ffcb00]"}
+              style={"bg-[#ffe066] col-span-2 flex justify-center !border-[#ffcb00]"}
               title={"Matches"}
               txt={0 + " Wins Today"}
               icon={<RiSwordFill className="h-26 w-30" />}

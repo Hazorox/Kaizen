@@ -39,27 +39,36 @@ const checkKaizenDeck = (deckArr: string[]) => {
 
 router.post("/api/anki/connect", authMiddleware, async (req, res) => {
   const response = await anki("deckNames");
-  if (response === "ankiNotRunning") return res.status(400).json(response);
+  if (response === "ankiNotRunning") return res.status(400).json();
   const kaizenDeck = checkKaizenDeck(response.result);
   if (!kaizenDeck) await anki("createDeck", { deck: "Kaizen" });
-  return res.status(200).json("Anki Connected !");
+  return res.status(200).json(kaizenDeck);
 });
 
 router.post("/api/anki/getDue", authMiddleware, async (req, res) => {
   const response = await anki("findCards", { query: "is:due" });
+  if (response == "ankiNotRunning") return res.status(400).json();
   return res.status(200).json(response.result.length);
 });
 router.post("/api/anki/addCard", authMiddleware, async (req, res) => {
+  const deckName = req.body.deckName;
+  const front = req.body.front;
+  const back = req.body.back;
+  const audio = req.body.audio ?? "";
+  const jlpt = req.body.jlpt ?? "";
   const response = await anki("addNote", {
     note: {
-      deckName: "Kaizen",
-      modelName:"Basic",
+      deckName,
+      modelName: "Basic",
       fields: {
-        Front: "front content",
-        Back: "back content",
+        Front: front,
+        Back: back,
       },
+      tags: ["Kaizen", jlpt],
+      audio: { url: audio, fields: "back" },
     },
   });
-  return res.status(200).json(response.result)
+  if (response == "ankiNotRunning") return res.status(200).json();
+  return res.status(200).json(response.result);
 });
 export const ankiUtils = router;
