@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 const schema = mongoose.Schema;
 
 const userStatModel = new schema({
-  username: { type: String, unique: true, sparse: true },
-  googleId: { type: String, unique: true, sparse: true },
+  username: { type: String, unique: true, sparse: true,required:true,ref:"User"},
   lastSeen: { type: Date },
   streak: { type: Number },
-  minining: { type: [Object] },
+  mining : {type:[Object]},
+  wordHistory:{type:[Object]},
   battleHistory: { type: [Object] },
 });
 
