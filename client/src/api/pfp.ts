@@ -4,6 +4,7 @@ import API from "./baseAPI";
 export const updatePFP = async (blob: Blob) => {
   const token = getToken();
   if (token) {
+    console.log("WORKING")
     const username = jwtDecode<{ username: string }>(token).username;
     const form = new FormData();
     form.append("username", username);

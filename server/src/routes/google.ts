@@ -25,8 +25,13 @@ passport.use(
             profilePic,
           });
         } else {
-          user.profilePic = profilePic;
-          await user.save();
+          if (
+            !user.profilePic ||
+            user.profilePic.includes("googleusercontent.com")
+          ) {
+            user.profilePic = profilePic;
+            await user.save();
+          } 
         }
         done(null, user);
       } catch (err) {
