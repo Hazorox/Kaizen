@@ -6,39 +6,88 @@ import {
   FaUserCircle,
 } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { login, register } from "../api/auth";
 import { saveToken } from "../utils/token";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 const LogReg = () => {
   const nav = useNavigate();
   const [loginState, setLoginState] = useState(true);
   const [repeatedPass, setRepeatedPassInput] = useState("");
   const [showRepeated, setShowRepeated] = useState(false);
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
   const [username, setUsername] = useState("");
   const [passInput, setPassInput] = useState("");
+  // Atleast 2 chars, 15 at most. lower-Upper case and numbers only, dashes and underscores allowed
+  const userReg = /^[a-zA-Z0-9_\- ]{2,15}$/;
+  // Atleast 8 chars, contains atleast one symbol and one number
+  const passReg =
+    /^(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
   const handleSubmit = async () => {
     try {
-      const data = loginState
-        ? await login(username, passInput)
-        : await register(username, passInput);
+      let data;
+      if (loginState) {
+        data = await login(username, passInput);
+        (data);
+        if (!data) {
+          toast.error("Invalid Credentials");
+          return;
+        }
+      } else {
+        if (username.length < 2) {
+          toast.error("Username must be more than 2 characters");
+          return;
+        }
+        if (!userReg.test(username)) {
+          toast.error(
+            "Username must only contain alphanumeric characters, dashes, underscores and spaces.",
+          );
+          return;
+        }
+        if (passInput.length < 8) {
+          toast.error("Password must be atleast 8 characters");
+          return;
+        }
+        if (!passReg.test(passInput)) {
+          toast.error("Password must contain atleast one symbol and one digit");
+          return;
+        }
+        if (repeatedPass != passInput) {
+          toast.error("The repeated password doesn't match");
+          return;
+        }
+        data = await register(username, passInput);
+        if (!data) {
+          toast.error("Username Taken");
+          return;
+        }
+      }
       saveToken(data.token);
       nav("/");
-    } catch (error) {
-      let errorMessage = "Something went wrong during authentication";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      console.log(errorMessage);
+    } catch {
+      toast.error("Something Went wrong during authentication");
     }
   };
-
+  useEffect(() => {
+    const listenForEnter = async (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        await handleSubmit();
+      }
+    };
+    document.addEventListener("keypress", listenForEnter);
+    return () => document.removeEventListener("keypress", listenForEnter);
+  });
   return (
     // LOGIN / Register
-    <AnimatePresence>
-      <div className="w-full select-none h-full text-[#1a1a2e] bg-[#fffbe6] font-extrabold flex justify-center items-center">
+    <AnimatePresence key="logReg">
+      <Toaster key="toaster" />
+
+      <div
+        key="contents"
+        className="w-full select-none h-full text-[#1a1a2e] bg-[#fffbe6] font-extrabold flex justify-center items-center"
+      >
         <motion.div
           layout
           transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -46,6 +95,7 @@ const LogReg = () => {
         >
           {/* Left */}
           <motion.div
+            key="left"
             layout
             initial={{ y: 70 }}
             animate={{ y: 0 }}
@@ -67,14 +117,12 @@ const LogReg = () => {
                 ["のアンバランスを", ""],
                 ["改善", "かいぜん"],
                 ["しなければならない。", ""],
-              ].map(([txt, reading]) => {
+              ].map(([txt, reading], index) => {
                 return (
-                  <>
-                    <ruby className="font-light opacity-90">
-                      {txt}
-                      <rt className="text-[10px] text-center">{reading}</rt>
-                    </ruby>
-                  </>
+                  <ruby key={index} className="font-light opacity-90">
+                    {txt}
+                    <rt className="text-[10px] text-center">{reading}</rt>
+                  </ruby>
                 );
               })}
             </span>
@@ -92,6 +140,7 @@ const LogReg = () => {
           </motion.div>
 
           <motion.div
+            key="right"
             initial={{ height: 0 }}
             animate={{ height: "100%" }}
             transition={{ duration: 0.3, ease: "linear" }}
@@ -104,8 +153,8 @@ const LogReg = () => {
             className="p-12 py-8 w-1/2 h-full flex justify-center items-center"
           >
             {/* FORM */}
-            <AnimatePresence mode="wait">
-              <motion.div
+            <AnimatePresence key="FormButtons" mode="wait">
+              <motion.form
                 layout
                 transition={{ duration: 0.2, ease: "linear" }}
                 className="bg-[#fffbe6] h-fit py-8 relatve flex flex-col justify-around items-center w-full border-8 rounded-xl"
@@ -123,7 +172,10 @@ const LogReg = () => {
                     >
                       Login
                     </span>
-                    <div className="w-0.5 bg-[#1a1a2e] z-10 relative" />
+                    <div
+                      key="divider"
+                      className="w-0.5 bg-[#1a1a2e] z-10 relative"
+                    />
                     <span
                       onClick={() => setLoginState(false)}
                       className="relative z-10 flex justify-center items-center py-2 w-1/2 px-10"
@@ -137,6 +189,7 @@ const LogReg = () => {
                       className="absolute left-3 top-1/2 -translate-y-1/2 opacity-80"
                     />
                     <motion.input
+                      autoComplete="on"
                       whileFocus={{
                         boxShadow: "0 0 0 3px rgba(0,0,0, 0.2)",
                         borderColor: "#FF9A3C",
@@ -158,6 +211,7 @@ const LogReg = () => {
                       className="absolute left-3 top-1/2 -translate-y-1/2 opacity-80"
                     />
                     <motion.input
+                      autoComplete="on"
                       whileFocus={{
                         boxShadow: "0 0 0 3px rgba(0,0,0, 0.2)",
                         borderColor: "#FF9A3C",
@@ -205,6 +259,7 @@ const LogReg = () => {
                         className="absolute left-3 top-1/2 -translate-y-1/2 opacity-80"
                       />
                       <motion.input
+                        autoComplete="on"
                         whileFocus={{
                           boxShadow: "0 0 0 3px rgba(0,0,0, 0.2)",
                           borderColor: "#FF9A3C",
@@ -218,7 +273,7 @@ const LogReg = () => {
                       />
 
                       {repeatedPass.length > 0 &&
-                        (show ? (
+                        (showRepeated ? (
                           <FaEyeSlash
                             onClick={() => {
                               setShowRepeated((prev) => !prev);
@@ -239,15 +294,21 @@ const LogReg = () => {
                   )}
                   {loginState ? (
                     <>
-                      <button
+                      <motion.button
+                      type="button"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 1.2 }}
                         onClick={() => {
                           handleSubmit();
                         }}
                         className="bg-[#FF9A3C] hover:cursor-pointer p-4 w-[70%] rounded-full text-xl -mb-4"
                       >
                         Login
-                      </button>
-                      <button
+                      </motion.button>
+                      <motion.button
+                      type="button"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 1.2 }}
                         onClick={() =>
                           (window.location.href =
                             "http://localhost:9898/api/auth/google")
@@ -256,12 +317,13 @@ const LogReg = () => {
                       >
                         Continue With{" "}
                         <FcGoogle className="inline ml-3" size={48} />{" "}
-                      </button>
+                      </motion.button>
                     </>
                   ) : (
-                    <AnimatePresence>
+                    <AnimatePresence key="submitButtons">
                       <motion.div className="flex w-[70%] rounded-xl h-16 border justify-around items-center overflow-hidden">
                         <motion.button
+                        type="button"
                           onClick={() => {
                             handleSubmit();
                           }}
@@ -274,6 +336,7 @@ const LogReg = () => {
                         </motion.button>
                         <div className="h-full w-1 bg-[#1a1a2e] z-20" />
                         <motion.button
+                        type="button"
                           onClick={() =>
                             (window.location.href =
                               "http://localhost:9898/api/auth/google")
@@ -289,7 +352,7 @@ const LogReg = () => {
                     </AnimatePresence>
                   )}
                 </motion.div>
-              </motion.div>
+              </motion.form>
             </AnimatePresence>
           </motion.div>
         </motion.div>

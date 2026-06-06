@@ -10,7 +10,7 @@ router.post("/register", async (req, res) => {
   try {
     const { username, pass } = req.body;
     const exists = await User.findOne({ username: username });
-    if (exists) return res.status(400).json({ error: "User TEST" });
+    if (exists) return res.json({ error: "409" });
     const hashed = bcrypt.hash(pass, 12);
     const user = await User.create({
       username,
@@ -32,10 +32,9 @@ router.post("/login", async (req, res) => {
   try {
     const { username, pass } = req.body;
     const user = await User.findOne({ username });
-    if (!user || !user.pass)
-      return res.status(400).json({ error: "Invalid credentials" });
+    if (!user || !user.pass) return res.json({ error: "400" });
     const match = await bcrypt.compare(pass, user.pass);
-    if (!match) return res.status(400).json({ error: "Invalid credentials" });
+    if (!match) return res.json({ error: "400" });
     const token = jwt.sign({ username: username }, SECRET, {
       expiresIn: "14d",
     });
