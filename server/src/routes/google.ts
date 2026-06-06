@@ -17,7 +17,8 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const profilePic =
-          profile.photos?.[0]?.value?.replace("=s96-c", "") ?? "";
+        // Got some help from claude with this since it was too weird  
+        profile.photos?.[0]?.value?.replace("=s96-c", "=s400-c") ?? "";
         let user = await User.findOne({ googleId: profile.id });
         if (!user) {
           user = await User.create({
@@ -25,9 +26,14 @@ passport.use(
             username: profile.displayName,
             profilePic,
           });
-          const stats = await UserStat.create({
-            username:profile.displayName
-          })
+          const userStat = await UserStat.findOne({
+            username: profile.displayName,
+          });
+          if (!userStat) {
+            const stats = await UserStat.create({
+              username: profile.displayName,
+            });
+          }
         } else {
           if (
             !user.profilePic ||
@@ -35,7 +41,7 @@ passport.use(
           ) {
             user.profilePic = profilePic;
             await user.save();
-          } 
+          }
         }
         done(null, user);
       } catch (err) {
