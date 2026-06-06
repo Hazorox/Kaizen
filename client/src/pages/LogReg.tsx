@@ -30,7 +30,6 @@ const LogReg = () => {
       let data;
       if (loginState) {
         data = await login(username, passInput);
-        (data);
         if (!data) {
           toast.error("Invalid Credentials");
           return;

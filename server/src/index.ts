@@ -9,8 +9,8 @@ import session from "express-session";
 import passport from "passport";
 import { updatePFP } from "./utils/pfpUtils";
 import { delAcc } from "./utils/deleteAcc";
-import { fetchWord } from "./utils/fetchKanji";
 import { ankiUtils } from "./utils/anki";
+import { immersion } from "./utils/immersion";
 const app = express();
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
@@ -27,7 +27,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/auth", googleRoutes);
 app.use(delAcc)
 app.use(updatePFP);
-app.use(fetchWord)
+app.use(immersion)
 app.use(ankiUtils)
 app.get("/", (req, res) => {
   res.json("Kaizen is Running :D");

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { lookupWord } from "../api/lookupWordKanji";
+import { addMinedWord, lookupWord } from "../api/immersion";
 import { useEffect, useState } from "react";
 import { IoBookOutline } from "react-icons/io5";
 import { PiSpeakerHighBold } from "react-icons/pi";
@@ -28,6 +28,14 @@ const LookUp = ({ text, sub = true }: { sub?: boolean; text: string }) => {
 
       setData(result);
       setAudio(result?.[0]?.audio ?? "");
+      if (result?.[0]) {
+        const entry = result[0];
+        addMinedWord(
+          entry.reading.kanji || entry.reading.kana,
+          entry.reading.kanji ? entry.reading.kana : "",
+          entry.senses?.[0]?.glosses?.join(", ") ?? "",
+        );
+      }
     }
 
     fetchStuff();

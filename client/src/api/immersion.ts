@@ -3,6 +3,12 @@ export const lookupKanji =  async (kanji:string)=>{
     const res = await API.get(`/lookup/kanji/${kanji}`)
     return res.data
 }
+
+
+export const addMinedWord = async (word: string, reading: string, meaning: string) => {
+  await API.post('/immersion/add', { word, reading, meaning })
+}
+
 export const lookupWord = async (word:string)=>{
     
     const res = await API.get(`/lookup/word/${word}`)

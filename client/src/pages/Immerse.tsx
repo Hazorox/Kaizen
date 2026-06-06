@@ -219,7 +219,7 @@ const Immerse = () => {
           }}
         />
         <input
-          key="vid"
+          key="vidNoSub"
           ref={vidNoSubRef}
           type="file"
           accept="video/mp4"
