@@ -57,7 +57,7 @@ const UserProfile = () => {
           <span className="flex flex-col gap-8 font-extrabold text-4xl justify-center items-center">
             <div className="relative h-48 w-48">
               {userPic ? (
-                <img src={userPic} className="h-48 w-48 rounded-full" />
+                <img src={userPic} referrerPolicy="no-referrer" className="h-48 w-48 rounded-full" />
               ) : (
                 <div className="h-48 w-48 rounded-full bg-[#1a1a2e]/20 animate-pulse" />
               )}

@@ -6,15 +6,20 @@ import { PiSpeakerHighBold } from "react-icons/pi";
 import { Tooltip } from "react-tooltip";
 import { colors } from "../constants";
 import { ankiAddCard } from "../api/anki";
-import toast, { Toaster } from "react-hot-toast"
+import toast, { Toaster } from "react-hot-toast";
 const LookUp = ({ text, sub = true }: { sub?: boolean; text: string }) => {
   // Defining the type of entries to make a type of list of them would be long and not really important, so ditched it
   const [data, setData] = useState(null);
   const [audio, setAudio] = useState("");
-  const failedAddCard = ()=>{toast.error("Failed. Check if Anki is open or the card already exists.",{icon:<img src="/anki.svg" />,style:{
-    background:"#e87d81",
-    color:"#fffbe6"
-  }})}
+  const failedAddCard = () => {
+    toast.error("Failed. Check if Anki is open or the card already exists.", {
+      icon: <img src="/anki.svg" />,
+      style: {
+        background: "#e87d81",
+        color: "#fffbe6",
+      },
+    });
+  };
   useEffect(() => {
     async function fetchStuff() {
       if (!text) return;
@@ -29,7 +34,11 @@ const LookUp = ({ text, sub = true }: { sub?: boolean; text: string }) => {
   }, [text]);
   return (
     <AnimatePresence>
-      <Toaster position="top-center" reverseOrder={false} toastOptions={{duration:2500,removeDelay:750}} />
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{ duration: 2500, removeDelay: 750 }}
+      />
       {data && (
         <motion.div
           exit={{ height: 0 }}
