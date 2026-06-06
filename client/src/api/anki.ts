@@ -12,12 +12,7 @@ export const ankiGetDue = async () => {
   if (res.status == 400) return;
   return res.data;
 };
-export const addCard = async (
-  front: string,
-  back: string,
-  audio: string,
-  jlpt: string,
-) => {
+export const ankiAddCard = async (front: string, back: string) => {
   if (!localStorage.getItem("deckName")) {
     const ah = await ankiConnect();
     if (!ah) return;
@@ -26,10 +21,8 @@ export const addCard = async (
   const res = await API.post("/anki/addCard", {
     front,
     back,
-    audio,
-    jlpt,
     deckName,
   });
-  if(res.status==400) return;
+  if (res.status == 400) return;
   return res.data;
 };

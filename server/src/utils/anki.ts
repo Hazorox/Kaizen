@@ -51,11 +51,7 @@ router.post("/api/anki/getDue", authMiddleware, async (req, res) => {
   return res.status(200).json(response.result.length);
 });
 router.post("/api/anki/addCard", authMiddleware, async (req, res) => {
-  const deckName = req.body.deckName;
-  const front = req.body.front;
-  const back = req.body.back;
-  const audio = req.body.audio ?? "";
-  const jlpt = req.body.jlpt ?? "";
+  const { deckName, front, back } = req.body;
   const response = await anki("addNote", {
     note: {
       deckName,
@@ -64,8 +60,7 @@ router.post("/api/anki/addCard", authMiddleware, async (req, res) => {
         Front: front,
         Back: back,
       },
-      tags: ["Kaizen", jlpt],
-      audio: { url: audio, fields: "back" },
+      tags: ["Kaizen"],
     },
   });
   if (response == "ankiNotRunning") return res.status(200).json();
