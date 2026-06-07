@@ -11,6 +11,9 @@ import { updatePFP } from "./utils/pfpUtils";
 import { delAcc } from "./utils/deleteAcc";
 import { ankiUtils } from "./utils/anki";
 import { immersion } from "./utils/immersion";
+import { getStats } from "./utils/getStats";
+import { authMiddleware } from "./middleware/auth";
+import { updateLastSeen } from "./middleware/updateLastSeen";
 const app = express();
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
@@ -21,6 +24,7 @@ app.use(
     saveUninitialized: true,
   }),
 );
+app.use(authMiddleware,updateLastSeen)
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/auth", authRoutes);
@@ -29,6 +33,7 @@ app.use(delAcc)
 app.use(updatePFP);
 app.use(immersion)
 app.use(ankiUtils)
+app.use(getStats)
 app.get("/", (req, res) => {
   res.json("Kaizen is Running :D");
 });

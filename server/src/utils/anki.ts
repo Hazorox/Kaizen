@@ -37,7 +37,7 @@ const checkKaizenDeck = (deckArr: string[]) => {
   return res;
 };
 
-router.post("/api/anki/connect", authMiddleware, async (req, res) => {
+router.post("/api/anki/connect", async (req, res) => {
   const response = await anki("deckNames");
   if (response === "ankiNotRunning") return res.status(400).json();
   const kaizenDeck = checkKaizenDeck(response.result);
@@ -45,12 +45,12 @@ router.post("/api/anki/connect", authMiddleware, async (req, res) => {
   return res.status(200).json(kaizenDeck);
 });
 
-router.post("/api/anki/getDue", authMiddleware, async (req, res) => {
+router.post("/api/anki/getDue", async (req, res) => {
   const response = await anki("findCards", { query: "is:due" });
   if (response == "ankiNotRunning") return res.status(400).json();
   return res.status(200).json(response.result.length);
 });
-router.post("/api/anki/addCard", authMiddleware, async (req, res) => {
+router.post("/api/anki/addCard", async (req, res) => {
   const { deckName, front, back } = req.body;
   const response = await anki("addNote", {
     note: {
