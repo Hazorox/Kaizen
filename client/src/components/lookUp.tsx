@@ -7,7 +7,15 @@ import { Tooltip } from "react-tooltip";
 import { colors } from "../constants";
 import { ankiAddCard } from "../api/anki";
 import toast, { Toaster } from "react-hot-toast";
-const LookUp = ({ text, sub = true }: { sub?: boolean; text: string }) => {
+const LookUp = ({
+  text,
+  sub = true,
+  shown = true,
+}: {
+  sub?: boolean;
+  shown: boolean;
+  text: string;
+}) => {
   // Defining the type of entries to make a type of list of them would be long and not really important, so ditched it
   const [data, setData] = useState(null);
   const [audio, setAudio] = useState("");
@@ -49,13 +57,18 @@ const LookUp = ({ text, sub = true }: { sub?: boolean; text: string }) => {
       />
       {data && (
         <motion.div
-          exit={{ height: 0 }}
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: sub ? "55%" : "95%", opacity: 1 }}
+          // initial={{ scaleY: 0, opacity: 0 }}
+          // animate={{ scaleY: 1, opacity: 1 }}
+          // exit={{ scaleY: 0, opacity: 0 }}
+
+          style={{ transformOrigin: "bottom" }}
+          exit={{ scaleY: 0, opacity: 0 }}
+          initial={{ scaleY: 0, opacity: 0 }}
+          animate={{ scaleY: 1, opacity: 1 }}
           transition={{ ease: "linear", duration: 0.3 }}
-          key={data ? "Lookup" : "NoLookup"}
+          key={shown ? (data ? "Lookup" : "NoLookup") : "hiddenLookup"}
           layout
-          className="flex relative flex-col gap-2 bg-[#032d66]"
+          className={`flex relative flex-col gap-2 bg-[#032d66] ${sub ? "h-[55%]" : "h-[95%]"}`}
         >
           {/* Content */}
           <motion.div
@@ -217,6 +230,13 @@ const LookUp = ({ text, sub = true }: { sub?: boolean; text: string }) => {
       )}
       {!data && (
         <motion.div
+          style={{ transformOrigin: "bottom" }}
+          exit={{ scaleY: 0, opacity: 0 }}
+          initial={{ scaleY: 0, opacity: 0 }}
+          animate={{ scaleY: 1, opacity: 1 }}
+          transition={{ ease: "linear", duration: 0.4 }}
+          key={shown ? (data ? "Lookup" : "NoLookup") : "hiddenLookup"}
+          layout
           className={`${sub ? "h-[55%]" : "h-full"} flex justify-center items-center text-center text-xl text-[#fffbe6]/90 bg-[#032d66] w-full`}
         >
           Select Text To Lookup

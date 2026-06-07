@@ -18,8 +18,10 @@ import { parse } from "@plussub/srt-vtt-parser";
 import { getSub } from "../api/ytSub";
 import { LuShrink } from "react-icons/lu";
 import LookUp from "../components/lookUp";
+import { RiMenuSearchLine } from "react-icons/ri";
 const Immerse = () => {
   // STATES
+  const [lookUpShown, setLookupShown] = useState(true);
   const [vidSrc, setVidSrc] = useState<string>("");
   const [navCollapsed, setNavCollapsed] = useState<boolean>(false);
   const [vttSrc, setVttSrc] = useState<string>("");
@@ -105,12 +107,14 @@ const Immerse = () => {
   useEffect(() => {
     if (preUpload || fileType == "pdf") return;
     const handleMouseUp = () => {
-      const word = window.getSelection()?.toString().trim();
-      if (!word) {
-        setLookup("");
-        return;
+      if (lookUpShown) {
+        const word = window.getSelection()?.toString().trim();
+        if (!word) {
+          setLookup("");
+          return;
+        }
+        setLookup(word);
       }
-      setLookup(word);
     };
     document
       .getElementById("subBar")
@@ -119,7 +123,7 @@ const Immerse = () => {
       document
         .getElementById("subBar")
         ?.removeEventListener("mouseup", handleMouseUp);
-  }, [preUpload, fileType, navCollapsed]);
+  }, [preUpload, fileType, navCollapsed, lookUpShown]);
 
   // YouTube
   useEffect(() => {
@@ -183,26 +187,44 @@ const Immerse = () => {
       <div
         className={`w-full h-full relative items-center overflow-hidden bg-[#fffbe6] flex justify-center`}
       >
-        <motion.div
-          layout
-          onClick={async () => {
-            setNavCollapsed((prev) => !prev);
-            if (document.fullscreenElement) {
-              await document.exitFullscreen();
-            } else {
-              await document.body.requestFullscreen();
-            }
-          }}
-          className={`${preUpload ? "hidden " : ""}absolute right-1.5 bottom-1 z-100 bg-[#1a1a2e] p-2 cursor-pointer rounded-full${navCollapsed ? " right-4 bottom-3" : ""}`}
-          whileHover={{ scale: 1.15, y: -20 }}
-          whileTap={{ scale: 1.25 }}
+        <span
+          key={"buttons"}
+          className="absolute right-1 bottom-1 flex flex-col gap-8"
         >
-          {navCollapsed ? (
-            <LuShrink size={36} className="text-[#fffbe6]" />
-          ) : (
-            <FaExpandArrowsAlt size={36} className="text-[#fffbe6]" />
-          )}
-        </motion.div>
+          <motion.div
+            key={"lookUpHider"}
+            layout
+            onClick={() => {
+              setLookupShown((prev) => !prev);
+            }}
+            className={`${preUpload ? "hidden " : ""} z-100 bg-[#1a1a2e] p-2 cursor-pointer rounded-full${navCollapsed ? " right-4 bottom-3" : ""}`}
+            whileHover={{ scale: 1.15, y: -20 }}
+            whileTap={{ scale: 1.25 }}
+          >
+            <RiMenuSearchLine size={36} className="text-[#fffbe6]" />
+          </motion.div>
+          <motion.div
+            key="navCollapser"
+            layout
+            onClick={async () => {
+              setNavCollapsed((prev) => !prev);
+              if (document.fullscreenElement) {
+                await document.exitFullscreen();
+              } else {
+                await document.body.requestFullscreen();
+              }
+            }}
+            className={`${preUpload ? "hidden " : ""} z-100 bg-[#1a1a2e] p-2 cursor-pointer rounded-full${navCollapsed ? " right-4 bottom-3" : ""}`}
+            whileHover={{ scale: 1.15, y: -20 }}
+            whileTap={{ scale: 1.25 }}
+          >
+            {navCollapsed ? (
+              <LuShrink size={36} className="text-[#fffbe6]" />
+            ) : (
+              <FaExpandArrowsAlt size={36} className="text-[#fffbe6]" />
+            )}
+          </motion.div>
+        </span>
         <input
           key="vid"
           ref={videoInputRef}
@@ -365,9 +387,9 @@ const Immerse = () => {
                   <motion.input
                     ref={ytInputRef}
                     value={ytInput}
-                    onKeyPress={async(e)=>{
-                      if(e.key==="Enter"){
-                        await submitYTID()
+                    onKeyPress={async (e) => {
+                      if (e.key === "Enter") {
+                        await submitYTID();
                       }
                     }}
                     onChange={(e) => {
@@ -421,7 +443,7 @@ const Immerse = () => {
                   ref={subBarRef}
                   id="subBar"
                   layout
-                  className="h-[45%] overflow-y-scroll scrollable bg-[#fffbe6]/50"
+                  className={`${lookUpShown ? "h-[45%]" : "h-full"} overflow-y-scroll scrollable bg-[#fffbe6]/50`}
                 >
                   {data.entries.map((cue, index) => {
                     const focused =
@@ -452,7 +474,7 @@ const Immerse = () => {
                     );
                   })}
                 </motion.div>
-                <LookUp text={lookup} />
+                {lookUpShown && <LookUp text={lookup} />}
               </motion.div>
             </motion.div>
           )}
@@ -502,7 +524,7 @@ const Immerse = () => {
                       <FaArrowCircleRight size={40} />
                     </motion.span>
                   </motion.span>
-                  <LookUp text={lookup} sub={false} />
+                  {lookUpShown && <LookUp text={lookup} sub={false} />}
                 </motion.div>
               </motion.div>
             </motion.div>
@@ -523,8 +545,10 @@ const Immerse = () => {
               <motion.div layout className="flex w-[35%] flex-col">
                 <motion.div
                   ref={subBarRef}
+                  layout
                   id="subBar"
-                  className="w-full h-[45%] border-l-4 border-b-4 overflow-y-scroll overflow-x-hidden scrollable flex flex-col bg-[#fffbe6]/50"
+                  // ${lookUpShown ? "h-[45%]" : "h-[full]"}
+                  className={`w-full ${lookUpShown ? "h-[45%]" : "h-[full]"} border-l-4 border-b-4 overflow-y-scroll overflow-x-hidden scrollable flex flex-col bg-[#fffbe6]/50`}
                 >
                   {ytSub.length == 0 &&
                     "No Japanese Subtitles Available for This Video"}
@@ -558,7 +582,7 @@ const Immerse = () => {
                     );
                   })}
                 </motion.div>
-                <LookUp text={lookup} />
+                {lookUpShown && <LookUp text={lookup} shown={lookUpShown} />}
               </motion.div>
             </motion.div>
           )}
