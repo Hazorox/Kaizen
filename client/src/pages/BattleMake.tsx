@@ -31,7 +31,13 @@ const Battle = () => {
           <>
             {" "}
             <Nav showBattle={false} />
-            <motion.div className="w-[60%] h-[70%] bg-[#4ecdc4] justify-between  items-center p-8 rounded-xl border-4 flex flex-col">
+            <motion.div
+              layout
+              initial={{ scale: 0.3, opacity: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: "easeIn" }}
+              className="w-[60%] h-[70%] bg-[#4ecdc4] justify-between  items-center p-8 rounded-xl border-4 flex flex-col"
+            >
               <span key={"title"} className="text-7xl">
                 Matches
               </span>
@@ -61,11 +67,15 @@ const Battle = () => {
                     />
                     <motion.input
                       ref={idRef}
+                      whileFocus={{
+                        boxShadow: "0 0 0 3px rgba(0,0,0, 0.2)",
+                        borderColor: "#FF9A3C",
+                      }}
                       onChange={(e) => {
                         setIdInput(e.target.value);
                       }}
                       placeholder="Room ID"
-                      className="w-full placeholder:text-[#fffbe6]/75 text-[#fffbe6]/90 py-6 bg-[#1a1a2e] pl-20 rounded-full"
+                      className="w-full placeholder:text-[#fffbe6]/75 text-[#fffbe6]/90 py-6 bg-[#1a1a2e]/85 pl-20 rounded-full"
                       maxLength={6}
                     />
                     <motion.span
