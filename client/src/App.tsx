@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Immerse from "./pages/Immerse";
 import Battle from "./pages/Battle";
+import BattleMake from "./pages/BattleMake";
 import UserProfile from "./pages/UserProfile";
 import Recents from "./pages/Recents";
 import LogReg from "./pages/LogReg";
@@ -18,7 +19,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/immerse/" element={<Immerse />} />
           <Route path="/battle/:id" element={<Battle />} />
-          <Route path="/battle/" element={<Battle />} />
+          <Route path="/battle/" element={<BattleMake />} />
           <Route path="/profile/:id" element={<UserProfile />} />
           <Route path="/profile/" element={<UserProfile />} />
           <Route path="/recents/" element={<Recents />} />
