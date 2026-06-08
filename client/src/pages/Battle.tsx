@@ -1,12 +1,8 @@
-import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from "react-router-dom";
 
 const Battle = () => {
-    const {id} = useParams();
+  const { id } = useParams();
+  return <>{id && "hiiiiiii"}</>;
+};
 
-  return (
-    <div>{id}</div>
-  )
-}
-
-export default Battle
+export default Battle;
