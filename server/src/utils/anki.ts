@@ -39,7 +39,7 @@ const checkKaizenDeck = (deckArr: string[]) => {
 
 router.post("/api/anki/connect", async (req, res) => {
   const response = await anki("deckNames");
-  if (response === "ankiNotRunning") return res.status(400).json();
+  if (response === "ankiNotRunning") return res.json({error:"400"});
   const kaizenDeck = checkKaizenDeck(response.result);
   if (!kaizenDeck) await anki("createDeck", { deck: "Kaizen" });
   return res.status(200).json(kaizenDeck);
@@ -47,7 +47,7 @@ router.post("/api/anki/connect", async (req, res) => {
 
 router.post("/api/anki/getDue", async (req, res) => {
   const response = await anki("findCards", { query: "is:due" });
-  if (response == "ankiNotRunning") return res.status(400).json();
+  if (response == "ankiNotRunning") return res.json({error:"400"});
   return res.status(200).json(response.result.length);
 });
 router.post("/api/anki/addCard", async (req, res) => {
