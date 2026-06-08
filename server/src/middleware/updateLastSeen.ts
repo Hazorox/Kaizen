@@ -6,6 +6,7 @@ export const updateLastSeen = async (
   res: Response,
   next: NextFunction,
 ) => {
+  if (req.path.startsWith("/api/auth")) return next();
   const username = (req as any).user?.username;
   if (username) {
     await UserStat.updateOne({ username }, { $set: { lastSeen: new Date() } });
