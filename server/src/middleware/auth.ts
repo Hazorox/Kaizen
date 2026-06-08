@@ -5,9 +5,10 @@ export const authMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
+  if (req.path.startsWith("/api/auth")) return next();
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "No Token" });
-  if(!process.env.JWT_SECRET) console.log("JWT SECRET NOT FOUND")
+  if (!process.env.JWT_SECRET) console.log("JWT SECRET NOT FOUND");
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET ?? "secret");
     (req as any).user = decoded;
