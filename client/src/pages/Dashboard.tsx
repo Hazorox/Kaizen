@@ -10,18 +10,22 @@ import Guide from "../components/Guide";
 import { useEffect, useState } from "react";
 import { ankiGetDue } from "../api/anki";
 import { getUsername } from "../utils/getUsername";
+import {  getStats } from "../api/getStats";
 
 const Dashboard = () => {
   const nav = useNavigate();
   const time = new Date().getHours();
   const username = getUsername();
-  const [ankiDue,setAnkiDue] = useState<number|null>(null);
-  useEffect(()=>{
-    const fetchDue = async ()=>{
+
+  const [ankiDue, setAnkiDue] = useState<number | null>(null);
+  const [stats,setStats] = useState<{mining:number,matches:number}>({mining:0,matches:0})
+  useEffect(() => {
+    const fetchStuff = async () => {
       await ankiGetDue().then(setAnkiDue);
-    }
-    fetchDue()
-  },[])
+      await getStats().then(setStats)
+    };
+    fetchStuff();
+  }, []);
   return (
     // Dashboard
     <AnimatePresence>
@@ -51,20 +55,28 @@ const Dashboard = () => {
             <Card
               style={"bg-[#ff9a3c] !border-[#e06500]"}
               title={"Anki"}
-              txt={!ankiDue? "Anki Not Connected":ankiDue == 1 ? "1 Card Due" : `${ankiDue} Cards Due`}
+              txt={
+                !ankiDue
+                  ? "Anki Not Connected"
+                  : ankiDue == 1
+                    ? "1 Card Due"
+                    : `${ankiDue} Cards Due`
+              }
               icon={"anki.svg"}
             />
             <Card
               style={"bg-[#c9b1ff] !border-[#7c3aed]"}
               title={"Immersion"}
-              txt={0 + " Words Mined Today"}
+              txt={stats.mining + " Words Mined Today"}
               icon={<IoDiamondOutline className="h-26 w-30" />}
             />
-            
+
             <Card
-              style={"bg-[#ffe066] col-span-2 flex justify-center !border-[#ffcb00]"}
+              style={
+                "bg-[#ffe066] col-span-2 flex justify-center !border-[#ffcb00]"
+              }
               title={"Matches"}
-              txt={0 + " Wins Today"}
+              txt={stats.matches + " Matches Today"}
               icon={<RiSwordFill className="h-26 w-30" />}
             />
           </div>
