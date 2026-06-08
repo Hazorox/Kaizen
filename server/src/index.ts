@@ -1,4 +1,6 @@
 import "dotenv/config";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -14,7 +16,10 @@ import { immersion } from "./utils/immersion";
 import { getStats } from "./utils/getStats";
 import { authMiddleware } from "./middleware/auth";
 import { updateLastSeen } from "./middleware/updateLastSeen";
+import { makeSocket } from "./socket";
 const app = express();
+const httpServer = createServer(app)
+const io = makeSocket(httpServer)
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 app.use(
@@ -24,16 +29,16 @@ app.use(
     saveUninitialized: true,
   }),
 );
-app.use(authMiddleware,updateLastSeen)
+app.use(authMiddleware, updateLastSeen);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", googleRoutes);
-app.use(delAcc)
+app.use(delAcc);
 app.use(updatePFP);
-app.use(immersion)
-app.use(ankiUtils)
-app.use(getStats)
+app.use(immersion);
+app.use(ankiUtils);
+app.use(getStats);
 app.get("/", (req, res) => {
   res.json("Kaizen is Running :D");
 });
@@ -48,10 +53,10 @@ mongoose
   .connect(process.env.MONGO_URI ?? "")
   .then(() => {
     console.log("Connected to MongoDB !");
-    app.listen(process.env.PORT, () => {
-      console.log("Server Running");
-    });
   })
   .catch((err) => {
     console.error(`Error while connecting to Database : \n${err}`);
   });
+httpServer.listen(process.env.PORT, () => {
+  console.log("Server Running");
+});
