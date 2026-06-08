@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 import { AnimatePresence, motion } from "motion/react";
 const Nav = ({
-  shown=true ,
+  shown = true,
   showImmerse = true,
   showBattle = true,
 }: {
@@ -31,7 +31,7 @@ const Nav = ({
           <motion.span
             key={"streak"}
             initial={{ color: "#1a1a2e" }}
-            whileHover={{ color: "#fffbe6", opacity: 0.9 }}
+            whileHover={{ color: "#fffbe6", opacity: 0.8 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
           >
             {streak > 0 ? (
@@ -44,7 +44,7 @@ const Nav = ({
           <motion.span
             key={"title"}
             initial={{ color: "#1a1a2e" }}
-            whileHover={{ color: "#fffbe6", opacity: 0.9 }}
+            whileHover={{ color: "#fffbe6", opacity: 0.8 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className="absolute cursor-pointer left-1/2 -translate-x-1/2"
             onClick={() => {
@@ -57,7 +57,7 @@ const Nav = ({
             {showImmerse && (
               <motion.span
                 initial={{ color: "#1a1a2e" }}
-                whileHover={{ color: "#fffbe6", opacity: 0.9 }}
+                whileHover={{ color: "#fffbe6", opacity: 0.8 }}
                 transition={{ duration: 0.2, ease: "easeInOut" }}
                 className="cursor-pointer"
                 onClick={() => {
@@ -70,17 +70,19 @@ const Nav = ({
             {showImmerse && showBattle && (
               <span className="border h-10 mx-2 w-0.75 rounded-4xl bg-[#1a1a2e]"></span>
             )}
-            <motion.span
-              initial={{ color: "#1a1a2e" }}
-              whileHover={{ color: "#fffbe6", opacity: 0.9 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="cursor-pointer"
-              onClick={() => {
-                nav("/battle");
-              }}
-            >
-              <LuSwords className="inline relative bottom-1" /> Battle
-            </motion.span>
+            {showBattle && (
+              <motion.span
+                initial={{ color: "#1a1a2e" }}
+                whileHover={{ color: "#fffbe6", opacity: 0.9 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="cursor-pointer"
+                onClick={() => {
+                  nav("/battle");
+                }}
+              >
+                <LuSwords className="inline relative bottom-1" /> Battle
+              </motion.span>
+            )}
           </span>
         </motion.div>
       )}
