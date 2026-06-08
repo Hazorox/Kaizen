@@ -198,6 +198,7 @@ const LogReg = () => {
                         setUsername(e.target.value);
                       }}
                       id="userInput"
+                      maxLength={15}
                       type="text"
                       className="px-2 pl-10 w-full border-2 h-12 rounded-md"
                       placeholder="Username"
