@@ -2,14 +2,17 @@ import API from "./baseAPI";
 
 export const ankiConnect = async () => {
   const res = await API.post("/anki/connect");
-  if (res.status == 400) return;
+  if (res.data.error === "400") return;
   if (res.status == 200) localStorage.setItem("deckName", res.data);
   return res.data;
 };
 
 export const ankiGetDue = async () => {
+  if (!localStorage.getItem("deckName")) {
+    return;
+  }
   const res = await API.post("/anki/getDue");
-  if (res.status == 400) return;
+  if (res.data.error == "400") return;
   return res.data;
 };
 export const ankiAddCard = async (front: string, back: string) => {
