@@ -9,11 +9,12 @@ import { useNavigate } from "react-router-dom";
 import Guide from "../components/Guide";
 import { useEffect, useState } from "react";
 import { ankiGetDue } from "../api/anki";
+import { getUsername } from "../utils/getUsername";
 
 const Dashboard = () => {
   const nav = useNavigate();
   const time = new Date().getHours();
-  const username = "Hazoro";
+  const username = getUsername();
   const [ankiDue,setAnkiDue] = useState<number|null>(null);
   useEffect(()=>{
     const fetchDue = async ()=>{
