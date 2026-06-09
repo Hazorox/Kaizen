@@ -22,6 +22,7 @@ interface vocabRound {
   correct: VocabEntry;
   distractors: VocabEntry[];
 }
+type BothRound = [vocabRound, KanjiEntry];
 const loadVocab = (): VocabEntry[] => {
   const file = fs.readFileSync(
     path.join(__dirname, "../data/jlpt_vocab.csv"),
@@ -33,43 +34,61 @@ const loadVocab = (): VocabEntry[] => {
   });
 };
 
-const generateData = (mode: string, rounds: number, level: string) => {
-  let data = [];
-  const levelNum = level.slice(-1);
+const generateVocab = (level: number): vocabRound => {
+  const vocabData = loadVocab().filter(
+    (entry) => Number(entry.Level.slice(1)) >= level,
+  );
+  const correctEntry = vocabData[Math.floor(Math.random() * vocabData.length)];
+  let distractors: VocabEntry[] = [];
+  for (let i = 0; i < 3; i++) {
+    let entry = vocabData[Math.floor(Math.random() * vocabData.length)];
+    while (entry == correctEntry) {
+      entry = vocabData[Math.floor(Math.random() * vocabData.length)];
+    }
+    distractors.push(entry);
+  }
+  return { correct: correctEntry, distractors };
+};
+const generateKanji = (level: number, rounds: number): KanjiEntry[] => {
+  let data: KanjiEntry[] = [];
+  const kanjiData = loadKanji().filter(
+    (entry) => entry.Level.toString() >= levelNum,
+  );
+  for (let i = 0; i < rounds; i++) {
+    const entry = kanjiData[Math.floor(Math.random() * kanjiData.length)];
+    data.push(entry);
+  }
+  return data;
+};
+
+const generateData = (
+  mode: string,
+  rounds: number,
+  levelStr: string,
+): KanjiEntry[] | vocabRound[] | BothRound[] | undefined => {
+  const level = Number(levelStr.slice(1));
+
   if (mode == "both") {
-    const kanjiData = loadKanji().filter(
-      (entry) => entry.Level.toString() === levelNum,
-    );
-    const vocabData = loadVocab().filter((entry) => entry.Level === level);
-    // return ["Hiiiii"];
+    let data: BothRound[] = [];
+    for (let i = 0; i < rounds; i++) {
+      const kanjiRound = generateKanji(level, 1)[0];
+      const vocabRound = generateVocab(level);
+      data.push([vocabRound, kanjiRound]);
+    }
+    return data;
   }
   if (mode == "kanji") {
-    const kanjiData = loadKanji().filter(
-      (entry) => entry.Level.toString() === levelNum,
-    );
-    for (let i = 0; i < rounds; i++) {
-      const entry = kanjiData[Math.floor(Math.random() * kanjiData.length)];
-      data.push(entry);
-    }
-    return data;
+    return generateKanji(level, rounds);
   }
   if (mode == "vocab") {
-    const vocabData = loadVocab().filter((entry) => entry.Level === level);
+    let data: vocabRound[] = [];
     for (let i = 0; i < rounds; i++) {
-      const correctEntry =
-        vocabData[Math.floor(Math.random() * vocabData.length)];
-      let distractors = [];
-      for (let i = 0; i < 3; i++) {
-        let entry = vocabData[Math.floor(Math.random() * vocabData.length)];
-        while (entry == correctEntry) {
-          entry = vocabData[Math.floor(Math.random() * vocabData.length)];
-        }
-        distractors.push(entry);
-      }
-      data.push({ correct: correctEntry, distractors });
+      const returned = generateVocab(level);
+      data.push(returned);
     }
     return data;
   }
+  return;
 };
 
 const loadKanji = (): KanjiEntry[] => {
@@ -94,21 +113,13 @@ router.post("/api/create_match", async (req, res) => {
       jlptLevel,
       rounds,
     }: { mode: modeTypes; jlptLevel: jlptTypes; rounds: number } = req.body;
-    let roundsData: KanjiEntry[] | vocabRound[] | string[] = [];
-    if (mode == "both") {
-      roundsData = generateData("both", rounds, jlptLevel) ?? [];
-    }
-    if (mode == "vocab") {
-      roundsData = generateData("vocab", rounds, jlptLevel) ?? [];
-    }
-    if (mode == "kanji") {
-      roundsData = generateData("kanji", rounds, jlptLevel) ?? [];
-    }
+    let roundsData: KanjiEntry[] | vocabRound[] | BothRound[] | undefined =
+      generateData(mode, rounds, jlptLevel);
     await Matches.create({
       roomId,
       jlptLevel,
       mode,
-      rounds: roundsData,
+      rounds: roundsData ?? [],
       status: "waiting",
     });
 

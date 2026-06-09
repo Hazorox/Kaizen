@@ -45,7 +45,7 @@ const Battle = () => {
           >
             <motion.button
               onClick={async () => {
-                const id = await createMatch("vocab", "N5", 3);
+                const id = await createMatch("both", "N3", 3);
                 if (id.error) {
                   console.log(id.error);
                   return toast.error("An Error Occured ;-;");
