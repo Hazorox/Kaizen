@@ -6,7 +6,7 @@ export const getStats =async()=>{
     return res.data
 }
 export const totalMined = async ()=>{
-    const res = await API.get("/immersion/total")
+    const res = await API.get("/getStats/total")
     if(res.data.error) return;
     return res.data
 }
