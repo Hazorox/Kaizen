@@ -19,11 +19,12 @@ router.get("/api/getStats", async (req, res) => {
   res.json({mining:minedToday,matches:matchesToday})
 });
 
-router.get("/api/immersion/total",async (req,res)=>{
+router.get("/api/getStats/total",async (req,res)=>{
   const username = (req as any).user.username
   const response = await UserStat.findOne({username})
   if(!response) return res.json({error:"404"})
   res.json(response.mining.length)
 })
+
 
 export const getStats = router;
