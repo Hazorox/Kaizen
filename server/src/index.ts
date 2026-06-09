@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { createServer } from "http";
-import { Server } from "socket.io";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -17,10 +16,11 @@ import { getStats } from "./utils/getStats";
 import { authMiddleware } from "./middleware/auth";
 import { updateLastSeen } from "./middleware/updateLastSeen";
 import { makeSocket } from "./socket";
+import { matches } from "./utils/matches";
 const app = express();
 const httpServer = createServer(app)
 const io = makeSocket(httpServer)
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({ origin: ["http://localhost:5173","https://admin.socket.io/"] }));
 app.use(express.json());
 app.use(
   session({
@@ -39,6 +39,7 @@ app.use(updatePFP);
 app.use(immersion);
 app.use(ankiUtils);
 app.use(getStats);
+app.use(matches)
 app.get("/", (req, res) => {
   res.json("Kaizen is Running :D");
 });
