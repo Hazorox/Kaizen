@@ -1,20 +1,6 @@
 import mongoose from "mongoose";
 
 const schema = mongoose.Schema;
-interface VocabEntry {
-  Original: string;
-  Furigana: string;
-  English: string;
-  Level: string;
-}
-interface kanjiRound {
-  Kanji: string;
-  Level: number;
-}
-interface vocabRound {
-  correct: VocabEntry;
-  distractors: VocabEntry[];
-}
 
 const MatchesModel = new schema({
   roomId: String,
