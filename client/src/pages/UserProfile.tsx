@@ -11,10 +11,12 @@ import { useEffect, useRef, useState } from "react";
 import { getUsername } from "../utils/getUsername";
 import { ankiConnect } from "../api/anki";
 import { IoRefresh } from "react-icons/io5";
+import { totalMined } from "../api/getStats";
 
 const UserProfile = () => {
   const pfpRef = useRef<HTMLInputElement>(null);
   const nav = useNavigate();
+  const [mined,setMined] = useState(0)
   const { id } = useParams();
   let username;
   if (!id) {
@@ -24,7 +26,11 @@ const UserProfile = () => {
   }
   const [userPic, setUserPic] = useState<string | null>(null);
   useEffect(() => {
-    getPFP(username).then(setUserPic);
+    const fetchStuff = async () => {
+      await getPFP(username).then(setUserPic);
+      await totalMined().then(setMined)
+    };
+    fetchStuff();
   }, [username]);
   const [ankiDeck, setAnkiDeck] = useState(
     localStorage.getItem("deckName") ?? "",
@@ -133,7 +139,7 @@ const UserProfile = () => {
                 }
               >
                 <LuPickaxe className="inline" size={24} />
-                102099 Words Mined
+                {mined??"0"} Words Mined
               </motion.span>
             </span>
           </span>
