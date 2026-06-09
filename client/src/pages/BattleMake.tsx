@@ -5,12 +5,29 @@ import Nav from "../components/Nav";
 import { MdMeetingRoom } from "react-icons/md";
 import { FaArrowCircleRight } from "react-icons/fa";
 import { Toaster, toast } from "react-hot-toast";
-import { createMatch } from "../api/match";
-
+import { LuSword, LuSwords } from "react-icons/lu";
+import { Tooltip } from "react-tooltip";
+import { FaCirclePlus } from "react-icons/fa6";
+// import { createMatch } from "../api/match";
+// onClick={async () => {
+//                 const id = await createMatch("kanji", "N3", 3);
+//                 if (id.error) {
+//                   console.log(id.error);
+//                   return toast.error("An Error Occured ;-;");
+//                 }
+//                 nav(`/battle/${id}`);
+//               }}
 const Battle = () => {
   const nav = useNavigate();
   const idRef = useRef<HTMLInputElement>(null);
   const [idInput, setIdInput] = useState("");
+  const [makerShown, setMakerShown] = useState(false);
+  const [selections, setSelections] = useState<{
+    mode: string;
+    jlptLevel: string;
+    rounds: number;
+  }>({ mode: "both", jlptLevel: "N5", rounds: 3 });
+  console.log(selections);
   useEffect(() => {
     const listenForEnter = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
@@ -26,6 +43,140 @@ const Battle = () => {
   return (
     <AnimatePresence>
       <Toaster key={"toaster"} />
+      <motion.div
+        onClick={() => {
+          setMakerShown(false);
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.4, ease: "linear" }}
+        key={makerShown ? "makerShown" : "makerHidden"}
+        layout
+        className={`${!makerShown && "hidden"} w-full font-bold h-full z-100 absolute bg-[#1a1a2e]/55 flex justify-center items-center`}
+      >
+        <motion.div
+          onClick={(e) => e.stopPropagation()}
+          initial={{ scale: 0.01, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, ease: "backInOut" }}
+          exit={{ scale: 0.01, opacity: 0 }}
+          layout
+          className="bg-[#fffbe6] flex flex-col justify-around gap-12 relative border-2 w-[50%] h-[60%] p-8 rounded-xl"
+        >
+          <span
+            key={"title"}
+            className="w-full flex justify-center items-center gap-6 text-4xl"
+          >
+            {" "}
+            <LuSwords size={"48"} className="mt-2" />
+            Match Creator <LuSwords size={"48"} className="mt-2" />{" "}
+          </span>
+          <span
+            className="w-full flex justify-around items-center"
+            key={"JLPT"}
+          >
+            <Tooltip id="jlpt" />
+            <span
+              className="text-2xl"
+              data-tooltip-id="jlpt"
+              data-tooltip-content={
+                "Contains from JLPT N5 to the chosen JLPT level"
+              }
+            >
+              JLPT Level
+            </span>
+            <span className="flex w-1/2 justify-between items-center gap-6">
+              {["N5", "N4", "N3", "N2", "N1"].map((jlptLevel) => (
+                <motion.div
+                  key={jlptLevel}
+                  onClick={() => {
+                    setSelections((prev) => {
+                      return {
+                        ...prev,
+                        jlptLevel,
+                      };
+                    });
+                  }}
+                  className={`${selections.jlptLevel == jlptLevel ? "bg-[#1a1a2e] text-[#fffbe6]" : "bg-[#fffbe6] text-[#1a1a2e]"} cursor-pointer border-2 p-2 px-4 tracking-widest rounded-full  flex justify-center items-center`}
+                >
+                  {jlptLevel}
+                </motion.div>
+              ))}
+            </span>
+          </span>
+          <span className="w-full flex justify-between px-12 items-center">
+            <span className="text-3xl">Rounds</span>
+            <motion.span
+              layout
+              className="min-w-[36%] max-h-fit overflow-clip max-w-fit relative border-2 flex justify-center items-center text-4xl rounded-full py-4"
+            >
+              <motion.button
+                key={"-"}
+                onClick={() =>
+                  setSelections((prev) => {
+                    if (!prev) return;
+                    return {
+                      ...prev,
+                      rounds: Math.max(1, (prev?.rounds ?? 1) - 1),
+                    };
+                  })
+                }
+                whileTap={{ scale: 1.1 }}
+                initial={{ opacity: 0.95 }}
+                whileHover={{ opacity: 1 }}
+                className="absolute text-[#fffbe6] text-6xl left-0  cursor-pointerflex items-center justify-center bg-[#1a1a2e] w-16 h-full rounded-full border"
+              >
+                -
+              </motion.button>
+              {selections?.rounds}
+              <motion.button
+                key={"+"}
+                onClick={() =>
+                  setSelections((prev) => {
+                    if (!prev) return;
+                    return {
+                      ...prev,
+                      rounds: Math.min(7, (prev?.rounds ?? 1) + 1),
+                    };
+                  })
+                }
+                whileTap={{ scale: 1.1 }}
+                initial={{ opacity: 0.95 }}
+                whileHover={{ opacity: 1 }}
+                className="absolute text-[#fffbe6] text-6xl right-0 cursor-pointer flex items-center justify-center bg-[#1a1a2e] w-16 h-full rounded-full border"
+              >
+                +
+              </motion.button>
+            </motion.span>
+          </span>
+          <span className="w-full flex justify-around items-center">
+            <span className="text-3xl">Mode</span>
+            <span className="w-1/2 flex justify-between items-center">
+              {["Both", "Vocab", "Kanji"].map((modeStr) => (
+                <motion.div
+                  onClick={() => {
+                    setSelections((prev) => ({
+                      ...prev,
+                      mode: modeStr.toLowerCase(),
+                    }));
+                  }}
+                  className={`${selections.mode === modeStr.toLowerCase() ? "bg-[#1a1a2e] text-[#fffbe6]" : "bg-[#fffbe6] text-[#1a1a2e]"} cursor-pointer border-2 rounded-full p-4 text-xl`}
+                  key={modeStr}
+                >
+                  {modeStr}
+                </motion.div>
+              ))}
+            </span>
+          </span>
+          <span className="flex justify-center items-center">
+            <motion.button className="flex text-2xl border-4 p-2 py-4 cursor-pointer rounded-full w-1/3 bg-[#3dce3d] justify-center gap-6 items-center">
+              Create Match
+            </motion.button>
+          </span>
+        </motion.div>
+      </motion.div>
+
       <div className="w-full select-none h-full text-[#1a1a2e] bg-[#fffbe6] font-extrabold flex justify-center items-center">
         {" "}
         <Nav showBattle={false} />
@@ -44,13 +195,8 @@ const Battle = () => {
             className="w-full flex flex-col gap-8 justify-around h-fit items-center"
           >
             <motion.button
-              onClick={async () => {
-                const id = await createMatch("kanji", "N3", 3);
-                if (id.error) {
-                  console.log(id.error);
-                  return toast.error("An Error Occured ;-;");
-                }
-                nav(`/battle/${id}`);
+              onClick={() => {
+                setMakerShown(true);
               }}
               whileTap={{ scale: 1.2 }}
               whileHover={{ scale: 1.15 }}
