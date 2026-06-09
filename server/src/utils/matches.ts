@@ -52,7 +52,7 @@ const generateVocab = (level: number): vocabRound => {
 const generateKanji = (level: number, rounds: number): KanjiEntry[] => {
   let data: KanjiEntry[] = [];
   const kanjiData = loadKanji().filter(
-    (entry) => entry.Level.toString() >= levelNum,
+    (entry) => entry.Level.toString() >= level,
   );
   for (let i = 0; i < rounds; i++) {
     const entry = kanjiData[Math.floor(Math.random() * kanjiData.length)];
