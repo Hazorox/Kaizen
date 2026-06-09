@@ -16,7 +16,8 @@ import { totalMined } from "../api/getStats";
 const UserProfile = () => {
   const pfpRef = useRef<HTMLInputElement>(null);
   const nav = useNavigate();
-  const [mined,setMined] = useState(0)
+  const [mined, setMined] = useState(0);
+  const [matches, setMatches] = useState(0);
   const { id } = useParams();
   let username;
   if (!id) {
@@ -28,7 +29,7 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchStuff = async () => {
       await getPFP(username).then(setUserPic);
-      await totalMined().then(setMined)
+      await totalMined().then(setMined);
     };
     fetchStuff();
   }, [username]);
@@ -121,12 +122,11 @@ const UserProfile = () => {
               >
                 <span className="flex justify-center gap-2 items-center">
                   <LuSwords size={24} className="inline" />
-                  1029 Matches Played
+                  {matches} Matches Played
                 </span>
-                <span className="flex gap-3 items-center justify-around">
+                <span className="flex items-center justify-center gap-12">
                   <span className="text-green-700">4</span>
-                  <div className="w-1 rounded-full h-8 bg-[#1a1a2e]" />
-                  <span className="text-gray-500">2</span>
+                  
                   <div className="w-1 rounded-full h-8 bg-[#1a1a2e]" />
                   <span className="text-red-500">3</span>
                 </span>
@@ -139,7 +139,7 @@ const UserProfile = () => {
                 }
               >
                 <LuPickaxe className="inline" size={24} />
-                {mined??"0"} Words Mined
+                {mined ?? "0"} Words Mined
               </motion.span>
             </span>
           </span>
