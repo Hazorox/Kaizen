@@ -8,6 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { LuSword, LuSwords } from "react-icons/lu";
 import { Tooltip } from "react-tooltip";
 import { FaCirclePlus } from "react-icons/fa6";
+import { createMatch } from "../api/match";
 // import { createMatch } from "../api/match";
 // onClick={async () => {
 //                 const id = await createMatch("kanji", "N3", 3);
@@ -170,7 +171,19 @@ const Battle = () => {
             </span>
           </span>
           <span className="flex justify-center items-center">
-            <motion.button className="flex text-2xl border-4 p-2 py-4 cursor-pointer rounded-full w-1/3 bg-[#3dce3d] justify-center gap-6 items-center">
+            <motion.button
+              onClick={async () => {
+                toast.promise(async()=>{
+                  const id = await createMatch(selections.mode,selections.jlptLevel,selections.rounds)
+                  if(!id) return;
+                  nav(`/battle/${id}`)
+                }, {
+                  loading: "Creating Match...",
+                  error: "An Error Occurred",
+                });
+              }}
+              className="flex text-2xl border-4 p-2 py-4 cursor-pointer rounded-full w-1/3 bg-[#3dce3d] justify-center gap-6 items-center"
+            >
               Create Match
             </motion.button>
           </span>
