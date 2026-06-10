@@ -35,6 +35,10 @@ export const makeSocket = (httpServer: httpServer) => {
           console.log("smth occured uh");
           return;
         }
+        if (currentRoom.players.length == 1) {
+          await Matches.deleteOne({ roomId });
+          return;
+        }
         if (!currentRoom.winner) {
           const opponent = currentRoom.players.filter(
             (player) => player !== username,
