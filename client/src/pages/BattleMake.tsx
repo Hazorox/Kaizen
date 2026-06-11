@@ -2,12 +2,11 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Nav from "../components/Nav";
-import { MdMeetingRoom } from "react-icons/md";
+import { MdInfoOutline, MdMeetingRoom } from "react-icons/md";
 import { FaArrowCircleRight } from "react-icons/fa";
 import { Toaster, toast } from "react-hot-toast";
-import { LuSword, LuSwords } from "react-icons/lu";
+import { LuSwords } from "react-icons/lu";
 import { Tooltip } from "react-tooltip";
-import { FaCirclePlus } from "react-icons/fa6";
 import { createMatch } from "../api/match";
 // import { createMatch } from "../api/match";
 // onClick={async () => {
@@ -153,18 +152,22 @@ const Battle = () => {
           <span className="w-full flex justify-around items-center">
             <span className="text-3xl">Mode</span>
             <span className="w-1/2 flex justify-between items-center">
+              <Tooltip id="both" />
               {["Both", "Vocab", "Kanji"].map((modeStr) => (
                 <motion.div
+                  data-tooltip-id={modeStr == "Both" ? "both" : ""}
+                  data-tooltip-content={"This will result in Double Rounds"}
+                  data-tooltip-place="top"
                   onClick={() => {
                     setSelections((prev) => ({
                       ...prev,
                       mode: modeStr.toLowerCase(),
                     }));
                   }}
-                  className={`${selections.mode === modeStr.toLowerCase() ? "bg-[#1a1a2e] text-[#fffbe6]" : "bg-[#fffbe6] text-[#1a1a2e]"} cursor-pointer border-2 rounded-full p-4 text-xl`}
+                  className={`${selections.mode === modeStr.toLowerCase() ? "bg-[#1a1a2e] text-[#fffbe6]" : "bg-[#fffbe6] text-[#1a1a2e]"} flex justify-center items-center gap-4 cursor-pointer border-2 rounded-full p-4 text-xl`}
                   key={modeStr}
                 >
-                  {modeStr}
+                  {modeStr} {modeStr == "Both" && <MdInfoOutline size={24} />}
                 </motion.div>
               ))}
             </span>

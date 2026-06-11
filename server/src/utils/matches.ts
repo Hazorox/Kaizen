@@ -12,6 +12,7 @@ interface KanjiEntry {
   Kanji: string;
   Level: number;
 }
+
 interface VocabEntry {
   Original: string;
   Furigana: string;
@@ -29,7 +30,7 @@ interface vocabRound {
   player1Ans: string;
   player2Ans: string;
 }
-type BothRound = [vocabRound, kanjiRound];
+type Round = vocabRound | kanjiRound;
 const loadVocab = (): VocabEntry[] => {
   const file = fs.readFileSync(
     path.join(__dirname, "../data/jlpt_vocab.csv"),
@@ -71,15 +72,15 @@ const generateData = (
   mode: string,
   rounds: number,
   levelStr: string,
-): kanjiRound[] | vocabRound[] | BothRound[] | undefined => {
+): kanjiRound[] | vocabRound[] | Round[] | undefined => {
   const level = Number(levelStr.slice(1));
 
   if (mode == "both") {
-    let data: BothRound[] = [];
+    let data: Round[] = [];
     for (let i = 0; i < rounds; i++) {
       const kanjiRound = generateKanji(level, 1)[0];
       const vocabRound = generateVocab(level);
-      data.push([vocabRound, kanjiRound]);
+      data.push(vocabRound, kanjiRound);
     }
     return data;
   }
@@ -119,7 +120,7 @@ router.post("/api/create_match", async (req, res) => {
       jlptLevel,
       rounds,
     }: { mode: modeTypes; jlptLevel: jlptTypes; rounds: number } = req.body;
-    let roundsData: kanjiRound[] | vocabRound[] | BothRound[] | undefined =
+    let roundsData: kanjiRound[] | vocabRound[] | Round[] | undefined =
       generateData(mode, rounds, jlptLevel);
     await Matches.create({
       roomId,

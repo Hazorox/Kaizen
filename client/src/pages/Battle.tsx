@@ -20,17 +20,12 @@ const Battle = () => {
   const [roundNum, setRoundNum] = useState(0);
   const currentRound = questions[roundNum];
   const [waiting, setWaiting] = useState(true);
-  const currentType = !currentRound
-    ? ""
-    : Object.keys(currentRound).length === 2
-      ? "both"
-      : Object.keys(currentRound).includes("Kanji")
-        ? "kanji"
-        : "vocab";
+  const [mode, setMode] = useState("");
+  const currentMode =
+    mode == "both" ? (roundNum % 2 == 0 ? "vocab" : "kanji") : mode;
   const [results, setResults] = useState();
   const nav = useNavigate();
   const username = getUsername();
-
   useEffect(() => {
     socketRef.current = io("http://localhost:9898");
     const socket = socketRef.current;
@@ -73,6 +68,7 @@ const Battle = () => {
       console.log(matchData);
       if (!matchData) toast.error("An Error Occurred");
       if (matchData) {
+        setMode(matchData.mode);
         setQuestions(matchData.rounds);
         setRoundNum(0);
         setRoomId(matchData.roomId);
@@ -157,7 +153,7 @@ const Battle = () => {
             >
               {!results && (
                 <>
-                  {currentType === "kanji" && (
+                  {currentMode === "kanji" && (
                     <>
                       <div className="w-[60%] mt-4 flex justify-center items-center">
                         Draw The Kanji : {currentRound.Kanji}
@@ -197,7 +193,7 @@ const Battle = () => {
                       <Stage className="h-[60%] w-[50%]" />
                     </>
                   )}
-                  {currentType === "vocab" && (
+                  {currentMode === "vocab" && (
                     <>
                       <div className="w-[60%] mt-4 flex justify-center items-center">
                         {currentRound.correct.English}
