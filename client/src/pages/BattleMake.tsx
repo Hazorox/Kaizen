@@ -28,7 +28,6 @@ const Battle = () => {
     jlptLevel: string;
     rounds: number;
   }>({ mode: "both", jlptLevel: "N5", rounds: 3 });
-  console.log(selections);
   useEffect(() => {
     const listenForEnter = (e: KeyboardEvent) => {
       if (e.key === "Enter") {

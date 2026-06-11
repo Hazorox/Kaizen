@@ -14,21 +14,28 @@ export const makeSocket = (httpServer: httpServer) => {
   const io = new Server(httpServer, {
     cors: { origin: "http://localhost:5173" },
   });
+
   io.on("connection", (socket: Socket) => {
+    // Joining matches
     socket.on("join_match", async ({ roomId, username }) => {
-      console.log(username, roomId);
       const room = await Matches.findOne({ roomId });
-      if (!room) return console.log("room not found 404");
+      if (!room) return socket.emit("notFound")
       if (room.players.length == 2 || room.status == "active") {
         console.log("Room Full");
         socket.emit("room_full");
         return;
       }
       if (room.status == "finished") return console.log("Room Finished");
-      room.players.push(username);
-      if (room.players.length == 2) room.status = "active";
-      await room.save();
+      if (!room.players.includes(username)) room.players.push(username);
       socket.join(roomId);
+      socket.emit("room_joined")
+      if (room.players.length == 2) {
+        room.status = "active";
+        io.to(roomId).emit("match_started",room.players);
+      }
+      await room.save();
+
+      // When Players Disconnect
       socket.on("disconnect", async () => {
         const currentRoom = await Matches.findOne({ roomId });
         if (!currentRoom) {
@@ -36,7 +43,9 @@ export const makeSocket = (httpServer: httpServer) => {
           return;
         }
         if (currentRoom.players.length == 1) {
-          await Matches.deleteOne({ roomId });
+
+          //TODO: Uncomment this once doen with battle frontend
+          // await Matches.deleteOne({ roomId });
           return;
         }
         if (!currentRoom.winner) {

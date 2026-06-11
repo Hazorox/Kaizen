@@ -8,21 +8,28 @@ interface round {
   kanji?: string;
   distractors?: string[];
 }
+interface KanjiEntry {
+  Kanji: string;
+  Level: number;
+}
 interface VocabEntry {
   Original: string;
   Furigana: string;
   English: string;
   Level: string;
 }
-interface KanjiEntry {
+interface kanjiRound {
   Kanji: string;
   Level: number;
+  winner: string;
 }
 interface vocabRound {
   correct: VocabEntry;
   distractors: VocabEntry[];
+  player1Ans: string;
+  player2Ans: string;
 }
-type BothRound = [vocabRound, KanjiEntry];
+type BothRound = [vocabRound, kanjiRound];
 const loadVocab = (): VocabEntry[] => {
   const file = fs.readFileSync(
     path.join(__dirname, "../data/jlpt_vocab.csv"),
@@ -47,14 +54,15 @@ const generateVocab = (level: number): vocabRound => {
     }
     distractors.push(entry);
   }
-  return { correct: correctEntry, distractors };
+  return { correct: correctEntry, distractors, player1Ans: "", player2Ans: "" };
 };
-const generateKanji = (level: number, rounds: number): KanjiEntry[] => {
-  let data: KanjiEntry[] = [];
+const generateKanji = (level: number, rounds: number): kanjiRound[] => {
+  let data: kanjiRound[] = [];
   const kanjiData = loadKanji().filter((entry) => entry.Level >= level);
   for (let i = 0; i < rounds; i++) {
-    const entry = kanjiData[Math.floor(Math.random() * kanjiData.length)];
-    data.push(entry);
+    const entry: KanjiEntry =
+      kanjiData[Math.floor(Math.random() * kanjiData.length)];
+    data.push({ Kanji: entry.Kanji, Level: entry.Level, winner: "" });
   }
   return data;
 };
@@ -63,7 +71,7 @@ const generateData = (
   mode: string,
   rounds: number,
   levelStr: string,
-): KanjiEntry[] | vocabRound[] | BothRound[] | undefined => {
+): kanjiRound[] | vocabRound[] | BothRound[] | undefined => {
   const level = Number(levelStr.slice(1));
 
   if (mode == "both") {
@@ -111,7 +119,7 @@ router.post("/api/create_match", async (req, res) => {
       jlptLevel,
       rounds,
     }: { mode: modeTypes; jlptLevel: jlptTypes; rounds: number } = req.body;
-    let roundsData: KanjiEntry[] | vocabRound[] | BothRound[] | undefined =
+    let roundsData: kanjiRound[] | vocabRound[] | BothRound[] | undefined =
       generateData(mode, rounds, jlptLevel);
     await Matches.create({
       roomId,
@@ -125,6 +133,18 @@ router.post("/api/create_match", async (req, res) => {
   } catch (err) {
     return res.status(200).json({ error: err });
   }
+});
+
+router.get("/api/match_data/:id", async (req, res) => {
+  const username = (req as any).user.username;
+  const roomId = req.params.id;
+  if (!username || !roomId) return res.json({ error: "invalid inputs" });
+  const data = await Matches.findOne({ roomId });
+
+  if (!data) return res.json({ error: "Not Found" });
+  if (!data.players.includes(username))
+    return res.json({ error: "Not Allowed" });
+  return res.json(data);
 });
 
 export const matches = router;
