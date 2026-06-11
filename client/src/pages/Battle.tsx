@@ -3,17 +3,20 @@ import { io, Socket } from "socket.io-client";
 import { getUsername } from "../utils/getUsername";
 import { useEffect, useRef, useState } from "react";
 import { getMatchData } from "../api/match";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { AnimatePresence, motion } from "motion/react";
 import { FourSquare, Riple } from "react-loading-indicators";
 import { FaKey, FaLink } from "react-icons/fa";
 import { IoFlagSharp } from "react-icons/io5";
+import { Stage, Layer, Line, Rect } from "react-konva";
 const Battle = () => {
   const { id } = useParams();
   const socketRef = useRef<Socket | null>(null);
+  const [roomId, setRoomId] = useState("");
   const [questions, setQuestions] = useState([]);
   const [roomJoined, setRoomJoined] = useState(false);
   const [players, setPlayers] = useState<string[]>([]);
+  const [ansSubmitted, setAnsSubmitted] = useState(false);
   const [roundNum, setRoundNum] = useState(0);
   const currentRound = questions[roundNum];
   const [waiting, setWaiting] = useState(true);
@@ -24,7 +27,7 @@ const Battle = () => {
       : Object.keys(currentRound).includes("Kanji")
         ? "kanji"
         : "vocab";
-  const [results, setResults] = useState({});
+  const [results, setResults] = useState();
   const nav = useNavigate();
   const username = getUsername();
 
@@ -45,14 +48,18 @@ const Battle = () => {
     });
     socket.on("next_round", () => {
       setRoundNum((prev) => prev + 1);
+      setAnsSubmitted(false);
     });
     socket.on("room_full", () => {
       nav("/battle");
       toast.error("Room Full");
     });
+    socket.on("match_end", () => {
+      setResults("hiiii");
+    });
     socket.on("opponent_left", () => {
       nav("/battle");
-      toast.custom("Opponent Left");
+      toast.error("Opponent Left", { position: "bottom-center" });
     });
     return () => {
       socket.disconnect();
@@ -68,24 +75,60 @@ const Battle = () => {
       if (matchData) {
         setQuestions(matchData.rounds);
         setRoundNum(0);
+        setRoomId(matchData.roomId);
       }
     };
     fetchStuff();
   }, [roomJoined, id]);
-  console.log(currentRound, currentType, roundNum);
+  const [lines, setLines] = useState<any[]>([]);
+
+  const isDrawing = useRef(false);
+
+  const handleMouseDown = (e: any) => {
+    isDrawing.current = true;
+
+    const pos = e.target.getStage().getPointerPosition();
+
+    setLines([
+      ...lines,
+      {
+        points: [pos.x, pos.y],
+      },
+    ]);
+  };
+
+  const handleMouseMove = (e: any) => {
+    if (!isDrawing.current) return;
+
+    const stage = e.target.getStage();
+    const point = stage.getPointerPosition();
+
+    const lastLine = lines[lines.length - 1];
+
+    lastLine.points = [...lastLine.points, point.x, point.y];
+
+    lines.splice(lines.length - 1, 1, lastLine);
+
+    setLines([...lines]);
+  };
+
+  const handleMouseUp = () => {
+    isDrawing.current = false;
+  };
   return (
     <AnimatePresence>
-      <div className="w-full h-full flex flex-col justify-around items-center bg-[#fffbe6]">
+      <Toaster />
+      <div className="w-full select-none h-full flex flex-col justify-around items-center bg-[#fffbe6]">
         {roomJoined && !waiting && (
           <AnimatePresence mode="wait">
-            <div className="min-w-[40%] max-w-fit py-4 px-2 gap-2 rounded-3xl mt-4 text-3xl font-bold flex flex-col justify-center items-center bg-[#ff6b6b]">
+            <div className="border-2 min-w-[40%] max-w-fit py-4 px-2 gap-2 rounded-3xl mt-4 text-3xl font-bold flex flex-col justify-center items-center bg-[#ff6b6b]">
               <span className="gap-4 flex justify-center items-center w-full">
                 <motion.span
                   className="flex justify-center items-center w-1/2"
                   key={players[0]}
-                  initial={{ x: -240 }}
-                  animate={{ x: 0 }}
-                  transition={{ duration: 0.5, ease: "linear", delay: 0.1 }}
+                  initial={{ x: -400, opacity: 0.2 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.7, ease: "linear", delay: 0.1 }}
                 >
                   {players[0]}
                 </motion.span>
@@ -93,45 +136,123 @@ const Battle = () => {
                 <motion.span
                   className="flex justify-center items-center w-1/2"
                   key={players[1]}
-                  initial={{ x: 240 }}
-                  animate={{ x: 0 }}
-                  transition={{ duration: 0.5, ease: "linear", delay: 0.1 }}
+                  initial={{ x: 400, opacity: 0.2 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.7, ease: "linear", delay: 0.1 }}
                 >
                   {players[1]}
                 </motion.span>
               </span>
-              <motion.span className="flex">{`Round    ${roundNum + 1}`}</motion.span>
+              {!results && (
+                <motion.span className="flex">{`Round    ${roundNum + 1}`}</motion.span>
+              )}
+              {results && "Match Done"}
             </div>
             <motion.div
               key={"matchContent"}
-              className="w-[70%] p-12 bg-[#4ecdc4] text-3xl font-bold items-center justify-between rounded-2xl flex flex-col h-[75%]"
+              className="w-[70%] p-12 border-8 bg-[#4ecdc4] text-3xl font-bold items-center justify-between rounded-2xl flex flex-col h-[75%]"
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              {currentType === "vocab" && (
+              {!results && (
                 <>
-                  <div className="w-[60%] mt-4 flex justify-center items-center">
-                    {currentRound.correct.English}
-                  </div>
-                  <div className="flex justify-around items-center gap-4">
-                    {[currentRound.correct, ...currentRound.distractors]
-                      .sort(() => Math.random() - 0.5)
-                      .map((entry, index) => (
-                        <motion.div key={entry.Original}>
-                          <ruby key={index} className="font-light opacity-90">
-                            {entry.Original}
-                            <rt className="text-[10px] text-center">
-                              {entry.Furigana}
-                            </rt>
-                          </ruby>
-                        </motion.div>
-                      ))}
-                  </div>
+                  {currentType === "kanji" && (
+                    <>
+                      <div className="w-[60%] mt-4 flex justify-center items-center">
+                        Draw The Kanji : {currentRound.Kanji}
+                      </div>
+                      {/* Got Some Help from Claude with dis one */}
+                      <Stage
+                        className="h-[65%] flex justify-center items-center w-[50%] mb-8"
+                        width={400}
+                        height={400}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                      >
+                        <Layer>
+                          <Rect
+                            x={0}
+                            y={0}
+                            width={400}
+                            height={400}
+                            fill="white"
+                            cornerRadius={12}
+                          />
+                          <Line points={[0, 0, 400, 400]} />
+                          <Line points={[400, 0, 0, 400]} />
+                          {lines.map((line, i) => (
+                            <Line
+                              key={i}
+                              points={line.points}
+                              stroke="black"
+                              strokeWidth={8}
+                              lineCap="round"
+                              lineJoin="round"
+                            />
+                          ))}
+                        </Layer>
+                      </Stage>
+                      <Stage className="h-[60%] w-[50%]" />
+                    </>
+                  )}
+                  {currentType === "vocab" && (
+                    <>
+                      <div className="w-[60%] mt-4 flex justify-center items-center">
+                        {currentRound.correct.English}
+                      </div>
+                      <div className="flex text-4xl h-[65%] p-16 w-full justify-around items-center gap-4 mb-4">
+                        {[currentRound.correct, ...currentRound.distractors]
+                          .sort(() => Math.random() - 0.5)
+                          .map((entry, index) => (
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 0.9 }}
+                              whileHover={{ scale: 1.15, opacity: 1 }}
+                              onClick={() => {
+                                if (ansSubmitted) {
+                                  return toast.error("already Submitted");
+                                }
+                                if (
+                                  entry.Original !=
+                                  currentRound.correct.Original
+                                )
+                                  toast.error("Wrong Answer >:(");
+                                else {
+                                  toast.success("Correct !");
+                                }
+                                setAnsSubmitted(true);
+                                const ans = entry.Original;
+                                socketRef.current?.emit("submit_answer", {
+                                  roomId,
+                                  username,
+                                  ans,
+                                });
+                              }}
+                              whileTap={{ scale: 1.25 }}
+                              className="flex font-light cursor-pointer bg-[#ff6b6b] rounded-2xl h-full px-4 min-w-1/5 max-w-fit border-4 justify-center items-center"
+                              key={entry.Original}
+                            >
+                              <ruby key={index}>
+                                {entry.Original}
+                                <rt className="text-center text-xl opacity-90 ">
+                                  {entry.Furigana}
+                                </rt>
+                              </ruby>
+                            </motion.div>
+                          ))}
+                      </div>
+                    </>
+                  )}
                 </>
               )}
+              {results && <>hiiiii</>}
             </motion.div>
             <motion.button
+              onClick={() => {
+                nav("/battle");
+              }}
               key={"forfeit"}
               whileTap={{ scale: 1.2 }}
               initial={{ scale: 0, opacity: 0 }}

@@ -125,7 +125,7 @@ const Battle = () => {
                 whileTap={{ scale: 1.1 }}
                 initial={{ opacity: 0.95 }}
                 whileHover={{ opacity: 1 }}
-                className="absolute text-[#fffbe6] text-6xl left-0  cursor-pointerflex items-center justify-center bg-[#1a1a2e] w-16 h-full rounded-full border"
+                className="absolute  cursor-pointer text-[#fffbe6] text-6xl left-0  cursor-pointerflex items-center justify-center bg-[#1a1a2e] w-16 h-full rounded-full border"
               >
                 -
               </motion.button>
@@ -144,7 +144,7 @@ const Battle = () => {
                 whileTap={{ scale: 1.1 }}
                 initial={{ opacity: 0.95 }}
                 whileHover={{ opacity: 1 }}
-                className="absolute text-[#fffbe6] text-6xl right-0 cursor-pointer flex items-center justify-center bg-[#1a1a2e] w-16 h-full rounded-full border"
+                className="absolute text-[#fffbe6]  cursor-pointer text-6xl right-0 cursor-pointer flex items-center justify-center bg-[#1a1a2e] w-16 h-full rounded-full border"
               >
                 +
               </motion.button>
@@ -172,14 +172,21 @@ const Battle = () => {
           <span className="flex justify-center items-center">
             <motion.button
               onClick={async () => {
-                toast.promise(async()=>{
-                  const id = await createMatch(selections.mode,selections.jlptLevel,selections.rounds)
-                  if(!id) return;
-                  nav(`/battle/${id}`)
-                }, {
-                  loading: "Creating Match...",
-                  error: "An Error Occurred",
-                });
+                toast.promise(
+                  async () => {
+                    const id = await createMatch(
+                      selections.mode,
+                      selections.jlptLevel,
+                      selections.rounds,
+                    );
+                    if (!id) return;
+                    nav(`/battle/${id}`);
+                  },
+                  {
+                    loading: "Creating Match...",
+                    error: "An Error Occurred",
+                  },
+                );
               }}
               className="flex text-2xl border-4 p-2 py-4 cursor-pointer rounded-full w-1/3 bg-[#3dce3d] justify-center gap-6 items-center"
             >

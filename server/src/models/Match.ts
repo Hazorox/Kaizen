@@ -8,7 +8,7 @@ const MatchesModel = new schema({
   jlptLevel: { type: String, enum: ["N5", "N4", "N3", "N2", "N1"] },
   mode: String,
   currentRound:{type:Number,default:0},
-  currentSubmissions:Number,
+  currentSubmissions:{type:Number,default:0},
   scores: { player1: Number, player2: Number },
   rounds: [mongoose.Schema.Types.Mixed],
   status: { type: String, enum: ["active", "finished", "waiting"] },
