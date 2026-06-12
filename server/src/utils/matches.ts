@@ -22,13 +22,14 @@ interface VocabEntry {
 interface kanjiRound {
   Kanji: string;
   Level: number;
-  winner: string;
+  player1Ans: string[] | [];
+  player2Ans: string[] | [];
 }
 interface vocabRound {
   correct: VocabEntry;
   distractors: VocabEntry[];
-  player1Ans: string;
-  player2Ans: string;
+  player1Ans: string[] | [];
+  player2Ans: string[] | [];
 }
 type Round = vocabRound | kanjiRound;
 const loadVocab = (): VocabEntry[] => {
@@ -55,7 +56,7 @@ const generateVocab = (level: number): vocabRound => {
     }
     distractors.push(entry);
   }
-  return { correct: correctEntry, distractors, player1Ans: "", player2Ans: "" };
+  return { correct: correctEntry, distractors, player1Ans: [], player2Ans: [] };
 };
 const generateKanji = (level: number, rounds: number): kanjiRound[] => {
   let data: kanjiRound[] = [];
@@ -63,7 +64,12 @@ const generateKanji = (level: number, rounds: number): kanjiRound[] => {
   for (let i = 0; i < rounds; i++) {
     const entry: KanjiEntry =
       kanjiData[Math.floor(Math.random() * kanjiData.length)];
-    data.push({ Kanji: entry.Kanji, Level: entry.Level, winner: "" });
+    data.push({
+      Kanji: entry.Kanji,
+      Level: entry.Level,
+      player1Ans: [],
+      player2Ans: [],
+    });
   }
   return data;
 };

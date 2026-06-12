@@ -10,7 +10,12 @@ import { FaKey, FaLink } from "react-icons/fa";
 import { IoFlagSharp } from "react-icons/io5";
 import { Stage, Layer, Line, Rect } from "react-konva";
 const Battle = () => {
+  const [lines, setLines] = useState<any[]>([]);
+
+  const isDrawing = useRef(false);
+
   const { id } = useParams();
+  const stageRef = useRef<any>(null);
   const socketRef = useRef<Socket | null>(null);
   const [roomId, setRoomId] = useState("");
   const [questions, setQuestions] = useState([]);
@@ -43,6 +48,7 @@ const Battle = () => {
     });
     socket.on("next_round", () => {
       setRoundNum((prev) => prev + 1);
+      setLines([]);
       setAnsSubmitted(false);
     });
     socket.on("room_full", () => {
@@ -65,7 +71,6 @@ const Battle = () => {
     const fetchStuff = async () => {
       if (!roomJoined) return;
       const matchData = await getMatchData(id);
-      console.log(matchData);
       if (!matchData) toast.error("An Error Occurred");
       if (matchData) {
         setMode(matchData.mode);
@@ -76,9 +81,6 @@ const Battle = () => {
     };
     fetchStuff();
   }, [roomJoined, id]);
-  const [lines, setLines] = useState<any[]>([]);
-
-  const isDrawing = useRef(false);
 
   const handleMouseDown = (e: any) => {
     isDrawing.current = true;
@@ -112,11 +114,11 @@ const Battle = () => {
     isDrawing.current = false;
   };
   return (
-    <AnimatePresence>
+    <AnimatePresence key={"main"}>
       <Toaster />
       <div className="w-full select-none h-full flex flex-col justify-around items-center bg-[#fffbe6]">
         {roomJoined && !waiting && (
-          <AnimatePresence mode="wait">
+          <AnimatePresence key={"idkfr"} mode="wait">
             <div className="border-2 min-w-[40%] max-w-fit py-4 px-2 gap-2 rounded-3xl mt-4 text-3xl font-bold flex flex-col justify-center items-center bg-[#ff6b6b]">
               <span className="gap-4 flex justify-center items-center w-full">
                 <motion.span
@@ -155,42 +157,81 @@ const Battle = () => {
                 <>
                   {currentMode === "kanji" && (
                     <>
-                      <div className="w-[60%] mt-4 flex justify-center items-center">
+                      <div className="w-[60%] mt-4 flex text-4xl font-light justify-center items-center">
                         Draw The Kanji : {currentRound.Kanji}
                       </div>
                       {/* Got Some Help from Claude with dis one */}
                       <Stage
-                        className="h-[65%] flex justify-center items-center w-[50%] mb-8"
-                        width={400}
-                        height={400}
                         onMouseDown={handleMouseDown}
                         onMouseMove={handleMouseMove}
                         onMouseUp={handleMouseUp}
+                        onTouchStart={handleMouseDown}
+                        onTouchMove={handleMouseMove}
+                        onTouchEnd={handleMouseUp}
+                        ref={stageRef}
+                        width={400}
+                        height={400}
+                        className="mt-16"
                       >
-                        <Layer>
-                          <Rect
-                            x={0}
-                            y={0}
-                            width={400}
-                            height={400}
-                            fill="white"
-                            cornerRadius={12}
+                        <Layer key={"base"}>
+                          {/* background */}
+                          <Rect width={400} height={400} fill="#fffbe6" />
+                          {/* vertical center line */}
+                          <Line
+                            key={"1"}
+                            points={[400 / 2, 0, 400 / 2, 400]}
+                            stroke="#1a1a2e"
+                            strokeWidth={1}
+                            opacity={0.2}
+                            dash={[6, 4]}
                           />
-                          <Line points={[0, 0, 400, 400]} />
-                          <Line points={[400, 0, 0, 400]} />
+                          <Line
+                            key={"2"}
+                            points={[0, 400 / 2, 400, 400 / 2]}
+                            stroke="#1a1a2e"
+                            strokeWidth={1}
+                            opacity={0.2}
+                            dash={[6, 4]}
+                          />
+                        </Layer>
+                        <Layer key={"draw"}>
                           {lines.map((line, i) => (
                             <Line
                               key={i}
                               points={line.points}
-                              stroke="black"
+                              stroke="#1a1a2e"
                               strokeWidth={8}
+                              tension={0.5}
                               lineCap="round"
                               lineJoin="round"
+                              globalCompositeOperation="source-over"
                             />
                           ))}
                         </Layer>
                       </Stage>
-                      <Stage className="h-[60%] w-[50%]" />
+                      <motion.button
+                        key={"submit"}
+                        onClick={async () => {
+                          if (!ansSubmitted) {
+                            const dataURL = await stageRef.current?.toDataURL({
+                              mimeType: "image/png",
+                            });
+                            socketRef.current?.emit("submit_answer", {
+                              roomId,
+                              username,
+                              ans: dataURL,
+                              type: "kanji",
+                            });
+                          } else {
+                            return toast.error("Already Submitted");
+                          }
+                        }}
+                        className="bg-[#3dce3d] p-4 rounded-full border-2 flex justify-center items-center cursor-hover"
+                        whileHover={{ scale: 1.15 }}
+                        whileTap={{ scale: 1.25 }}
+                      >
+                        Submit
+                      </motion.button>
                     </>
                   )}
                   {currentMode === "vocab" && (
@@ -224,10 +265,11 @@ const Battle = () => {
                                   roomId,
                                   username,
                                   ans,
+                                  type: "vocab",
                                 });
                               }}
                               whileTap={{ scale: 1.25 }}
-                              className="flex font-light cursor-pointer bg-[#ff6b6b] rounded-2xl h-full px-4 min-w-1/5 max-w-fit border-4 justify-center items-center"
+                              className={`flex font-light cursor-pointer bg-[#ff6b6b] rounded-2xl h-full px-4 min-w-1/5 max-w-fit border-4 justify-center items-center ${ansSubmitted && entry.Original == currentRound.correct.Original && "bg-[#3dce3d]!"}`}
                               key={entry.Original}
                             >
                               <ruby key={index}>
@@ -262,13 +304,19 @@ const Battle = () => {
         )}
 
         {!roomJoined && (
-          <motion.div className="flex font-bold justify-center items-center flex-col text-6xl gap-16">
+          <motion.div
+            key={"joining"}
+            className="flex font-bold justify-center items-center flex-col text-6xl gap-16"
+          >
             <Riple color="#1a1a2e" size="large" text="" textColor="" />
             Loading...
           </motion.div>
         )}
         {waiting && roomJoined && (
-          <motion.div className="flex font-bold flex-col text-4xl justify-center items-center gap-12">
+          <motion.div
+            key={"waiting"}
+            className="flex font-bold flex-col text-4xl justify-center items-center gap-12"
+          >
             <FourSquare color={"#1a1a2e"} size="large" />
             Waiting For Opponent
             <motion.button

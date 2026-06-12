@@ -7,26 +7,53 @@ const client = new OpenRouter({
   serverURL: "https://ai.hackclub.com/proxy/v1",
 });
 
-type jlptLevels = "N5" | "N4" | "N3" | "N2" | "N1";
-type modeTypes = "vocab" | "kanji" | "both";
-
 export const makeSocket = (httpServer: httpServer) => {
   const io = new Server(httpServer, {
     cors: { origin: "http://localhost:5173" },
   });
+  io.on("match_end", async ({ roomId }) => {});
   io.on("connection", (socket: Socket) => {
     // Joining matches
-    socket.on("submit_answer", async ({roomId, username, ans}) => {
+    socket.on("submit_answer", async ({ roomId, username, ans, type }) => {
       const room = await Matches.findOne({ roomId });
       if (!room) return;
       room.currentSubmissions += 1;
-      if (room.mode === "vocab") {
-        if (room.rounds[room.currentRound].player1Ans) {
-          console.log("player1Ans Occupied")
-          room.rounds[room.currentRound].player2Ans = ans;
+      if (type === "vocab") {
+        if (room.rounds[room.currentRound].player1Ans.length == 0) {
+          room.rounds[room.currentRound].player1Ans = [username, ans];
         } else {
-          console.log("player1Ans Empty")
-          room.rounds[room.currentRound].player1Ans = ans;
+          room.rounds[room.currentRound].player2Ans = [username, ans];
+        }
+      }
+      if (type === "kanji") {
+        const base64 = ans.split(",")[1];
+        const response = await client.chat.send({
+          chatRequest: {
+            model: "google/gemini-2.5-flash",
+            messages: [
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "image_url",
+                    imageUrl: {
+                      url: `data:image/png;base64,${base64}`,
+                    },
+                  },
+                  {
+                    type: "text",
+                    text: `On a scale of 0-100 based on Accuracy, how much does this image match the Japanese kanji ${room.rounds[room.currentRound].Kanji} Only respond with the accuracy number, NOTHING ELSE.`,
+                  },
+                ],
+              },
+            ],
+          },
+        });
+        const acc = Number(response.choices[0].message.content);
+        if (room.rounds[room.currentRound].player1Ans.length == 0) {
+          room.rounds[room.currentRound].player1Ans = [username, acc ?? 0];
+        } else {
+          room.rounds[room.currentRound].player2Ans = [username, acc ?? 0];
         }
       }
 
@@ -34,18 +61,16 @@ export const makeSocket = (httpServer: httpServer) => {
         room.currentRound += 1;
         room.currentSubmissions = 0;
         if (room.currentRound >= room.rounds.length) {
-          room.status="finished"
-          io.to(roomId).emit("match_end",{roomId});
+          room.status = "finished";
+          io.to(roomId).emit("match_end", { roomId });
         } else {
           io.to(roomId).emit("next_round");
         }
       }
-      room.markModified('rounds')
+      room.markModified("rounds");
       await room.save();
     });
-    io.on("match_end",async({roomId})=>{
-      
-    })
+    io.on("match_end", async ({ roomId }) => {});
     socket.on("join_match", async ({ roomId, username }) => {
       const room = await Matches.findOne({ roomId });
       if (!room) return socket.emit("notFound");
@@ -71,9 +96,9 @@ export const makeSocket = (httpServer: httpServer) => {
           console.log("smth occured uh");
           return;
         }
+        if (currentRoom.status == "finished") return;
         if (currentRoom.players.length == 1) {
-          //TODO: Uncomment this once doen with battle frontend
-          // await Matches.deleteOne({ roomId });
+          await Matches.deleteOne({ roomId });
           return;
         }
         if (!currentRoom.winner) {
