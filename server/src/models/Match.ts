@@ -9,7 +9,6 @@ const MatchesModel = new schema({
   mode: String,
   currentRound:{type:Number,default:0},
   currentSubmissions:{type:Number,default:0},
-  scores: { player1: Number, player2: Number },
   rounds: [mongoose.Schema.Types.Mixed],
   status: { type: String, enum: ["active", "finished", "waiting"] },
   createdAt: { type: Date, default: Date.now() },
