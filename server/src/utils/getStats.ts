@@ -38,7 +38,11 @@ router.get("/api/getStats/total", async (req, res) => {
     tie = matches.filter((match) => match.winner === "both").length;
     lost = matches.filter((match) => match.winner != "username").length;
   }
-  res.json({ mining: response.mining.length, battle: { won, tie, lost } });
+  const total = matches.length??0;
+  res.json({
+    mining: response.mining.length,
+    matches: { total, won, tie, lost },
+  });
 });
 
 export const getStats = router;

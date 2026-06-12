@@ -11,13 +11,15 @@ import { useEffect, useRef, useState } from "react";
 import { getUsername } from "../utils/getUsername";
 import { ankiConnect } from "../api/anki";
 import { IoRefresh } from "react-icons/io5";
-import { totalMined } from "../api/getStats";
+import { getStatsTotal } from "../api/getStats";
 
 const UserProfile = () => {
   const pfpRef = useRef<HTMLInputElement>(null);
   const nav = useNavigate();
-  const [mined, setMined] = useState(0);
-  const [matches, setMatches] = useState(0);
+  const [stats, setStats] = useState({
+    mining: 0,
+    matches: { total: 0, won: 0, tie: 0, lost: 0 },
+  });
   const { id } = useParams();
   let username;
   if (!id) {
@@ -29,7 +31,7 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchStuff = async () => {
       await getPFP(username).then(setUserPic);
-      await totalMined().then(setMined);
+      await getStatsTotal().then(setStats);
     };
     fetchStuff();
   }, [username]);
@@ -122,13 +124,14 @@ const UserProfile = () => {
               >
                 <span className="flex justify-center gap-2 items-center">
                   <LuSwords size={24} className="inline" />
-                  {matches} Matches Played
+                  {stats.matches.total} Matches Played
                 </span>
-                <span className="flex items-center justify-center gap-12">
-                  <span className="text-green-700">4</span>
-                  
+                <span className="flex gap-3 items-center justify-around">
+                  <span className="text-green-700">{stats.matches.won}</span>
                   <div className="w-1 rounded-full h-8 bg-[#1a1a2e]" />
-                  <span className="text-red-500">3</span>
+                  <span className="text-gray-500">{stats.matches.tie}</span>
+                  <div className="w-1 rounded-full h-8 bg-[#1a1a2e]" />
+                  <span className="text-red-500">{stats.matches.lost}</span>
                 </span>
               </motion.span>
 
@@ -139,7 +142,7 @@ const UserProfile = () => {
                 }
               >
                 <LuPickaxe className="inline" size={24} />
-                {mined ?? "0"} Words Mined
+                {stats.mining ?? "0"} Words Mined
               </motion.span>
             </span>
           </span>
