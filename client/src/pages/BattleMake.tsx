@@ -8,15 +8,6 @@ import { Toaster, toast } from "react-hot-toast";
 import { LuSwords } from "react-icons/lu";
 import { Tooltip } from "react-tooltip";
 import { createMatch } from "../api/match";
-// import { createMatch } from "../api/match";
-// onClick={async () => {
-//                 const id = await createMatch("kanji", "N3", 3);
-//                 if (id.error) {
-//                   console.log(id.error);
-//                   return toast.error("An Error Occured ;-;");
-//                 }
-//                 nav(`/battle/${id}`);
-//               }}
 const Battle = () => {
   const nav = useNavigate();
   const idRef = useRef<HTMLInputElement>(null);
@@ -26,7 +17,7 @@ const Battle = () => {
     mode: string;
     jlptLevel: string;
     rounds: number;
-  }>({ mode: "both", jlptLevel: "N5", rounds: 3 });
+  }>({ mode: "vocab", jlptLevel: "N5", rounds: 3 });
   useEffect(() => {
     const listenForEnter = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
