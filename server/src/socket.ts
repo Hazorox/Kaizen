@@ -11,16 +11,7 @@ export const makeSocket = (httpServer: httpServer) => {
   const io = new Server(httpServer, {
     cors: { origin: "http://localhost:5173" },
   });
-  // io.on("match_end", async ({ roomId }) => {
-  //   const room = await Matches.findOne({ roomId });
-  //   if (!room) return;
-  //   console.log("working");
 
-  //   console.log(winner);
-  //   // room.scores = scores
-  //   // room.winner = winner
-  //   // await room.save()
-  // });
   io.on("connection", (socket: Socket) => {
     // Joining matches
     socket.on("submit_answer", async ({ roomId, username, ans, type }) => {
@@ -59,7 +50,6 @@ export const makeSocket = (httpServer: httpServer) => {
           },
         });
         const acc = Number(response.choices[0].message.content);
-        console.log(acc);
         if (room.rounds[room.currentRound].player1Ans.length == 0) {
           room.rounds[room.currentRound].player1Ans = [username, acc ?? 0];
         } else {
@@ -92,16 +82,16 @@ export const makeSocket = (httpServer: httpServer) => {
                 scores[player2].total++;
                 scores[player2].vocab++;
               }
-            } else if (round.kanji) {
+            } else if (round.Kanji) {
               const [player1, acc1] = round.player1Ans;
               const [player2, acc2] = round.player2Ans;
               if (acc1 >= 50) {
-                scores[player1].kanji++;
                 scores[player1].total++;
+                scores[player1].kanji++;
               }
               if (acc2 >= 50) {
-                scores[player2].kanji++;
                 scores[player2].total++;
+                scores[player2].kanji++;
               }
             }
           });
@@ -112,6 +102,8 @@ export const makeSocket = (httpServer: httpServer) => {
             .filter(([_, s]) => s.total === topScore)
             .map(([p]) => p);
           const winner = topPlayers.length > 1 ? "both" : topPlayers[0];
+          room.winner = winner;
+          room.scores = scores;
           io.to(roomId).emit("match_end", { winner, scores });
         } else {
           io.to(roomId).emit("next_round");
@@ -124,7 +116,6 @@ export const makeSocket = (httpServer: httpServer) => {
       const room = await Matches.findOne({ roomId });
       if (!room) return socket.emit("notFound");
       if (room.players.length == 2 || room.status == "active") {
-        console.log("Room Full");
         socket.emit("room_full");
         return;
       }

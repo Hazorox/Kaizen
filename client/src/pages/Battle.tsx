@@ -7,8 +7,9 @@ import toast, { Toaster } from "react-hot-toast";
 import { AnimatePresence, motion } from "motion/react";
 import { FourSquare, Riple } from "react-loading-indicators";
 import { FaKey, FaLink } from "react-icons/fa";
-import { IoFlagSharp } from "react-icons/io5";
+import { IoExitOutline, IoFlagSharp } from "react-icons/io5";
 import { Stage, Layer, Line, Rect } from "react-konva";
+import { LuCrown } from "react-icons/lu";
 const Battle = () => {
   const [lines, setLines] = useState<any[]>([]);
 
@@ -29,8 +30,10 @@ const Battle = () => {
   const currentMode =
     mode == "both" ? (roundNum % 2 == 0 ? "vocab" : "kanji") : mode;
   const [results, setResults] = useState();
+  const scores = results ? results.scores : null;
   const nav = useNavigate();
   const username = getUsername();
+  const opponent = players.filter((player) => player != username)[0];
   useEffect(() => {
     socketRef.current = io("http://localhost:9898");
     const socket = socketRef.current;
@@ -55,9 +58,7 @@ const Battle = () => {
       nav("/battle");
       toast.error("Room Full");
     });
-    socket.on("match_end", () => {
-      setResults("hiiii");
-    });
+    socket.on("match_end", (stuff) => setResults(stuff));
     socket.on("opponent_left", () => {
       nav("/battle");
       toast.error("Opponent Left");
@@ -66,7 +67,6 @@ const Battle = () => {
       socket.disconnect();
     };
   }, [id]);
-
   useEffect(() => {
     const fetchStuff = async () => {
       if (!roomJoined) return;
@@ -222,15 +222,16 @@ const Battle = () => {
                               ans: dataURL,
                               type: "kanji",
                             });
+                            setAnsSubmitted(true);
                           } else {
                             return toast.error("Already Submitted");
                           }
                         }}
-                        className="bg-[#3dce3d] p-4 rounded-full border-2 flex justify-center items-center cursor-hover"
+                        className={`${ansSubmitted ? "bg-[#c9b1ff] cursor-not-allowed" : "bg-[#3dce3d] cursor-pointer"} p-4 rounded-full border-2 flex justify-center items-center`}
                         whileHover={{ scale: 1.15 }}
                         whileTap={{ scale: 1.25 }}
                       >
-                        Submit
+                        {ansSubmitted ? "Waiting For Opponent..." : "Submit"}
                       </motion.button>
                     </>
                   )}
@@ -269,7 +270,7 @@ const Battle = () => {
                                 });
                               }}
                               whileTap={{ scale: 1.25 }}
-                              className={`flex font-light cursor-pointer bg-[#ff6b6b] rounded-2xl h-full px-4 min-w-1/5 max-w-fit border-4 justify-center items-center ${ansSubmitted && entry.Original == currentRound.correct.Original && "bg-[#3dce3d]!"}`}
+                              className={`flex font-light ${ansSubmitted ? "cursor-not-allowed" : "cursor-pointer"} bg-[#ff6b6b] rounded-2xl h-full px-4 min-w-1/5 max-w-fit border-4 justify-center items-center ${ansSubmitted && entry.Original == currentRound.correct.Original && "bg-[#3dce3d]!"}`}
                               key={entry.Original}
                             >
                               <ruby key={index}>
@@ -281,11 +282,45 @@ const Battle = () => {
                             </motion.div>
                           ))}
                       </div>
+                      {ansSubmitted && <div> Waiting For Opponent...</div>}
                     </>
                   )}
                 </>
               )}
-              {results && <>hiiiii</>}
+              {results && (
+                <>
+                  <motion.div className="flex w-full h-full justify-around items-center gap-4">
+                    <motion.div className="w-[50%] min-h-fit max-h-[50%] justify-around items-center p-4 text-3xl h-[50%] bg-[#ff9a3c] border-2 rounded-3xl flex flex-col gap-8">
+                      <span>{username} Score</span>
+                      {["both", "vocab"].includes(mode) && (
+                        <span>Vocab : {scores[username].vocab}</span>
+                      )}
+                      {["both", "kanji"].includes(mode) && (
+                        <span>Kanji : {scores[username].kanji}</span>
+                      )}
+                      {mode === "both" && (
+                        <span>Total : {scores[username].total}</span>
+                      )}
+                    </motion.div>
+                    <motion.div className="w-[50%] bg-[#c9b1ff] border-2 rounded-3xl flex flex-col gap-8 h-[50%] p-4 justify-around items-center">
+                      <span>{opponent} Score</span>
+                      {["both", "vocab"].includes(mode) && (
+                        <span>Vocab : {scores[opponent].vocab}</span>
+                      )}
+                      {["both", "kanji"].includes(mode) && (
+                        <span>Kanji : {scores[opponent].kanji}</span>
+                      )}
+                      {mode === "both" && (
+                        <span>Total : {scores[opponent].total}</span>
+                      )}
+                    </motion.div>
+                  </motion.div>
+                  <motion.div className="flex px-8 py-4 justify-center items-center">
+                    <LuCrown size={48} className="inline mr-6" />
+                    {results.winner}{" "}
+                  </motion.div>
+                </>
+              )}
             </motion.div>
             <motion.button
               onClick={() => {
@@ -296,9 +331,17 @@ const Battle = () => {
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               whileHover={{ scale: 1.1 }}
-              className="flex mb-4 p-2 rounded-full border-2 border-[#cc0000]! cursor-pointer bg-[#ff6b6b] justify-center items-center text-2xl"
+              className="flex mb-4 p-4 rounded-full font-bold border-2 border-[#cc0000]! cursor-pointer bg-[#ff6b6b] justify-center items-center text-2xl"
             >
-              Forfeit <IoFlagSharp />
+              {results ? (
+                <>
+                  Leave <IoExitOutline size={36} />
+                </>
+              ) : (
+                <>
+                  Forfeit <IoFlagSharp />
+                </>
+              )}
             </motion.button>
           </AnimatePresence>
         )}

@@ -165,6 +165,8 @@ const Battle = () => {
           </span>
           <span className="flex justify-center items-center">
             <motion.button
+            whileHover={{scale:1.15}}
+            whileTap={{scale:1.25}}
               onClick={async () => {
                 toast.promise(
                   async () => {
