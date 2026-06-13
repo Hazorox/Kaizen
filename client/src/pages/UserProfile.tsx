@@ -12,6 +12,7 @@ import { getUsername } from "../utils/getUsername";
 import { ankiConnect } from "../api/anki";
 import { IoRefresh } from "react-icons/io5";
 import { getStatsTotal } from "../api/getStats";
+import { Tooltip } from "react-tooltip";
 
 const UserProfile = () => {
   const pfpRef = useRef<HTMLInputElement>(null);
@@ -38,6 +39,7 @@ const UserProfile = () => {
   const [ankiDeck, setAnkiDeck] = useState(
     localStorage.getItem("deckName") ?? "",
   );
+  console.log(stats.matches)
   return (
     <AnimatePresence>
       <div className="w-full select-none h-full relative bg-[#fffbe6] justify-center items-center flex">
@@ -117,11 +119,17 @@ const UserProfile = () => {
               </motion.span>
 
               <motion.span
+                data-tooltip-id="matches"
                 className={
                   colors.matches +
                   " border-4 w-fit px-4 py-4 rounded-full flex flex-col gap-4 text-2xl"
                 }
               >
+                <Tooltip
+                  id="matches"
+                  content={`${stats.matches.won} Wins | ${stats.matches.tie} Ties | ${stats.matches.lost} Losses`}
+                  place="bottom"
+                />
                 <span className="flex justify-center gap-2 items-center">
                   <LuSwords size={24} className="inline" />
                   {stats.matches.total} Matches Played

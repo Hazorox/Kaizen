@@ -60,7 +60,7 @@ const Battle = () => {
     });
     socket.on("opponent_left", () => {
       nav("/battle");
-      toast.error("Opponent Left", { position: "bottom-center" });
+      toast.error("Opponent Left");
     });
     return () => {
       socket.disconnect();
@@ -115,7 +115,7 @@ const Battle = () => {
   };
   return (
     <AnimatePresence key={"main"}>
-      <Toaster />
+      <Toaster position="bottom-center" />
       <div className="w-full select-none h-full flex flex-col justify-around items-center bg-[#fffbe6]">
         {roomJoined && !waiting && (
           <AnimatePresence key={"idkfr"} mode="wait">

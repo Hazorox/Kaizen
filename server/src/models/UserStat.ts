@@ -18,7 +18,7 @@ const userStatModel = new schema({
     ref: "User",
   },
   lastSeen: { type: Date, default: Date.now },
-  streak: { type: Number, default: 0 },
+  streak: { type: Number, default: 1 },
   mining: mining,
   wordHistory: { type: [Object] },
   battleHistory: { type: [Object] },

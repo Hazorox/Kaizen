@@ -36,13 +36,19 @@ router.get("/api/getStats/total", async (req, res) => {
   if (matches.length != 0) {
     won = matches.filter((match) => match.winner == username).length;
     tie = matches.filter((match) => match.winner === "both").length;
-    lost = matches.filter((match) => match.winner != "username").length;
+    lost = matches.filter((match) => match.winner != username).length;
   }
-  const total = matches.length??0;
+  const total = matches.length ?? 0;
   res.json({
     mining: response.mining.length,
     matches: { total, won, tie, lost },
   });
 });
-
+router.get("/api/streak", async (req, res) => {
+  const username = (req as any).user.username;
+  const user = await UserStat.findOne({ username });
+  if (!user) return res.json({ error: "No Data" });
+  const streak = user.streak;
+  return res.json(streak);
+});
 export const getStats = router;

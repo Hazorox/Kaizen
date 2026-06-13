@@ -120,7 +120,12 @@ type modeTypes = "vocab" | "kanji" | "both";
 type jlptTypes = "N5" | "N4" | "N3" | "N2" | "N1";
 router.post("/api/create_match", async (req, res) => {
   try {
-    const roomId = Math.random().toString(36).slice(2, 8);
+    let roomId = Math.random().toString(36).slice(2, 8);
+    while (true) {
+      const room = await Matches.findOne({ roomId });
+      if (!room) break;
+      roomId = Math.random().toString(36).slice(2, 8);
+    }
     const {
       mode,
       jlptLevel,

@@ -32,7 +32,7 @@ const Battle = () => {
   });
   return (
     <AnimatePresence>
-      <Toaster key={"toaster"} />
+      <Toaster key={"toaster"} position="bottom-center" />
       <motion.div
         onClick={() => {
           setMakerShown(false);

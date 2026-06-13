@@ -11,7 +11,16 @@ export const makeSocket = (httpServer: httpServer) => {
   const io = new Server(httpServer, {
     cors: { origin: "http://localhost:5173" },
   });
-  io.on("match_end", async ({ roomId }) => {});
+  // io.on("match_end", async ({ roomId }) => {
+  //   const room = await Matches.findOne({ roomId });
+  //   if (!room) return;
+  //   console.log("working");
+
+  //   console.log(winner);
+  //   // room.scores = scores
+  //   // room.winner = winner
+  //   // await room.save()
+  // });
   io.on("connection", (socket: Socket) => {
     // Joining matches
     socket.on("submit_answer", async ({ roomId, username, ans, type }) => {
@@ -50,6 +59,7 @@ export const makeSocket = (httpServer: httpServer) => {
           },
         });
         const acc = Number(response.choices[0].message.content);
+        console.log(acc);
         if (room.rounds[room.currentRound].player1Ans.length == 0) {
           room.rounds[room.currentRound].player1Ans = [username, acc ?? 0];
         } else {
@@ -62,7 +72,47 @@ export const makeSocket = (httpServer: httpServer) => {
         room.currentSubmissions = 0;
         if (room.currentRound >= room.rounds.length) {
           room.status = "finished";
-          io.to(roomId).emit("match_end", { roomId });
+          const scores: Record<
+            string,
+            { vocab: number; kanji: number; total: number }
+          > = {};
+          room.players.forEach(
+            (player) => (scores[player] = { vocab: 0, kanji: 0, total: 0 }),
+          );
+          room.rounds.forEach((round: any) => {
+            if (round.correct) {
+              const correctAns = round.correct.Original;
+              const [player1, ans1] = round.player1Ans;
+              const [player2, ans2] = round.player2Ans;
+              if (ans1 === correctAns) {
+                scores[player1].total++;
+                scores[player1].vocab++;
+              }
+              if (ans2 === correctAns) {
+                scores[player2].total++;
+                scores[player2].vocab++;
+              }
+            } else if (round.kanji) {
+              const [player1, acc1] = round.player1Ans;
+              const [player2, acc2] = round.player2Ans;
+              if (acc1 >= 50) {
+                scores[player1].kanji++;
+                scores[player1].total++;
+              }
+              if (acc2 >= 50) {
+                scores[player2].kanji++;
+                scores[player2].total++;
+              }
+            }
+          });
+          const topScore = Object.entries(scores).sort(
+            (a, b) => b[1].total - a[1].total,
+          )[0][1].total;
+          const topPlayers = Object.entries(scores)
+            .filter(([_, s]) => s.total === topScore)
+            .map(([p]) => p);
+          const winner = topPlayers.length > 1 ? "both" : topPlayers[0];
+          io.to(roomId).emit("match_end", { winner, scores });
         } else {
           io.to(roomId).emit("next_round");
         }
@@ -70,7 +120,6 @@ export const makeSocket = (httpServer: httpServer) => {
       room.markModified("rounds");
       await room.save();
     });
-    io.on("match_end", async ({ roomId }) => {});
     socket.on("join_match", async ({ roomId, username }) => {
       const room = await Matches.findOne({ roomId });
       if (!room) return socket.emit("notFound");

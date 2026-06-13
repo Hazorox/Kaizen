@@ -6,6 +6,8 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { AnimatePresence, motion } from "motion/react";
+import { getStreak } from "../api/getStreak";
+import { useEffect, useState } from "react";
 const Nav = ({
   shown = true,
   showImmerse = true,
@@ -15,8 +17,14 @@ const Nav = ({
   showImmerse?: boolean;
   showBattle?: boolean;
 }) => {
-  const streak = 3;
+  const [streak, setStreak] = useState<number | "">("");
   const nav = useNavigate();
+  useEffect(() => {
+    const fetchStreak = async () => {
+      await getStreak().then(setStreak);
+    };
+    fetchStreak();
+  });
   return (
     <AnimatePresence>
       {shown && (
@@ -34,7 +42,7 @@ const Nav = ({
             whileHover={{ color: "#fffbe6", opacity: 0.8 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
           >
-            {streak > 0 ? (
+            {streak && streak > 0 ? (
               <MdLocalFireDepartment className="inline mb-1 mx-1" />
             ) : (
               <MdOutlineLocalFireDepartment className="inline mb-1 mx-1" />
