@@ -198,7 +198,7 @@ const Immerse = () => {
               setLookupShown((prev) => !prev);
             }}
             className={`${preUpload ? "hidden " : ""} z-100 bg-[#1a1a2e] p-2 cursor-pointer rounded-full${navCollapsed ? " right-4 bottom-3" : ""}`}
-            whileHover={{ scale: 1.15, y: -20 }}
+            whileHover={{ scale: 1.15, y: -12 }}
             whileTap={{ scale: 1.25 }}
           >
             <RiMenuSearchLine size={36} className="text-[#fffbe6]" />
@@ -215,7 +215,7 @@ const Immerse = () => {
               }
             }}
             className={`${preUpload ? "hidden " : ""} z-100 bg-[#1a1a2e] p-2 cursor-pointer rounded-full${navCollapsed ? " right-4 bottom-3" : ""}`}
-            whileHover={{ scale: 1.15, y: -20 }}
+            whileHover={{ scale: 1.15, y: -12 }}
             whileTap={{ scale: 1.25 }}
           >
             {navCollapsed ? (
@@ -482,50 +482,61 @@ const Immerse = () => {
             <motion.div className="w-full h-full flex scrollable">
               <motion.div className="w-full h-full flex">
                 {fileType == "pdf" && (
-                  <object
+                  <motion.object
+                    layout
                     data={pdfURL}
                     type="application/pdf"
-                    className="w-[65%] h-full"
+                    className={`${lookUpShown ? "w-[65%]" : "w-full"} h-full`}
                   />
                 )}
                 {fileType === "vidNoSub" && (
-                  <video
+                  <motion.video
+                    layout
                     src={vidSrc}
                     controls
-                    className="w-[65%] bg-black h-full"
-                  ></video>
+                    className={`${lookUpShown ? "w-[65%]" : "w-full"} h-full bg-black`}
+                  ></motion.video>
                 )}
-                <motion.div className="w-[35%] h-full border-l-2 bg-[#fffbe6]/50 flex flex-col">
-                  <motion.span className="flex items-center h-fit relative w-[85%] self-center my-2">
-                    <motion.input
-                      ref={lookupRef}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          setLookup(lookupInput);
-                        }
-                      }}
-                      onChange={(e) => {
-                        setLookupInput(e.target.value);
-                      }}
-                      className="w-full h-full  p-4 placeholder:text-[#fffbe6]/90 text-[#fffbe6]/90 text-lg pl-16 rounded-xl  bg-[#1a1a2e]/70"
-                      placeholder="Text to Lookup"
-                    />
-                    <FaSearch size={48} className="inline absolute left-2" />
-                    <motion.span
-                      initial={{ opacity: "85%" }}
-                      transition={{ duration: 0.15 }}
-                      whileTap={{ x: 10 }}
-                      onClick={() => {
-                        setLookup(lookupRef.current?.value ?? "");
-                      }}
-                      whileHover={{ opacity: "100%", scale: 1.1 }}
-                      className="flex cursor-pointer text-[#fffbe6] absolute right-2 justify-center items-center w-fit h-fit"
+                {lookUpShown && (
+                  <>
+                    <motion.div
+                      className={`h-full border-l-2 bg-[#fffbe6]/50 flex flex-col w-[35%]`}
                     >
-                      <FaArrowCircleRight size={40} />
-                    </motion.span>
-                  </motion.span>
-                  {lookUpShown && <LookUp text={lookup} sub={false} />}
-                </motion.div>
+                      <motion.span className="flex items-center h-fit relative w-[85%] self-center my-2">
+                        <motion.input
+                          ref={lookupRef}
+                          onKeyPress={(e) => {
+                            if (e.key === "Enter") {
+                              setLookup(lookupInput);
+                            }
+                          }}
+                          onChange={(e) => {
+                            setLookupInput(e.target.value);
+                          }}
+                          className="w-full h-full  p-4 placeholder:text-[#fffbe6]/90 text-[#fffbe6]/90 text-lg pl-16 rounded-xl  bg-[#1a1a2e]/70"
+                          placeholder="Text to Lookup"
+                        />
+                        <FaSearch
+                          size={48}
+                          className="inline absolute left-2"
+                        />
+                        <motion.span
+                          initial={{ opacity: "85%" }}
+                          transition={{ duration: 0.15 }}
+                          whileTap={{ x: 10 }}
+                          onClick={() => {
+                            setLookup(lookupRef.current?.value ?? "");
+                          }}
+                          whileHover={{ opacity: "100%", scale: 1.1 }}
+                          className="flex cursor-pointer text-[#fffbe6] absolute right-2 justify-center items-center w-fit h-fit"
+                        >
+                          <FaArrowCircleRight size={40} />
+                        </motion.span>
+                      </motion.span>
+                      {lookUpShown && <LookUp text={lookup} sub={false} />}
+                    </motion.div>
+                  </>
+                )}
               </motion.div>
             </motion.div>
           )}
