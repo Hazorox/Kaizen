@@ -39,7 +39,6 @@ const UserProfile = () => {
   const [ankiDeck, setAnkiDeck] = useState(
     localStorage.getItem("deckName") ?? "",
   );
-  console.log(stats.matches)
   return (
     <AnimatePresence>
       <div className="w-full select-none h-full relative bg-[#fffbe6] justify-center items-center flex">
