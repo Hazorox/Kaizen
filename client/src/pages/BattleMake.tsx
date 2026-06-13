@@ -8,6 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { LuSwords } from "react-icons/lu";
 import { Tooltip } from "react-tooltip";
 import { createMatch } from "../api/match";
+import { FaX } from "react-icons/fa6";
 const Battle = () => {
   const nav = useNavigate();
   const idRef = useRef<HTMLInputElement>(null);
@@ -54,6 +55,13 @@ const Battle = () => {
           layout
           className="bg-[#fffbe6] flex flex-col justify-around gap-12 relative border-2 w-[50%] h-[60%] p-8 rounded-xl"
         >
+          <FaX
+            onClick={() => {
+              setMakerShown(false);
+            }}
+            className="inline absolute top-8 cursor-pointer right-8"
+            size={36}
+          />
           <span
             key={"title"}
             className="w-full flex justify-center items-center gap-6 text-4xl"
@@ -68,13 +76,13 @@ const Battle = () => {
           >
             <Tooltip id="jlpt" />
             <span
-              className="text-2xl"
+              className="text-2xl flex justify-center items-center gap-3"
               data-tooltip-id="jlpt"
               data-tooltip-content={
                 "Contains from JLPT N5 to the chosen JLPT level"
               }
             >
-              JLPT Level
+              JLPT Level <MdInfoOutline size={36} className="inline mt-1" />
             </span>
             <span className="flex w-1/2 justify-between items-center gap-6">
               {["N5", "N4", "N3", "N2", "N1"].map((jlptLevel) => (
@@ -165,8 +173,8 @@ const Battle = () => {
           </span>
           <span className="flex justify-center items-center">
             <motion.button
-            whileHover={{scale:1.15}}
-            whileTap={{scale:1.25}}
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 1.25 }}
               onClick={async () => {
                 toast.promise(
                   async () => {

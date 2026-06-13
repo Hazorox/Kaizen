@@ -17,6 +17,7 @@ import { authMiddleware } from "./middleware/auth";
 import { updateLastSeen } from "./middleware/updateLastSeen";
 import { makeSocket } from "./socket";
 import { matches } from "./utils/matches";
+import { recents } from "./utils/recents";
 const app = express();
 const httpServer = createServer(app)
 const io = makeSocket(httpServer)
@@ -34,6 +35,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", googleRoutes);
+app.use(recents)
 app.use(delAcc);
 app.use(updatePFP);
 app.use(immersion);

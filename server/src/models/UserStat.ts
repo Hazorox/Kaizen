@@ -20,8 +20,6 @@ const userStatModel = new schema({
   lastSeen: { type: Date, default: Date.now },
   streak: { type: Number, default: 1 },
   mining: mining,
-  wordHistory: { type: [Object] },
-  battleHistory: { type: [Object] },
 });
 
 export const UserStat = mongoose.model("user-stats", userStatModel);
