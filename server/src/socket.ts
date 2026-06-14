@@ -1,13 +1,14 @@
 import { Server, Socket } from "socket.io";
 import { Server as httpServer } from "http";
 import { Matches } from "./models/Match";
-import { OpenRouter } from "@openrouter/sdk";
-const client = new OpenRouter({
+
+export const makeSocket = async (httpServer: httpServer) => {
+  const {OpenRouter} = await import ("@openrouter/sdk")
+  const client = new OpenRouter({
   apiKey: process.env.AI_KEY ?? "",
   serverURL: "https://ai.hackclub.com/proxy/v1",
 });
 
-export const makeSocket = (httpServer: httpServer) => {
   const io = new Server(httpServer, {
     cors: { origin: "http://localhost:5173" },
   });

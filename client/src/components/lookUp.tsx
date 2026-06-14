@@ -20,7 +20,7 @@ const LookUp = ({
   const [data, setData] = useState(null);
   const [audio, setAudio] = useState("");
   const failedAddCard = () => {
-    toast.error("Failed. Check if Anki is open or the card already exists.", {
+    toast.error("Failed. Check if Anki is running and the card doesn't exit.\nAlso try resyncing the deck from UserProfile", {
       icon: <img src="/anki.svg" />,
       style: {
         background: "#e87d81",

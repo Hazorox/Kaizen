@@ -7,7 +7,6 @@ export const getRecents = async () => {
 };
 export const getRecentFive = async () => {
   const res = await API.post("/recents", { five: true });
-  console.log(res);
   if (res.data.error === "nothing") return;
   return res.data;
 };

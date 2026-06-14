@@ -19,9 +19,13 @@ import { makeSocket } from "./socket";
 import { matches } from "./utils/matches";
 import { recents } from "./utils/recents";
 const app = express();
-const httpServer = createServer(app)
-const io = makeSocket(httpServer)
-app.use(cors({ origin: ["http://localhost:5173","https://admin.socket.io/"] }));
+const httpServer = createServer(app);
+(async () => {
+  await makeSocket(httpServer);
+})();
+app.use(
+  cors({ origin: ["http://localhost:5173", "https://admin.socket.io/"] }),
+);
 app.use(express.json());
 app.use(
   session({
@@ -35,13 +39,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", googleRoutes);
-app.use(recents)
+app.use(recents);
 app.use(delAcc);
 app.use(updatePFP);
 app.use(immersion);
 app.use(ankiUtils);
 app.use(getStats);
-app.use(matches)
+app.use(matches);
 app.get("/", (req, res) => {
   res.json("Kaizen is Running :D");
 });
