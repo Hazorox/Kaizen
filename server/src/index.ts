@@ -31,6 +31,7 @@ app.use(
     saveUninitialized: true,
   }),
 );
+app.set("trust proxy", 1);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/auth", authRoutes);
