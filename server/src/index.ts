@@ -20,9 +20,7 @@ import { matches } from "./utils/matches";
 import { recents } from "./utils/recents";
 const app = express();
 const httpServer = createServer(app);
-(async () => {
-  await makeSocket(httpServer);
-})();
+
 app.use(
   cors({ origin: ["http://localhost:5173", "https://admin.socket.io/"] }),
 );
@@ -34,11 +32,11 @@ app.use(
     saveUninitialized: true,
   }),
 );
-app.use(authMiddleware, updateLastSeen);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", googleRoutes);
+app.use(authMiddleware, updateLastSeen);
 app.use(recents);
 app.use(delAcc);
 app.use(updatePFP);
@@ -64,6 +62,7 @@ mongoose
   .catch((err) => {
     console.error(`Error while connecting to Database : \n${err}`);
   });
-httpServer.listen(process.env.PORT, () => {
+httpServer.listen(process.env.PORT, async () => {
+  await makeSocket(httpServer);
   console.log("Server Running");
 });
