@@ -85,7 +85,7 @@ const LogReg = () => {
 
       <div
         key="contents"
-        className="w-full select-none h-full text-[#1a1a2e] bg-[#fffbe6] font-extrabold flex justify-center items-center"
+        className="w-full select-none h-full text-[#1a1a2e] bg-[#fffbe6] font-bold flex justify-center items-center"
       >
         <motion.div
           layout
