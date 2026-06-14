@@ -69,7 +69,7 @@ router.get(
       process.env.JWT_SECRET ?? "secret",
       { expiresIn: "14d" },
     );
-    res.redirect(`${process.env.FRONTEND_URL ??"http://localhost:5173"}/auth/callback?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
   },
 );
 
