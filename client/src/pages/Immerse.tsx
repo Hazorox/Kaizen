@@ -9,6 +9,7 @@ import {
 import {
   FaArrowCircleRight,
   FaExpandArrowsAlt,
+  FaFileVideo,
   FaSearch,
   FaYoutube,
 } from "react-icons/fa";
@@ -19,8 +20,13 @@ import { getSub } from "../api/ytSub";
 import { LuShrink } from "react-icons/lu";
 import LookUp from "../components/lookUp";
 import { RiMenuSearchLine } from "react-icons/ri";
+import { FaX } from "react-icons/fa6";
+import { IoCloudUpload, IoSend } from "react-icons/io5";
+import { MdSubtitles } from "react-icons/md";
+import toast, { Toaster } from "react-hot-toast";
 const Immerse = () => {
   // STATES
+  const [vidSubShown, setVidSubShown] = useState(false);
   const [lookUpShown, setLookupShown] = useState(true);
   const [vidSrc, setVidSrc] = useState<string>("");
   const [navCollapsed, setNavCollapsed] = useState<boolean>(false);
@@ -187,6 +193,77 @@ const Immerse = () => {
       <div
         className={`w-full h-full relative items-center overflow-hidden bg-[#fffbe6] flex justify-center`}
       >
+        {vidSubShown && (
+          <motion.div
+            onClick={() => {
+              setVidSubShown(false);
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: "linear" }}
+            key={vidSubShown ? "vidSubUpload" : "vidSubUploadClosed"}
+            layout
+            className="w-full h-full bg-[#1a1a2e]/50 absolute flex justify-center items-center z-100"
+          >
+            <Toaster position="bottom-center" />
+            <motion.div
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="w-[50%] border-4 rounded-3xl p-8 h-[50%] bg-[#4ecdc4] flex flex-col relative items-center text-3xl font-bold"
+            >
+              <FaX
+                onClick={() => {
+                  setVidSubShown(false);
+                }}
+                className="absolute cursor-pointer right-4 top-4"
+                size={36}
+              />
+              Upload Contents
+              <div className="flex w-full h-3/4 justify-center gap-20 items-center">
+                <motion.button
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 1.25 }}
+                  onClick={() => {
+                    videoInputRef.current?.click();
+                  }}
+                  className="flex-col cursor-pointer h-1/2 border-4 rounded-4xl bg-[#fffbe6] flex justify-center items-center p-4"
+                >
+                  <FaFileVideo size={48} />
+                  Upload Video
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 1.25 }}
+                  onClick={() => {
+                    vttInputRef.current?.click();
+                  }}
+                  className="flex-col text-2xl cursor-pointer h-1/2 border-4 rounded-4xl bg-[#fffbe6] flex justify-center items-center p-4"
+                >
+                  <MdSubtitles size={48} />
+                  Upload Subtitles
+                  <br /> {"(.vtt Recommended)"}
+                </motion.button>
+              </div>
+              <motion.button
+                onClick={() => {
+                  if (!vidSrc || !vttSrc) {
+                    return toast.error("Please Upload Both Files First");
+                  }
+                  setVidSubShown(false);
+                  setFileType("video");
+                  setPreUpload(false);
+                }}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 1.25 }}
+                className="bg-[#3dce3d] cursor-pointer p-4 rounded-full border-2 flex justify-center items-center gap-2"
+              >
+                Upload <IoCloudUpload className="mt-1" size={36} />{" "}
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
         <span
           key={"buttons"}
           className="absolute right-1 bottom-1 flex flex-col gap-8"
@@ -237,7 +314,6 @@ const Immerse = () => {
             if (!file) return;
             const url = URL.createObjectURL(file);
             setVidSrc(url);
-            vttInputRef.current?.click();
           }}
         />
         <input
@@ -272,8 +348,6 @@ const Immerse = () => {
               setVttContent(content);
               const url = URL.createObjectURL(file);
               setVttSrc(url);
-              setFileType("video");
-              setPreUpload(false);
             };
             reader.readAsText(file);
           }}
@@ -354,7 +428,7 @@ const Immerse = () => {
                     boxShadow: "0 0 0 2px rgba(255,251,230,0.3)",
                   }}
                   onClick={() => {
-                    videoInputRef.current?.click();
+                    setVidSubShown(true);
                   }}
                   transition={{ duration: 0.2 }}
                   className="flex bg-[#fffbe6] px-2 relative py-4 border-4 cursor-pointer rounded-3xl w-[25%] flex-col gap-2 justify-around items-center"
