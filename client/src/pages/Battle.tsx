@@ -17,7 +17,6 @@ const Battle = () => {
 
   const { id } = useParams();
   const stageRef = useRef<any>(null);
-  const socketRef = useRef<Socket | null>(null);
   const [roomId, setRoomId] = useState("");
   const [questions, setQuestions] = useState([]);
   const [roomJoined, setRoomJoined] = useState(false);
@@ -29,11 +28,12 @@ const Battle = () => {
   const [mode, setMode] = useState("");
   const currentMode =
     mode == "both" ? (roundNum % 2 == 0 ? "vocab" : "kanji") : mode;
-  const [results, setResults] = useState();
-  const scores = results ? results.scores : null;
-  const nav = useNavigate();
-  const username = getUsername();
-  const opponent = players.filter((player) => player != username)[0];
+    const [results, setResults] = useState();
+    const scores = results ? results.scores : null;
+    const nav = useNavigate();
+    const username = getUsername();
+    const opponent = players.filter((player) => player != username)[0];
+    const socketRef = useRef<Socket | null>(null);
   useEffect(() => {
     socketRef.current = io(import.meta.env.VITE_BACKEND_URL ?? "http://localhost:9898");
     const socket = socketRef.current;

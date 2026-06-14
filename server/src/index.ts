@@ -31,6 +31,7 @@ app.use(
     saveUninitialized: true,
   }),
 );
+(async ()=>{ await makeSocket(httpServer)})
 app.set("trust proxy", 1);
 app.use(passport.initialize());
 app.use(passport.session());
@@ -63,6 +64,5 @@ mongoose
     console.error(`Error while connecting to Database : \n${err}`);
   });
 httpServer.listen(process.env.PORT, async () => {
-  await makeSocket(httpServer);
   console.log("Server Running");
 });
