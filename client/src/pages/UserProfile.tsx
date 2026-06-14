@@ -28,10 +28,12 @@ const UserProfile = () => {
   } else {
     username = id;
   }
-  const [userPic, setUserPic] = useState<string | null>(null);
+  const [userPic, setUserPic] = useState<string | null>("/idk.jpg");
   useEffect(() => {
     const fetchStuff = async () => {
-      await getPFP(username).then(setUserPic);
+      await getPFP(username).then((data) => {
+        if (data) setUserPic(data);
+      });
       await getStatsTotal().then(setStats);
     };
     fetchStuff();

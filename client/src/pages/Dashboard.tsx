@@ -10,22 +10,28 @@ import Guide from "../components/Guide";
 import { useEffect, useState } from "react";
 import { ankiGetDue } from "../api/anki";
 import { getUsername } from "../utils/getUsername";
-import {  getStats } from "../api/getStats";
+import { getStats } from "../api/getStats";
+import { getRecentFive } from "../api/getRecents";
 
 const Dashboard = () => {
   const nav = useNavigate();
   const time = new Date().getHours();
   const username = getUsername();
-
+  const [recents, setRecents] = useState(null);
   const [ankiDue, setAnkiDue] = useState<number | null>(null);
-  const [stats,setStats] = useState<{mining:number,matches:number}>({mining:0,matches:0})
+  const [stats, setStats] = useState<{ mining: number; matches: number }>({
+    mining: 0,
+    matches: 0,
+  });
   useEffect(() => {
     const fetchStuff = async () => {
+      await getRecentFive().then(setRecents)
       await ankiGetDue().then(setAnkiDue);
-      await getStats().then(setStats)
+      await getStats().then(setStats);
     };
     fetchStuff();
   }, []);
+  console.log(recents)
   return (
     // Dashboard
     <AnimatePresence>
@@ -42,13 +48,15 @@ const Dashboard = () => {
           transition={{ duration: 0.5, ease: "easeIn" }}
           className="main h-[80%] flex flex-col border-2  p-4 justify-center items-center rounded-md w-[70%] bg-[#4ecdc4]"
         >
-          <span className="text-8xl flex-1 mt-6 justify-center">
+          <span
+            className={`flex-1 mt-6 justify-center ${username.length > 14 ? "text-7xl" : "text-8xl"}`}
+          >
             {time >= 5 && time < 12
               ? "おはよう"
               : 12 <= time && time < 18
                 ? "こんにちは"
                 : "こんばんは"}
-            , {username.length > 14 ? "" : username} !
+            , {username} !
           </span>
           {/* Cards */}
           <div className="grid grid-cols-2 gap-y-2 gap-x-6 place-content-center justify-items-center items-center h-full">
@@ -100,34 +108,7 @@ const Dashboard = () => {
             </div>
             {/* Body */}
             <div className="select-text">
-              <WordRow
-                content="犬"
-                furigana="いぬ"
-                meaning="Dog"
-                source="Anki"
-                learntDate={1779291006000}
-              />
-              <WordRow
-                content="本"
-                furigana="ほん"
-                meaning="Book"
-                source="Immersion"
-                learntDate={1779405341000}
-              />
-              <WordRow
-                content="勉強する"
-                furigana="べんきょうする"
-                meaning="To Study"
-                source="Kanji"
-                learntDate={1770405311000}
-              />
-              <WordRow
-                content="改善"
-                furigana="かいぜん"
-                meaning="Self Improvement"
-                source="Matches"
-                learntDate={1779391006000}
-              />
+              {recents && recents?.map(({word,reading,meaning})=><WordRow content={word} furigana={reading} meaning={meaning} />)}
             </div>
           </div>
         </motion.div>
