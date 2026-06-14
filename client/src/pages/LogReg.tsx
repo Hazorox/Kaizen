@@ -311,7 +311,7 @@ const LogReg = () => {
                         whileTap={{ scale: 1.2 }}
                         onClick={() =>
                           (window.location.href =
-                            `${import.meta.env.BACKEND_URL}/api/auth/google`)
+                            `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`)
                         }
                         className="bg-[#FF9A3C] p-2 w-[70%] hover:cursor-pointer rounded-full flex justify-center text-xl items-center"
                       >
@@ -339,7 +339,7 @@ const LogReg = () => {
                         type="button"
                           onClick={() =>
                             (window.location.href =
-                              `${import.meta.env.BACKEND_URL}/api/auth/google`)
+                              `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`)
                           }
                           whileHover={{ opacity: 0.95 }}
                           transition={{ duration: 0.15 }}

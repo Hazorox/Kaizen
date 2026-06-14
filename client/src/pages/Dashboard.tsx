@@ -25,7 +25,7 @@ const Dashboard = () => {
   });
   useEffect(() => {
     const fetchStuff = async () => {
-      await getRecentFive().then(setRecents)
+      await getRecentFive().then(setRecents);
       await ankiGetDue().then(setAnkiDue);
       await getStats().then(setStats);
     };
@@ -107,8 +107,20 @@ const Dashboard = () => {
             </div>
             {/* Body */}
             <div className="select-text h-full">
-              {recents?.length==0 && <div className="w-full h-full flex justify-center items-center text-2xl">No Data Found, Start Mining</div>}
-              {recents?.length!=0 && recents && recents?.map(({word,reading,meaning})=><WordRow content={word} furigana={reading} meaning={meaning} />)}
+              {recents?.length == 0 && (
+                <div className="w-full h-full flex justify-center items-center text-2xl">
+                  No Data Found, Start Mining
+                </div>
+              )}
+              {recents?.length != 0 &&
+                recents &&
+                recents?.map(({ word, reading, meaning }) => (
+                  <WordRow
+                    content={word}
+                    furigana={reading}
+                    meaning={meaning}
+                  />
+                ))}
             </div>
           </div>
         </motion.div>

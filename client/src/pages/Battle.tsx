@@ -366,7 +366,7 @@ const Battle = () => {
               onClick={() => {
                 //TODO: CHANGE THIS TO ONLINE URLZ
                 navigator.clipboard.writeText(
-                  `${import.meta.env.FRONTEND_URL}/battle/${id}`,
+                  `${import.meta.env.VITE_FRONTEND_URL}/battle/${id}`,
                 );
               }}
               whileHover={{ scale: 1.15 }}
