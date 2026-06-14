@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import AuthCallback from "./components/AuthCallback"
 import 'react-tooltip/dist/react-tooltip.css'
+import NotFound from "./pages/404";
 function App() {
   return (
     <Router>
@@ -24,6 +25,7 @@ function App() {
           <Route path="/profile/" element={<UserProfile />} />
           <Route path="/recents/" element={<Recents />} />
         </Route>
+        <Route path="*" element={<NotFound />}/>
       </Routes>
     </Router>
   );
