@@ -1,7 +1,5 @@
 import { Router } from "express";
-import { authMiddleware } from "../middleware/auth";
 import { UserStat } from "../models/UserStat";
-import { error } from "console";
 import { Matches } from "../models/Match";
 const router = Router();
 const bothSameDay = (a: Date, b: Date) =>
@@ -36,7 +34,9 @@ router.get("/api/getStats/total", async (req, res) => {
   if (matches.length != 0) {
     won = matches.filter((match) => match.winner == username).length;
     tie = matches.filter((match) => match.winner === "both").length;
-    lost = matches.filter((match) => match.winner != username).length;
+    lost = matches.filter(
+      (match) => match.winner != username && match.winner != "both",
+    ).length;
   }
   const total = matches.length ?? 0;
   res.json({

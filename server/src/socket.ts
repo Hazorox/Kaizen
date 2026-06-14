@@ -10,7 +10,7 @@ export const makeSocket = async (httpServer: httpServer) => {
 });
 
   const io = new Server(httpServer, {
-    cors: { origin: "http://localhost:5173" },
+    cors: { origin: process.env.FRONTEND_URL??"localhost:5173" },
   });
 
   io.on("connection", (socket: Socket) => {

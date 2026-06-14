@@ -22,7 +22,7 @@ const app = express();
 const httpServer = createServer(app);
 
 app.use(
-  cors({ origin: ["http://localhost:5173", "https://admin.socket.io/"] }),
+  cors({ origin: [process.env.FRONTEND_URL??"http://localhost:5173", "https://admin.socket.io/"] }),
 );
 app.use(express.json());
 app.use(

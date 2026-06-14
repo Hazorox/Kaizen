@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getToken } from "../utils/token";
-const API = axios.create({ baseURL: "http://localhost:9898/api" });
+const API = axios.create({ baseURL: `${import.meta.env.BACKEND_URL}:9898/api` });
 API.interceptors.request.use(
   (config) => {
     const token = getToken();

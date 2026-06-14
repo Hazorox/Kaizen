@@ -35,7 +35,7 @@ const Battle = () => {
   const username = getUsername();
   const opponent = players.filter((player) => player != username)[0];
   useEffect(() => {
-    socketRef.current = io("http://localhost:9898");
+    socketRef.current = io(import.meta.env.BACKENDURL ?? "http://localhost:9898");
     const socket = socketRef.current;
     socket.on("notFound", () => {
       nav("/battle");
@@ -366,7 +366,7 @@ const Battle = () => {
               onClick={() => {
                 //TODO: CHANGE THIS TO ONLINE URLZ
                 navigator.clipboard.writeText(
-                  `http://localhost:5173/battle/${id}`,
+                  `${import.meta.env.FRONTEND_URL}/battle/${id}`,
                 );
               }}
               whileHover={{ scale: 1.15 }}
