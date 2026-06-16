@@ -35,7 +35,7 @@ const Battle = () => {
     const opponent = players.filter((player) => player != username)[0];
     const socketRef = useRef<Socket | null>(null);
   useEffect(() => {
-    socketRef.current = io(import.meta.env.VITE_BACKEND_URL ?? "http://localhost:9898");
+    socketRef.current = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:9898");
     const socket = socketRef.current;
     socket.on("notFound", () => {
       nav("/battle");

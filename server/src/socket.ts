@@ -12,8 +12,8 @@ export const makeSocket = async (httpServer: httpServer) => {
   const io = new Server(httpServer, {
     cors: {
       origin: [
-        process.env.FRONTEND_URL || "http://localhost:5173",
-        "https://kaizen-jp.vercel.app",
+        "http://localhost:5173",
+        "https://kaizen.appwrite.network",
       ],
     },
   });
