@@ -33,12 +33,15 @@ interface vocabRound {
 }
 type Round = vocabRound | kanjiRound;
 const loadVocab = (): VocabEntry[] => {
-  const csvPath = path.join(process.cwd(), "server", "data", "jlpt_vocab.csv");
+  const csvPath = path.join(process.cwd(), "src", "data", "jlpt_vocab.csv");
   const file = fs.readFileSync(csvPath, "utf-8");
-  return parse(file, {
-    columns: true,
-    skip_empty_lines: true,
-  });
+  return parse(file, { columns: true, skip_empty_lines: true });
+};
+
+const loadKanji = (): KanjiEntry[] => {
+  const csvPath = path.join(process.cwd(), "src", "data", "HLPT_kanji_ALL.csv");
+  const file = fs.readFileSync(csvPath, "utf-8");
+  return parse(file, { columns: true, skip_empty_lines: true });
 };
 
 const generateVocab = (level: number): vocabRound => {
@@ -101,26 +104,7 @@ const generateData = (
   }
   return;
 };
-console.log("cwd:", process.cwd());
-console.log("__dirname:", __dirname);
-console.log("vocab path:", path.resolve(__dirname, "../data/jlpt_vocab.csv"));
-console.log(
-  "kanji path:",
-  path.resolve(__dirname, "../data/HLPT_kanji_ALL.csv"),
-);
-const loadKanji = (): KanjiEntry[] => {
-  const csvPath = path.join(
-    process.cwd(),
-    "server",
-    "data",
-    "HLPT_kanji_ALL.csv",
-  );
-  const file = fs.readFileSync(csvPath, "utf-8");
-  return parse(file, {
-    columns: true,
-    skip_empty_lines: true,
-  });
-};
+
 const router = Router();
 // Original,Furigana,English,JLPT Level
 type modeTypes = "vocab" | "kanji" | "both";
