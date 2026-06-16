@@ -1,20 +1,27 @@
-artyvgbhnkm vsdgfbjksdfb jkerwh foiwehuoifhejksfeh as
-df dsl;a fouweh fidsa 
-fksdao
-fj'sa f'eos f
-isad 
-fisd
-aufo
-dsauf
-udsa
-of usda[o
- ufo
- ewau fo
- eu ao
- fu
- sodauf o
- sau of
- ueaso fu
- oea
- u 
- ]
+# 改善 • Kaizen
+## A Japanese Immersion Platform, for those lazy ;)
+### By Hazoro
+Ever felt lazy to try and immerse yourself into videos, anime, books and stuff while learning 日本語, Japanese?
+
+Well I also do ;-;
+So I have made this MERN Stack Project to help me immerse easily.
+# Main Features :
+## 1- Immersion Page
+Supported immersion methods : 
+- Books (PDF & Text Files)
+- Videos (Subtitles File Recommended)
+- YouTube Videos
+If subtitles are provided for the video. A synced subtitles bar is shown that u can select words to lookup automatically.
+Anki Integration : You can add new words to your Anki Collection for memorization.
+
+## 2- Matches : Test Your JLPT Vocab & Kanji
+Invite friends to an online match for testing your knowledge together !
+
+
+## 3- Stats, Streak, and More
+Track your daily progress using the main dashboard, you can also lookup your recently mined words during immersion.
+![Dashboard page image](image.png)
+To view all-time stats, check your user profile.
+
+
+With 💖 By Hazoro
