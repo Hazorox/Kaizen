@@ -39,7 +39,7 @@ const loadVocab = (): VocabEntry[] => {
 };
 
 const loadKanji = (): KanjiEntry[] => {
-  const csvPath = path.join(process.cwd(), "src", "data", "HLPT_kanji_ALL.csv");
+  const csvPath = path.join(process.cwd(), "src", "data", "JLPT_kanji_ALL.csv");
   const file = fs.readFileSync(csvPath, "utf-8");
   return parse(file, { columns: true, skip_empty_lines: true });
 };
