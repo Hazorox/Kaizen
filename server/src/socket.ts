@@ -3,14 +3,14 @@ import { Server as httpServer } from "http";
 import { Matches } from "./models/Match";
 
 export const makeSocket = async (httpServer: httpServer) => {
-  const {OpenRouter} = await import ("@openrouter/sdk")
+  const { OpenRouter } = await import("@openrouter/sdk");
   const client = new OpenRouter({
-  apiKey: process.env.AI_KEY ?? "",
-  serverURL: "https://ai.hackclub.com/proxy/v1",
-});
+    apiKey: process.env.AI_KEY ?? "",
+    serverURL: "https://ai.hackclub.com/proxy/v1",
+  });
 
   const io = new Server(httpServer, {
-    cors: { origin: [process.env.FRONTEND_URL??"localhost:5173","https://kaizen-jp.vercel.app"] },
+    cors: { origin: ["http://localhost:5173", "https://kaizen-jp.vercel.app",process.env.FRONTEND_URL] },
   });
 
   io.on("connection", (socket: Socket) => {
