@@ -301,7 +301,7 @@ const LogReg = () => {
                         onClick={() => {
                           handleSubmit();
                         }}
-                        className="bg-[#FF9A3C] hover:cursor-pointer p-4 w-[70%] rounded-full text-xl -mb-4"
+                        className="bg-[#FF9A3C] border-3 hover:cursor-pointer p-4 w-[70%] rounded-full text-xl -mb-4"
                       >
                         Login
                       </motion.button>
@@ -313,7 +313,7 @@ const LogReg = () => {
                           (window.location.href =
                             `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`)
                         }
-                        className="bg-[#FF9A3C] p-2 w-[70%] hover:cursor-pointer rounded-full flex justify-center text-xl items-center"
+                        className="bg-[#FF9A3C] border-3 p-2 w-[70%] hover:cursor-pointer rounded-full flex justify-center text-xl items-center"
                       >
                         Continue With{" "}
                         <FcGoogle className="inline ml-3" size={48} />{" "}
@@ -321,7 +321,7 @@ const LogReg = () => {
                     </>
                   ) : (
                     <AnimatePresence key="submitButtons">
-                      <motion.div className="flex w-[70%] rounded-xl h-16 border justify-around items-center overflow-hidden">
+                      <motion.div className="flex w-[70%] border-4 rounded-xl h-16 justify-around items-center overflow-hidden">
                         <motion.button
                         type="button"
                           onClick={() => {
