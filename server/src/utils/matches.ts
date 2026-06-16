@@ -101,10 +101,21 @@ const generateData = (
   }
   return;
 };
-
+console.log("cwd:", process.cwd());
+console.log("__dirname:", __dirname);
+console.log("vocab path:", path.resolve(__dirname, "../data/jlpt_vocab.csv"));
+console.log(
+  "kanji path:",
+  path.resolve(__dirname, "../data/HLPT_kanji_ALL.csv"),
+);
 const loadKanji = (): KanjiEntry[] => {
-  const csvPath = path.join(process.cwd(), "server", "data", "HLPT_kanji_ALL.csv");
-const file = fs.readFileSync(csvPath, "utf-8");
+  const csvPath = path.join(
+    process.cwd(),
+    "server",
+    "data",
+    "HLPT_kanji_ALL.csv",
+  );
+  const file = fs.readFileSync(csvPath, "utf-8");
   return parse(file, {
     columns: true,
     skip_empty_lines: true,

@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { authMiddleware } from "../middleware/auth";
 import http from "http";
 import axios from "axios";
 const api = axios.create({
