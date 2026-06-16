@@ -19,7 +19,9 @@ import { makeSocket } from "./socket";
 import { matches } from "./utils/matches";
 import { recents } from "./utils/recents";
 const app = express();
+app.set("trust proxy", 1);
 const httpServer = createServer(app);
+(async ()=>{ await makeSocket(httpServer)})();
 app.use(
   cors({ origin: [process.env.FRONTEND_URL||"http://localhost:5173", "https://admin.socket.io/", "https://kaizen-jp.vercel.app"] }),
 );
@@ -31,8 +33,6 @@ app.use(
     saveUninitialized: true,
   }),
 );
-(async ()=>{ await makeSocket(httpServer)})
-app.set("trust proxy", 1);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/auth", authRoutes);
