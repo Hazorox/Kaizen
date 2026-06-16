@@ -10,7 +10,12 @@ export const makeSocket = async (httpServer: httpServer) => {
   });
 
   const io = new Server(httpServer, {
-    cors: { origin: ["http://localhost:5173", "https://kaizen-jp.vercel.app",process.env.FRONTEND_URL] },
+    cors: {
+      origin: [
+        process.env.FRONTEND_URL || "http://localhost:5173",
+        "https://kaizen-jp.vercel.app",
+      ],
+    },
   });
 
   io.on("connection", (socket: Socket) => {
