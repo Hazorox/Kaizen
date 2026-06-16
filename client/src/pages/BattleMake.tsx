@@ -178,13 +178,17 @@ const Battle = () => {
               onClick={async () => {
                 toast.promise(
                   async () => {
-                    const id = await createMatch(
+                    await createMatch(
                       selections.mode,
                       selections.jlptLevel,
                       selections.rounds,
-                    );
-                    if (!id) return;
-                    nav(`/battle/${id}`);
+                    )
+                      .then((id) => {
+                        nav(`/battle/${id}`);
+                      })
+                      .catch((err) => {
+                        console.error(err);
+                      });
                   },
                   {
                     loading: "Creating Match...",
