@@ -33,10 +33,8 @@ interface vocabRound {
 }
 type Round = vocabRound | kanjiRound;
 const loadVocab = (): VocabEntry[] => {
-  const file = fs.readFileSync(
-    path.join(__dirname, "../data/jlpt_vocab.csv"),
-    "utf-8",
-  );
+  const csvPath = path.join(process.cwd(), "server", "data", "jlpt_vocab.csv");
+  const file = fs.readFileSync(csvPath, "utf-8");
   return parse(file, {
     columns: true,
     skip_empty_lines: true,
@@ -105,10 +103,8 @@ const generateData = (
 };
 
 const loadKanji = (): KanjiEntry[] => {
-  const file = fs.readFileSync(
-    path.join(__dirname, "../data/JLPT_kanji_ALL.csv"),
-    "utf-8",
-  );
+  const csvPath = path.join(process.cwd(), "server", "data", "HLPT_kanji_ALL.csv");
+const file = fs.readFileSync(csvPath, "utf-8");
   return parse(file, {
     columns: true,
     skip_empty_lines: true,
