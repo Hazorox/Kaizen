@@ -34,7 +34,7 @@ export const makeSocket = async (httpServer: httpServer) => {
         const base64 = ans.split(",")[1];
         const response = await client.chat.send({
           chatRequest: {
-            model: "google/gemini-2.5-flash",
+            model: "google/gemini-3-flash-preview",
             messages: [
               {
                 role: "user",

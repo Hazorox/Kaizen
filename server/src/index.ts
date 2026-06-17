@@ -10,7 +10,6 @@ import session from "express-session";
 import passport from "passport";
 import { updatePFP } from "./utils/pfpUtils";
 import { delAcc } from "./utils/deleteAcc";
-import { ankiUtils } from "./utils/anki";
 import { immersion } from "./utils/immersion";
 import { getStats } from "./utils/getStats";
 import { authMiddleware } from "./middleware/auth";
@@ -42,7 +41,6 @@ app.use(recents);
 app.use(delAcc);
 app.use(updatePFP);
 app.use(immersion);
-app.use(ankiUtils);
 app.use(getStats);
 app.use(matches);
 app.get("/", (req, res) => {

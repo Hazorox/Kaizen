@@ -100,8 +100,7 @@ const Guide = () => {
               </span>
               <span>
                 {" "}
-                function to work, Anki must be running in the background for the
-                AnkiConnect service to function.
+                function to work, Anki must be running in background with "https://kaizen.appwrite.network" in the CORS config list in AnkiConnect.
               </span>
             </li>
             <li>
