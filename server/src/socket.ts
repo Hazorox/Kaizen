@@ -1,19 +1,55 @@
 import { Server, Socket } from "socket.io";
 import { Server as httpServer } from "http";
 import { Matches } from "./models/Match";
-import { OpenRouter } from "@openrouter/sdk";
-const client = new OpenRouter({
-  apiKey: process.env.AI_KEY ?? "",
-  serverURL: "https://ai.hackclub.com/proxy/v1",
-});
-export const makeSocket = async (httpServer: httpServer) => {
+import { createCanvas } from "canvas";
+import sharp from "sharp";
+function kanjiToBuffer(kanji: string) {
+  const canvas = createCanvas(128, 128);
+  const ctx = canvas.getContext("2d");
 
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, 128, 128);
+
+  ctx.fillStyle = "black";
+  ctx.font = "100px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  ctx.fillText(kanji, 64, 64);
+
+  return canvas.toBuffer();
+}
+
+const compareKanji = async (user:string, correct:string) => {
+  const correctKanji = kanjiToBuffer(correct);
+  const userAns = await sharp(Buffer.from(user, "base64"))
+    .resize(128, 128)
+    .grayscale()
+    .threshold(128)
+    .raw()
+    .toBuffer();
+  const correctAns = await sharp(correctKanji)
+    .resize(128, 128)
+    .grayscale()
+    .threshold(128)
+    .raw()
+    .toBuffer();
+  let diff = 0;
+
+  for (let i = 0; i < userAns.length; i++) {
+    diff += Math.abs(userAns[i] - correctAns[i]);
+  }
+
+  const maxDiff = 255 * userAns.length;
+
+  const acc = Math.round((1 - diff / maxDiff) * 100);
+  return acc;
+};
+
+export const makeSocket = async (httpServer: httpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: [
-        "http://localhost:5173",
-        "https://kaizen.appwrite.network",
-      ],
+      origin: ["http://localhost:5173", "https://kaizen.appwrite.network"],
     },
   });
 
@@ -32,36 +68,17 @@ export const makeSocket = async (httpServer: httpServer) => {
       }
       if (type === "kanji") {
         const base64 = ans.split(",")[1];
-        const response = await client.chat.send({
-          chatRequest: {
-            model: "google/gemini-3-flash-preview",
-            messages: [
-              {
-                role: "user",
-                content: [
-                  {
-                    type: "image_url",
-                    imageUrl: {
-                      url: `data:image/png;base64,${base64}`,
-                    },
-                  },
-                  {
-                    type: "text",
-                    text: `On a scale of 0-100 based on Accuracy, how much does this image match the Japanese kanji ${room.rounds[room.currentRound].Kanji} Only respond with the accuracy number, NOTHING ELSE.`,
-                  },
-                ],
-              },
-            ],
-          },
-        });
-        const acc = Number(response.choices[0].message.content);
+        const acc = await compareKanji(
+          base64,
+          room.rounds[room.currentRound].Kanji,
+        );
+        console.log(acc)
         if (room.rounds[room.currentRound].player1Ans.length == 0) {
           room.rounds[room.currentRound].player1Ans = [username, acc ?? 0];
         } else {
           room.rounds[room.currentRound].player2Ans = [username, acc ?? 0];
         }
       }
-
       if (room.currentSubmissions == 2) {
         room.currentRound += 1;
         room.currentSubmissions = 0;
