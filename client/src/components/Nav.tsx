@@ -34,7 +34,7 @@ const Nav = ({
           initial={{ y: -40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.3, ease: "linear" }}
-          className={`nav h-16  items-center font-bold justify-around bg-[#ff6b6b] mt-2 mx-2 w-[94%] rounded-3xl absolute p-2 text-3xl top-0 flex ${shown ? "" : "hidden"}`}
+          className={`nav h-[6%]  items-center font-bold justify-around bg-[#ff6b6b] mt-2 mx-2 w-[94%] rounded-3xl absolute p-2 text-3xl top-0 flex ${shown ? "" : "hidden"}`}
         >
           <motion.span
             key={"streak"}

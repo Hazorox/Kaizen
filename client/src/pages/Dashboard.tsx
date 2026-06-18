@@ -133,7 +133,7 @@ const Dashboard = () => {
           animate={{ y: 0 }}
           whileHover={{ scale: 1.15, boxShadow: "0 0 0 2px rgba(0,0,0,0.9)" }}
           transition={{ duration: 0.2, ease: "linear" }}
-          className="footer w-fit p-4 hover:cursor-pointer flex font-extrabold text-xl justify-center items-center fixed bottom-4 bg-[#032d66] text-[#eb6614] rounded-full"
+          className="footer w-fit p-4 hover:cursor-pointer flex font-extrabold text-xl justify-center items-center fixed bottom-2 bg-[#032d66] text-[#eb6614] rounded-full"
         >
           Profile
         </motion.div>

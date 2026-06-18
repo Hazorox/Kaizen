@@ -302,7 +302,7 @@ const Battle = () => {
                         <span>Total : {scores[username].total}</span>
                       )}
                     </motion.div>
-                    <motion.div className="w-[50%] bg-[#c9b1ff] border-2 rounded-3xl flex flex-col gap-8 h-[50%] p-4 justify-around items-center">
+                    <motion.div className="w-[50%] bg-[#c9b1ff] border-2 rounded-3xl flex flex-col gap-8 min-h-fit max-h-[50%] p-4 justify-around items-center">
                       <span>{opponent} Score</span>
                       {["both", "vocab"].includes(mode) && (
                         <span>Vocab : {scores[opponent].vocab}</span>
