@@ -52,6 +52,9 @@ const generateVocab = (level: number): vocabRound => {
   let distractors: VocabEntry[] = [];
   for (let i = 0; i < 3; i++) {
     let entry = vocabData[Math.floor(Math.random() * vocabData.length)];
+    while (distractors.includes(entry)) {
+      entry = vocabData[Math.floor(Math.random() * vocabData.length)];
+    }
     while (entry == correctEntry) {
       entry = vocabData[Math.floor(Math.random() * vocabData.length)];
     }

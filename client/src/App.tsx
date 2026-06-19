@@ -10,7 +10,19 @@ import Dashboard from "./pages/Dashboard";
 import AuthCallback from "./components/AuthCallback"
 import 'react-tooltip/dist/react-tooltip.css'
 import NotFound from "./pages/404";
+import MobileBlock from "./pages/mobileBlock"
+import { useEffect, useState } from "react";
 function App() {
+  const [isMobile,setIsMobile] = useState(false)
+  useEffect(()=>{
+    const check=()=>{
+      if(window.innerWidth < 760) setIsMobile(true)
+    }
+  check()
+  window.addEventListener("resize",check)
+  return ()=> window.removeEventListener("resize",check)
+  },[])
+  if(isMobile) return <MobileBlock />
   return (
     <Router>
       <Routes>
