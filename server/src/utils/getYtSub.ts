@@ -1,10 +1,15 @@
-import { YoutubeTranscript } from "youtube-transcript"
+import {fetchTranscript} from "youtube-transcript"
+import { Router } from "express";
+const router = Router();
+router.post("/api/transcript", async (req, res) => {
+  const input = req.body.input;
+  if(!input) return "invalid";
+  try {
+    const result = await fetchTranscript(input,{lang:"ja"})
+    return res.json(result)
+  } catch (err) {
+    return res.json({error:"invalid"});
+  }
+});
 
-export  const getYtSub = async (id:string)=>{
-    try{
-        const result = await YoutubeTranscript.fetchTranscript(id)
-        return result
-    }catch(err){
-        return "invalid"
-    }
-}
+export const getSub = router

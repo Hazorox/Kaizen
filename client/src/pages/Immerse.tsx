@@ -24,6 +24,7 @@ import { FaX } from "react-icons/fa6";
 import { IoCloudUpload, IoSend } from "react-icons/io5";
 import { MdSubtitles } from "react-icons/md";
 import toast, { Toaster } from "react-hot-toast";
+import { getYoutubeId } from "../utils/getYTId";
 const Immerse = () => {
   // STATES
   const [vidSubShown, setVidSubShown] = useState(false);
@@ -42,7 +43,7 @@ const Immerse = () => {
   const [ytInput, setYtInput] = useState("");
   const [lookup, setLookup] = useState("");
   const [lookupInput, setLookupInput] = useState("");
-  const [ytPlaceholder, setYtPlaceholder] = useState("YouTube Video ID");
+  const [ytPlaceholder, setYtPlaceholder] = useState("YouTube Video URL");
   const [ytError, setYtError] = useState(false);
   // REFS
   const ytPlayerRef = useRef<any>(null);
@@ -170,19 +171,28 @@ const Immerse = () => {
   const submitYTID = async () => {
     try {
       if (!ytInput) return;
-      const res = await getSub(ytInput);
-      if (!res || res === "invalid") {
-        setYtPlaceholder("Invalid ID");
-        setYtError(true);
-        setYtInput("");
-        return;
-      }
-      const filtered = res.filter((cue: any) => cue.lang === "ja");
-      setYtSub(filtered);
-      setPreUpload(false);
-      setFileType("YT");
+      toast.promise(
+        async () => {
+          await getSub(ytInput).then((res) => {
+            if (!res || res === "invalid") {
+              setYtPlaceholder("Unsupported URL");
+              setYtError(true);
+              setYtInput("");
+              return;
+            }
+            setYtSub(res);
+            setPreUpload(false);
+            setFileType("YT");
+          });
+        },
+        {
+          loading: "Fetching Subtitles",
+          error: "Unsupported URL",
+          success: "Done!",
+        },
+      );
     } catch (error) {
-      setYtPlaceholder("Invalid ID");
+      setYtPlaceholder("Unsupported URL");
       setYtError(true);
       setYtInput("");
     }
@@ -447,7 +457,7 @@ const Immerse = () => {
               </div>
               <motion.div className="flex select-none gap-4 flex-col justify-center items-center w-full">
                 <span className="opacity-70 text-xl font-bold">
-                  Or Upload YouTube Video ID
+                  Or Upload YouTube Video URL
                 </span>
                 <span className="relative bg-[#1a1a2e]/80 h-16 w-[60%] flex items-center px-4 mb-4 rounded-full">
                   <motion.span
@@ -469,7 +479,7 @@ const Immerse = () => {
                     onChange={(e) => {
                       setYtInput(e.target.value);
                       setYtError(false);
-                      setYtPlaceholder("YouTube Video ID");
+                      setYtPlaceholder("YouTube Video URL");
                     }}
                     placeholder={ytPlaceholder}
                     className={`h-full flex-1 select-text bg-transparent rounded-full px-14 outline-none ${ytError ? "placeholder:text-red-400" : "placeholder:text-[#fffbe6]/60"} text-[#fffbe6]`}
@@ -621,7 +631,7 @@ const Immerse = () => {
                   onReady={(e) => {
                     ytPlayerRef.current = e.target;
                   }}
-                  videoId={ytInput}
+                  videoId={getYoutubeId(ytInput)??""}
                   ref={ytPlayerRef}
                   className="w-full h-full"
                   opts={{ width: "100%", height: "100%" }}

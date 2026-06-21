@@ -3,7 +3,7 @@ import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-import { getYtSub } from "./utils/getYtSub";
+import { getSub } from "./utils/getYtSub";
 import authRoutes from "./routes/auth";
 import googleRoutes from "./routes/google";
 import session from "express-session";
@@ -43,15 +43,11 @@ app.use(updatePFP);
 app.use(immersion);
 app.use(getStats);
 app.use(matches);
+app.use(getSub)
 app.get("/", (req, res) => {
   res.json("Kaizen is Running :D");
 });
 
-app.get("/api/transcript/:videoId", async (req, res) => {
-  const id = req.params.videoId;
-  const sub = await getYtSub(id);
-  res.json(sub);
-});
 
 mongoose
   .connect(process.env.MONGO_URI ?? "")
