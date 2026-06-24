@@ -67,7 +67,7 @@ const Recents = () => {
                             {/* Day */}
                             <motion.div
                               layout
-                              className="sticky z-100 py-2 flex items-center text-[#fffbe6] px-8 h-fit top-0 bg-[#1a1a2e] w-full rounded-top-xl"
+                              className="sticky z-100 py-2 flex items-center text-[#fffbe6] px-8 h-fit top-0 bg-[#1a1a2e] w-full rounded-top-sm"
                             >
                               {key} • {dayName}
                             </motion.div>
@@ -84,26 +84,28 @@ const Recents = () => {
                                         );
                                       }}
                                       layout
-                                      className="flex border-b-2 py-3 justify-between px-8"
+                                      className="flex border-b-2 w-full py-3 justify-between px-8"
                                     >
-                                      <span className="w-fit flex justify-around items-center">
-                                        <span className="min-w-24 max-w-fit  font-normal text-center text-2xl">
-                                          {word}
-                                        </span>
-                                        <span
-                                          className={`text-xl min-w-50 max-w-50 opacity-85 mr-12 w-50 text-center`}
-                                        >
-                                          {reading}
-                                        </span>
-                                        <span className="font-extrabold">
-                                          {meaning[0].toUpperCase() +
-                                            meaning.slice(1)}
-                                        </span>
+                                      <span className="w-1/6 font-normal text-center text-2xl">
+                                        {word}
                                       </span>
-                                      <span className="flex items-center gap-8">
-                                        <span className="w-16 text-right">
-                                          {hour}
-                                        </span>
+
+
+                                      <span
+                                        className={`text-xl w-1/6 opacity-85 text-center`}
+                                      >
+                                        {reading}
+                                      </span>
+                                      
+                                      
+                                      <span className="font-bold text-center flex justify-center w-2/3">
+                                        {meaning[0].toUpperCase() +
+                                          meaning.slice(1)}
+                                      </span>
+                                      
+                                      
+                                      <span className="w-1/8 text-right">
+                                        {hour}
                                       </span>
                                     </motion.div>
                                   );

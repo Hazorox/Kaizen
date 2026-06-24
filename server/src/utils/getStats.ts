@@ -4,7 +4,7 @@ import { Matches } from "../models/Match";
 const router = Router();
 const bothSameDay = (a: Date, b: Date) =>
   a.getMonth() === b.getMonth() &&
-  a.getDay() === b.getDay() &&
+  a.getDate() === b.getDate() &&
   a.getFullYear() === b.getFullYear();
 router.get("/api/getStats", async (req, res) => {
   const username = (req as any).user.username;
