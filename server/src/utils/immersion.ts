@@ -7,21 +7,16 @@ const router = Router();
 
 router.get("/api/lookup/word/:word", async (req, res) => {
   const word = req.params.word;
-  const query = JSON.stringify({
-    query: word.toString(),
-    language: "English",
-    no_english: false,
-  });
-  const result = await axios.post("https://jotoba.de/api/search/words", query, {
-    headers: { "Content-Type": "application/json" },
-  });
-  res.json(result.data);
-});
-router.get("/api/lookup/kanji/:kanji", async (req, res) => {
   const result = await axios.get(
-    `https://kanjiapi.dev/v1/kanji/${req.params.kanji}`,
+    `https://jisho.org/api/v1/search/words?keyword=${word}`,
+    {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      },
+    },
   );
-  res.json(result.data);
+  res.json(result.data.data);
 });
 
 router.post("/api/immersion/add", async (req, res) => {

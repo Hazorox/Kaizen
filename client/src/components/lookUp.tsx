@@ -18,7 +18,7 @@ const LookUp = ({
 }) => {
   // Defining the type of entries to make a type of list of them would be long and not really important, so ditched it
   const [data, setData] = useState(null);
-  const [audio, setAudio] = useState("");
+  // const [audio, setAudio] = useState("");
   const failedAddCard = () => {
     toast.error("Failed. Check if Anki is running and the card doesn't exit.\nAlso try resyncing the deck from UserProfile", {
       icon: <img src="/anki.svg" />,
@@ -35,20 +35,20 @@ const LookUp = ({
       const result = await lookupWord(text);
 
       setData(result);
-      setAudio(result?.[0]?.audio ?? "");
+      // setAudio(result?.[0]?.audio ?? "");
       if (result?.[0]) {
         const entry = result[0];
         addMinedWord(
-          entry.reading.kanji || entry.reading.kana,
-          entry.reading.kanji ? entry.reading.kana : "",
-          entry.senses?.[0]?.glosses?.join(", ") ?? "",
+          entry.japanese[0].word || entry.japanese[0].reading,
+          entry.japanese[0].word ? entry.japanese[0].reading : "",
+          entry.senses?.[0]?.english_definitions?.join(", ") ?? "",
         );
       }
     }
 
     fetchStuff();
   }, [text]);
-  return (
+  return(
     <AnimatePresence>
       <Toaster
         position="top-center"
@@ -76,10 +76,12 @@ const LookUp = ({
           >
             {/* Got some help for this with Claude, it was annoying... */}
             {data.map((entry, entryIndex) => {
+              const word = entry.japanese[0].word??null
+              const reading = entry.japanese[0].reading
               const front = `
 <div style="text-align:center; font-family:sans-serif;">
-  <h1 style="font-size:2em; margin:0;">${entry.reading.kanji || entry.reading.kana}</h1>
-  ${entry.reading.kanji ? `<h2 style="font-size:1.3em; opacity:0.7; margin:4px 0;">${entry.reading.kana}</h2>` : ""}
+  <h1 style="font-size:2em; margin:0;">${word || reading}</h1>
+  ${word? `<h2 style="font-size:1.3em; opacity:0.7; margin:4px 0;">${reading}</h2>` : ""}
 </div>`;
 
               const back = `
@@ -90,43 +92,46 @@ const LookUp = ({
       (sense, i) => `
     <div style="margin-bottom:8px;">
       <div style="font-size:0.75em; color:#888;">
-        ${sense.pos?.map((p) => (typeof p === "string" ? p : Object.keys(p)[0])).join(", ")}
+        ${sense.parts_of_speech?.map((p) => (typeof p === "string" ? p : Object.keys(p)[0])).join(", ")}
       </div>
-      <div>${i + 1}. ${sense.glosses.join(", ")}</div>
+      <div>${i + 1}. ${sense.english_definitions.join(", ")}</div>
     </div>
   `,
     )
     .join("")}
-  ${
-    entry.pitch?.length > 0
-      ? `
-    <div style="margin-top:8px; font-size:0.9em; opacity:0.7;">
-      Pitch: ${entry.pitch.map((p) => (p.high ? `<u>${p.part}</u>` : p.part)).join("")}
-    </div>
-  `
-      : ""
-  }
+  
 </div>`;
+
+//TODO: when jotoba is back turn this back above in the string
+// ${
+//     entry.pitch?.length > 0
+//       ? `
+//     <div style="margin-top:8px; font-size:0.9em; opacity:0.7;">
+//       Pitch: ${entry.pitch.map((p) => (p.high ? `<u>${p.part}</u>` : p.part)).join("")}
+//     </div>
+//   `
+//       : ""
+//   }
               return (
                 <div
                   key={entryIndex}
                   className="p-4 relative flex flex-col gap-3"
                 >
                   {/* Header */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-3xl">
-                      {entry.reading.kanji || entry.reading.kana}
+                      {entry.japanese[0].word || entry.japanese[0].reading}
                     </span>
 
-                    {entry.reading.kanji && (
+                    {entry.japanese[0].word && (
                       <span className="text-lg opacity-70">
-                        {entry.reading.kana}
+                        {entry.japanese[0].reading}
                       </span>
                     )}
 
-                    {entry.common && (
+                    {!entry.is_common && (
                       <span className="px-2 py-1 rounded bg-green-700 text-xs">
-                        Common
+                        Uncommon
                       </span>
                     )}
                     <motion.button
@@ -148,26 +153,26 @@ const LookUp = ({
                     {entry.senses.slice(0, 5).map((sense, index) => (
                       <div key={index}>
                         <div className="text-sm text-yellow-300">
-                          {sense.pos
+                          {sense.parts_of_speech
                             ?.map((p) =>
                               typeof p === "string" ? p : Object.keys(p)[0],
                             )
                             .join(", ")}
                         </div>
 
-                        <div>• {sense.glosses.join(", ")}</div>
+                        <div>• {sense.english_definitions.join(", ")}</div>
 
-                        {sense.information && (
+                        {/* {sense.information && (
                           <div className="text-xs opacity-60">
                             {sense.information}
                           </div>
-                        )}
+                        )} */}
                       </div>
                     ))}
                   </div>
 
                   {/* Pitch Accent */}
-                  {entry.pitch?.length > 0 && (
+                  {/* {entry.pitch?.length > 0 && (
                     <div className="text-lg opacity-80">
                       Pitch:{" "}
                       {entry.pitch.map((part) => (
@@ -179,7 +184,7 @@ const LookUp = ({
                         </span>
                       ))}
                     </div>
-                  )}
+                  )} */}
                   <div className="absolute bottom-0 right-0 w-full bg-[#1a1a2e] h-1" />
                 </div>
               );
@@ -189,7 +194,7 @@ const LookUp = ({
             layout
             className={`absolute right-4 top-2 p-2 flex justify-center items-center gap-4${!sub && " flex-col"}`}
           >
-            {audio && (
+            {/* {audio && (
               <>
                 <Tooltip id="audio" />
                 <motion.button
@@ -210,7 +215,7 @@ const LookUp = ({
                   <PiSpeakerHighBold size={28} />
                 </motion.button>
               </>
-            )}
+            )} */}
             <Tooltip id="jisho" />
             <motion.button
               data-tooltip-content="Lookup on Jisho.org"
@@ -243,7 +248,6 @@ const LookUp = ({
         </motion.div>
       )}
     </AnimatePresence>
-  );
-};
+)};
 
 export default LookUp;

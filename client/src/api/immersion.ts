@@ -10,8 +10,7 @@ export const addMinedWord = async (word: string, reading: string, meaning: strin
 }
 
 export const lookupWord = async (word:string)=>{
-    
     const res = await API.get(`/lookup/word/${word}`)
-    return res.data.words
+    return res.data.sort((a:any,b:any)=>(b.is_common?1:0)-(a.is_common?1:0))
 }
 
