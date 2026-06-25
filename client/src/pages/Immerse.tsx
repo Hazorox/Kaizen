@@ -10,18 +10,21 @@ import {
   FaArrowCircleRight,
   FaExpandArrowsAlt,
   FaFileVideo,
-  FaSearch,
   FaYoutube,
 } from "react-icons/fa";
 import YouTube from "react-youtube";
 import { parse } from "@plussub/srt-vtt-parser";
-
+import Split from "split.js";
 import { getSub } from "../api/ytSub";
 import { LuShrink } from "react-icons/lu";
 import LookUp from "../components/lookUp";
-import { RiMenuSearchLine } from "react-icons/ri";
+import {
+  RiMenuSearchLine,
+  RiSidebarFoldLine,
+  RiSidebarUnfoldLine,
+} from "react-icons/ri";
 import { FaX } from "react-icons/fa6";
-import { IoCloudUpload, IoSend } from "react-icons/io5";
+import { IoCloudUpload } from "react-icons/io5";
 import { MdSubtitles } from "react-icons/md";
 import toast, { Toaster } from "react-hot-toast";
 import { getYoutubeId } from "../utils/getYTId";
@@ -34,27 +37,22 @@ const Immerse = () => {
   const [vttSrc, setVttSrc] = useState<string>("");
   const [vttContent, setVttContent] = useState<string>("");
   const [pdfURL, setPdfURL] = useState("");
-  const [ytSub, setYtSub] = useState([]);
+  const [ytSub, setYtSub] = useState<any>([]);
   const [time, setTime] = useState<number>(0);
   const [preUpload, setPreUpload] = useState(true);
   const [fileType, setFileType] = useState<
     "pdf" | "video" | "vidNoSub" | "YT" | ""
   >("");
   const [ytInput, setYtInput] = useState("");
-  const [lookup, setLookup] = useState("");
-  const [lookupInput, setLookupInput] = useState("");
   const [ytPlaceholder, setYtPlaceholder] = useState("YouTube Video URL");
   const [ytError, setYtError] = useState(false);
   // REFS
   const ytPlayerRef = useRef<any>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
-  const vidNoSubRef = useRef<HTMLInputElement>(null);
   const vttInputRef = useRef<HTMLInputElement>(null);
+  const vidNoSubRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const vidRef = useRef<HTMLVideoElement>(null);
-  const subBarRef = useRef<HTMLDivElement>(null);
-  const activeCueIDRef = useRef<string>("");
-  const lookupRef = useRef<HTMLInputElement>(null);
   const ytInputRef = useRef<HTMLInputElement>(null);
 
   // NORMAL
@@ -66,26 +64,6 @@ const Immerse = () => {
     : `w-[90%] ${navCollapsed ? "w-[100%] !rounded-none h-[100%]" : "h-[90%] mt-16"}`;
 
   // UseEffects for the subs syncing
-  useEffect(() => {
-    if (fileType != "video" || preUpload) return;
-    const activeIndex = data.entries.findIndex(
-      (cue) => time >= cue.from / 1000 && time <= cue.to / 1000,
-    );
-
-    if (activeIndex === -1 || activeIndex === Number(activeCueIDRef.current))
-      return;
-
-    activeCueIDRef.current = String(activeIndex);
-
-    requestAnimationFrame(() => {
-      subBarRef.current
-        ?.querySelector(`[data-cue-id="${activeIndex}"]`)
-        ?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-    });
-  }, [time, data.entries, fileType, preUpload]);
 
   // Esc to revert fullscreen
   useEffect(() => {
@@ -110,28 +88,6 @@ const Immerse = () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
-  // Lookup
-  useEffect(() => {
-    if (preUpload || fileType == "pdf") return;
-    const handleMouseUp = () => {
-      if (lookUpShown) {
-        const word = window.getSelection()?.toString().trim();
-        if (!word) {
-          setLookup("");
-          return;
-        }
-        setLookup(word);
-      }
-    };
-    document
-      .getElementById("subBar")
-      ?.addEventListener("mouseup", handleMouseUp);
-    return () =>
-      document
-        .getElementById("subBar")
-        ?.removeEventListener("mouseup", handleMouseUp);
-  }, [preUpload, fileType, navCollapsed, lookUpShown]);
-
   // YouTube
   useEffect(() => {
     if (fileType != "YT" || preUpload) return;
@@ -146,63 +102,68 @@ const Immerse = () => {
 
   // YouTube Synced Auto-Scroll
   // Uhhh just copied it from above, with some edits ;)
-  useEffect(() => {
-    if (fileType != "YT" || preUpload) return;
 
-    const activeIndex = ytSub.findIndex(
-      (cue: any) =>
-        time >= cue.offset / 1000 &&
-        time <= cue.duration / 1000 + cue.offset / 1000,
-    );
-    if (activeIndex === -1 || activeIndex === Number(activeCueIDRef.current))
-      return;
-
-    activeCueIDRef.current = String(activeIndex);
-
-    requestAnimationFrame(() => {
-      subBarRef.current
-        ?.querySelector(`[data-cue-id="${activeIndex}"]`)
-        ?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-    });
-  }, [fileType, preUpload, time, ytSub]);
   const submitYTID = async () => {
     try {
       if (!ytInput) return;
-      toast.promise(
-        async () => {
-          await getSub(ytInput).then((res) => {
-            if (!res || res === "invalid") {
-              setYtPlaceholder("Unsupported URL");
-              setYtError(true);
-              setYtInput("");
-              return;
-            }
-            setYtSub(res);
-            setPreUpload(false);
-            setFileType("YT");
+
+      await getSub(ytInput).then((res) => {
+        if (!res || res === "invalid") {
+          setYtPlaceholder("Unsupported URL");
+          setYtError(true);
+          setYtInput("");
+          return;
+        }
+        setYtSub(res);
+        setPreUpload(false);
+        setFileType("YT");
+        if (res.length == 0)
+          toast.error("No Japanese Subtitles Found for this video", {
+            toasterId: "main",
           });
-        },
-        {
-          loading: "Fetching Subtitles",
-          error: "Unsupported URL",
-          success: "Done!",
-        },
-      );
+        else {
+          toast.success("Done!", { toasterId: "main" });
+        }
+      });
     } catch (error) {
       setYtPlaceholder("Unsupported URL");
       setYtError(true);
       setYtInput("");
     }
   };
+  useEffect(() => {
+    if (preUpload || !lookUpShown) return;
+
+    let instance: ReturnType<typeof Split> | null = null;
+
+    const timeout = setTimeout(() => {
+      const main = document.getElementById("main");
+      const side = document.getElementById("side");
+      if (!main || !side) return;
+
+      instance = Split(["#main", "#side"], {
+        sizes: [65, 35],
+        minSize: [200, 200],
+        gutterSize: 8,
+        cursor: "col-resize",
+        direction: "horizontal",
+      });
+    }, 0);
+
+    return () => {
+      clearTimeout(timeout);
+      instance?.destroy();
+    };
+  }, [fileType, preUpload, lookUpShown]);
+
   // Page
   return (
     <AnimatePresence>
+      <Toaster toasterId="main" />
       <div
         className={`w-full h-full relative items-center overflow-hidden bg-[#fffbe6] flex justify-center`}
       >
+        <Toaster position="bottom-center" />
         {vidSubShown && (
           <motion.div
             onClick={() => {
@@ -216,7 +177,6 @@ const Immerse = () => {
             layout
             className="w-full h-full bg-[#1a1a2e]/50 absolute flex justify-center items-center z-100"
           >
-            <Toaster position="bottom-center" />
             <motion.div
               onClick={(e) => {
                 e.stopPropagation();
@@ -288,7 +248,11 @@ const Immerse = () => {
             whileHover={{ scale: 1.15, y: -12 }}
             whileTap={{ scale: 1.25 }}
           >
-            <RiMenuSearchLine size={36} className="text-[#fffbe6]" />
+            {lookUpShown ? (
+              <RiSidebarUnfoldLine size={36} className="text-[#fffbe6]" />
+            ) : (
+              <RiSidebarFoldLine size={36} className="text-[#fffbe6]" />
+            )}
           </motion.div>
           <motion.div
             key="navCollapser"
@@ -500,185 +464,93 @@ const Immerse = () => {
               </motion.div>
             </>
           )}
+
           {/* Immerse */}
-          {!preUpload && fileType == "video" && (
+          {!preUpload && (
             <motion.div className="w-full flex h-full overflow-hidden">
-              <motion.div className="w-[65%] h-full">
-                <video
-                  ref={vidRef}
-                  src={vidSrc}
-                  controls
-                  className="w-full bg-black h-full"
-                  onTimeUpdate={() => {
-                    setTime(vidRef.current?.currentTime ?? 0);
-                  }}
-                >
-                  <track
-                    src={vttSrc}
-                    kind="subtitles"
-                    label="Japanese"
-                    srcLang="ja"
-                    default
-                  />
-                </video>
-              </motion.div>
-              <motion.div className="w-[35%] flex-col h-full border-l-4  flex ">
-                <motion.div
-                  ref={subBarRef}
-                  id="subBar"
-                  layout
-                  className={`${lookUpShown ? "h-[45%]" : "h-full"} overflow-y-scroll scrollable bg-[#fffbe6]/50`}
-                >
-                  {data.entries.map((cue, index) => {
-                    const focused =
-                      time < cue.to / 1000 && time > cue.from / 1000;
-                    return (
-                      <motion.span
-                        key={index}
-                        data-cue-id={index}
-                        layout
-                        className="w-full pt-4 relative block"
-                      >
-                        <motion.span
-                          key={index + " text"}
-                          animate={{
-                            fontSize: focused ? "36px" : "30px",
-                            opacity: focused ? 1 : 0.55,
-                          }}
-                          transition={{ duration: 0.2 }}
-                          className="pl-4 block"
-                        >
-                          {cue.text}
-                        </motion.span>
-                        <motion.div
-                          key={index + " divider"}
-                          className="h-1.5 mt-4 bg-black/70 w-full"
-                        />
-                      </motion.span>
-                    );
-                  })}
-                </motion.div>
-                {lookUpShown && <LookUp text={lookup} />}
-              </motion.div>
-            </motion.div>
-          )}
-          {!preUpload && (fileType == "pdf" || fileType == "vidNoSub") && (
-            <motion.div className="w-full h-full flex scrollable">
-              <motion.div className="w-full h-full flex">
-                {fileType == "pdf" && (
-                  <motion.object
-                    layout
-                    data={pdfURL}
-                    type="application/pdf"
-                    className={`${lookUpShown ? "w-[65%]" : "w-full"} h-full`}
-                  />
-                )}
-                {fileType === "vidNoSub" && (
-                  <motion.video
-                    layout
-                    src={vidSrc}
-                    controls
-                    className={`${lookUpShown ? "w-[65%]" : "w-full"} h-full bg-black`}
-                  ></motion.video>
-                )}
-                {lookUpShown && (
+              <motion.div
+                layout
+                id="main"
+                className={`h-full ${!lookUpShown && "w-full!"} overflow-hidden`}
+              >
+                {fileType == "video" && (
                   <>
-                    <motion.div
-                      className={`h-full border-l-2 bg-[#fffbe6]/50 flex flex-col w-[35%]`}
-                    >
-                      <motion.span className="flex items-center h-fit relative w-[85%] self-center my-2">
-                        <motion.input
-                          ref={lookupRef}
-                          onKeyPress={(e) => {
-                            if (e.key === "Enter") {
-                              setLookup(lookupInput);
-                            }
-                          }}
-                          onChange={(e) => {
-                            setLookupInput(e.target.value);
-                          }}
-                          className="w-full h-full  p-4 placeholder:text-[#fffbe6]/90 text-[#fffbe6]/90 text-lg pl-16 rounded-xl  bg-[#1a1a2e]/70"
-                          placeholder="Text to Lookup"
+                    <motion.div className={`w-full h-full`}>
+                      <video
+                        ref={vidRef}
+                        src={vidSrc}
+                        controls
+                        className="w-full bg-black h-full"
+                        onTimeUpdate={() => {
+                          setTime(vidRef.current?.currentTime ?? 0);
+                        }}
+                      >
+                        <track
+                          src={vttSrc}
+                          kind="subtitles"
+                          label="Japanese"
+                          srcLang="ja"
+                          default
                         />
-                        <FaSearch
-                          size={48}
-                          className="inline absolute left-2"
-                        />
-                        <motion.span
-                          initial={{ opacity: "85%" }}
-                          transition={{ duration: 0.15 }}
-                          whileTap={{ x: 10 }}
-                          onClick={() => {
-                            setLookup(lookupRef.current?.value ?? "");
-                          }}
-                          whileHover={{ opacity: "100%", scale: 1.1 }}
-                          className="flex cursor-pointer text-[#fffbe6] absolute right-2 justify-center items-center w-fit h-fit"
-                        >
-                          <FaArrowCircleRight size={40} />
-                        </motion.span>
-                      </motion.span>
-                      {lookUpShown && <LookUp text={lookup} sub={false} />}
+                      </video>
                     </motion.div>
                   </>
                 )}
-              </motion.div>
-            </motion.div>
-          )}
-          {!preUpload && fileType == "YT" && (
-            <motion.div className="w-full h-full overflow-hidden flex">
-              <motion.div className="w-[65%] h-full">
-                <YouTube
-                  onReady={(e) => {
-                    ytPlayerRef.current = e.target;
-                  }}
-                  videoId={getYoutubeId(ytInput)??""}
-                  ref={ytPlayerRef}
-                  className="w-full h-full"
-                  opts={{ width: "100%", height: "100%" }}
-                />
-              </motion.div>
-              <motion.div layout className="flex w-[35%] flex-col">
-                <motion.div
-                  ref={subBarRef}
-                  layout
-                  id="subBar"
-                  // ${lookUpShown ? "h-[45%]" : "h-[full]"}
-                  className={`w-full ${lookUpShown ? "h-[45%]" : "h-[full]"} border-l-4 border-b-4 overflow-y-scroll overflow-x-hidden scrollable flex flex-col bg-[#fffbe6]/50`}
-                >
-                  {ytSub.length == 0 &&
-                    "No Japanese Subtitles Available for This Video"}
-                  {ytSub.map((cue: any, index) => {
-                    const start = cue.offset / 1000;
-                    const end = start + cue.duration / 1000;
-                    const focused = time < end && time > start;
-                    return (
-                      <motion.span
-                        key={index}
-                        data-cue-id={index}
-                        layout
-                        className="w-full pt-4 relative block"
-                      >
-                        <motion.span
-                          key={index + " text"}
-                          animate={{
-                            fontSize: focused ? "36px" : "30px",
-                            opacity: focused ? 1 : 0.55,
-                          }}
-                          transition={{ duration: 0.2 }}
-                          className="pl-4 block"
-                        >
-                          {cue.text}
-                        </motion.span>
-                        <motion.div
-                          key={index + " divider"}
-                          className="h-1.5 mt-4 bg-black/70 w-full"
+                {["pdf", "vidNoSub"].includes(fileType) && (
+                  <motion.div className="w-full h-full flex scrollable">
+                    <motion.div className="w-full h-full flex">
+                      {fileType == "pdf" && (
+                        <motion.object
+                          layout
+                          data={pdfURL}
+                          type="application/pdf"
+                          className={`h-full w-full`}
                         />
-                      </motion.span>
-                    );
-                  })}
-                </motion.div>
-                {lookUpShown && <LookUp text={lookup} shown={lookUpShown} />}
+                      )}
+                      {fileType === "vidNoSub" && (
+                        <motion.video
+                          layout
+                          src={vidSrc}
+                          controls
+                          className={`w-full h-full bg-black`}
+                        ></motion.video>
+                      )}
+                    </motion.div>
+                  </motion.div>
+                )}
+                {fileType == "YT" && (
+                  <motion.div
+                    layout
+                    className="w-full h-full overflow-hidden flex"
+                  >
+                    <motion.div
+                      layout
+                      className={`h-full w-full overflow-hidden`}
+                    >
+                      <YouTube
+                        onReady={(e) => {
+                          ytPlayerRef.current = e.target;
+                        }}
+                        videoId={getYoutubeId(ytInput) ?? ""}
+                        ref={ytPlayerRef}
+                        className="w-full h-full"
+                        opts={{ width: "100%", height: "100%" }}
+                      />
+                    </motion.div>
+                  </motion.div>
+                )}
               </motion.div>
+              <LookUp
+                shown={lookUpShown}
+                sub={
+                  fileType == "YT"
+                    ? ytSub
+                    : fileType == "video"
+                      ? data.entries
+                      : null
+                }
+                time={time}
+              />
             </motion.div>
           )}
         </motion.div>
