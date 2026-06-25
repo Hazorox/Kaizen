@@ -5,6 +5,7 @@ Ever felt lazy to try and immerse yourself into videos, anime, books and stuff w
 Well I also do ;-;
 So I have made this MERN Stack Project to help me immerse easily.
 ![Kaizen Logo](./images/logo.png)
+### PLEASE CHECK GUIDE BEFORE USAGE, bottom right in dashboard
 # Main Features :
 ## 1- Immersion Page
 Supported immersion methods : 
