@@ -106,26 +106,29 @@ const Immerse = () => {
   const submitYTID = async () => {
     try {
       if (!ytInput) return;
-
-      await getSub(ytInput).then((res) => {
-        console.log(res)
-        if (!res || res === "invalid") {
-          setYtPlaceholder("Unsupported URL");
-          setYtError(true);
-          setYtInput("");
-          return;
-        }
-        setYtSub(res);
-        setPreUpload(false);
-        setFileType("YT");
-        if (res.length == 0)
-          toast.error("No Japanese Subtitles Found for this video", {
-            toasterId: "main",
+      toast.promise(
+        async () => {
+          await getSub(ytInput).then((res) => {
+            if (!res || res === "invalid") {
+              setYtPlaceholder("Unsupported URL");
+              setYtError(true);
+              setYtInput("");
+              return;
+            }
+            setYtSub(res);
+            setPreUpload(false);
+            setFileType("YT");
+            if(res.length===0){
+              throw Error;
+            }
           });
-        else {
-          toast.success("Done!", { toasterId: "main" });
-        }
-      });
+        },
+        {
+          loading: "Fetching Subtitles...",
+          success: "Subtitles Fetched",
+          error: "No Japanese Subtitles Found",
+        },
+      );
     } catch (error) {
       setYtPlaceholder("Unsupported URL");
       setYtError(true);
