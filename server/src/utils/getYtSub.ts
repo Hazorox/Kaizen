@@ -14,6 +14,7 @@ router.post("/api/transcript", async (req, res) => {
     if (err instanceof YoutubeTranscriptNotAvailableLanguageError) {
       return res.json({ error: "404" });
     }
+    console.log(err)
     return res.json({ error: "invalid" });
   }
 });
