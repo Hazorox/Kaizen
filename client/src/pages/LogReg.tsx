@@ -167,7 +167,7 @@ const LogReg = () => {
                     />
                     <span
                       onClick={() => setLoginState(true)}
-                      className="relative z-10 flex justify-center items-center py-2 w-1/2 px-10"
+                      className="relative select-none z-10 flex justify-center items-center py-2 w-1/2 px-10"
                     >
                       Login
                     </span>
@@ -177,7 +177,7 @@ const LogReg = () => {
                     />
                     <span
                       onClick={() => setLoginState(false)}
-                      className="relative z-10 flex justify-center items-center py-2 w-1/2 px-10"
+                      className="relative select-none z-10 flex justify-center items-center py-2 w-1/2 px-10"
                     >
                       Register
                     </span>
@@ -301,7 +301,7 @@ const LogReg = () => {
                         onClick={() => {
                           handleSubmit();
                         }}
-                        className="bg-[#FF9A3C] border-3 hover:cursor-pointer p-4 w-[70%] rounded-full text-xl -mb-4"
+                        className="bg-[#FF9A3C] select-none border-3 hover:cursor-pointer p-4 w-[70%] rounded-full text-xl -mb-4"
                       >
                         Login
                       </motion.button>
@@ -313,7 +313,7 @@ const LogReg = () => {
                           (window.location.href =
                             `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`)
                         }
-                        className="bg-[#FF9A3C] border-3 p-2 w-[70%] hover:cursor-pointer rounded-full flex justify-center text-xl items-center"
+                        className="bg-[#FF9A3C] select-none border-3 p-2 w-[70%] hover:cursor-pointer rounded-full flex justify-center text-xl items-center"
                       >
                         Continue With{" "}
                         <FcGoogle className="inline ml-3" size={48} />{" "}
@@ -330,7 +330,7 @@ const LogReg = () => {
                           whileHover={{ opacity: 0.95 }}
                           transition={{ duration: 0.15 }}
                           whileTap={{ scale: 1.1 }}
-                          className="bg-[#FF9A3C] z-10 h-full text-xl w-1/2 hover:cursor-pointer"
+                          className="bg-[#FF9A3C] select-none z-10 h-full text-xl w-1/2 hover:cursor-pointer"
                         >
                           Register
                         </motion.button>
@@ -344,7 +344,7 @@ const LogReg = () => {
                           whileHover={{ opacity: 0.95 }}
                           transition={{ duration: 0.15 }}
                           whileTap={{ scale: 1.1, opacity: 1.2 }}
-                          className="bg-[#FF9A3C] flex z-0 justify-center items-center w-1/2 h-full hover:cursor-pointer py-3"
+                          className="bg-[#FF9A3C] flex z-0 select-none justify-center items-center w-1/2 h-full hover:cursor-pointer py-3"
                         >
                           <FcGoogle className="inline" size={48} />
                         </motion.button>
