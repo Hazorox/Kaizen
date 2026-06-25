@@ -34,6 +34,7 @@
     "react-tooltip": "^6.0.6",
     "react-youtube": "^10.1.0",
     "socket.io-client": "^4.8.3",
+    "split.js": "^1.6.5",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
