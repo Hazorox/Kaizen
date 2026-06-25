@@ -72,7 +72,7 @@ const Nav = ({
                   nav("/immerse");
                 }}
               >
-                <LuPickaxe className="inline bottom-1 relative" /> Immerse
+                <LuPickaxe className="inline bottom-1 relative" /> <span className="hidden lg:inline">Immerse</span>
               </motion.span>
             )}
             {showImmerse && showBattle && (
@@ -88,7 +88,7 @@ const Nav = ({
                   nav("/battle");
                 }}
               >
-                <LuSwords className="inline relative bottom-1" /> Battle
+                <LuSwords className="inline relative bottom-1" /> <span className="hidden lg:inline">Battle</span>
               </motion.span>
             )}
           </span>

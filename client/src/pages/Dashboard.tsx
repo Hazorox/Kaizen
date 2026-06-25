@@ -25,7 +25,11 @@ const Dashboard = () => {
   });
   useEffect(() => {
     const fetchStuff = async () => {
-      await getRecentFive().then(setRecents);
+      await getRecentFive().then((res)=>{
+        if(window.innerWidth<1000){
+          setRecents(res.slice(0,3))
+        }else{setRecents(res)}
+      });
       await ankiGetDue().then(setAnkiDue);
       await getStats().then(setStats);
     };
@@ -48,7 +52,7 @@ const Dashboard = () => {
           className="main h-[80%] flex flex-col border-2  p-4 justify-center items-center rounded-md w-[70%] bg-[#4ecdc4]"
         >
           <span
-            className={`flex-1 mt-6 justify-center ${username.length > 14 ? "text-7xl" : "text-8xl"}`}
+            className={`mt-4 justify-center text-center flex-wrap ${username.length > 14 ? "text-4xl lg:text-6xl" : "text-5xl lg:text-7xl"}`}
           >
             {time >= 5 && time < 12
               ? "おはよう"

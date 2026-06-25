@@ -11,11 +11,11 @@ const WordRow = ({ content, furigana, meaning }: wordRowProps) => {
   return (
     <AnimatePresence>
       <div className="flex p-2 justify-between w-full">
-        <div className="flex gap-8 w-1/4 justify-around">
+        <div className="flex gap-8 lg:w-1/4 w-1/2 lg:mr-0 mr-4 justify-around">
           <span className="text-xl font-normal">{content}</span>
           <span className="opacity-75">{furigana}</span>
         </div>
-        <span className="flex w-3/4 justify-center">{meaning}</span>
+        <span className="flex w-1/2 lg:w-3/4 justify-center">{meaning}</span>
       </div>
     </AnimatePresence>
   );

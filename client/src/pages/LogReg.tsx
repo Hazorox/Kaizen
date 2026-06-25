@@ -12,6 +12,7 @@ import { login, register } from "../api/auth";
 import { saveToken } from "../utils/token";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import {Filter} from "bad-words"
 const LogReg = () => {
   const nav = useNavigate();
   const [loginState, setLoginState] = useState(true);
@@ -37,6 +38,11 @@ const LogReg = () => {
       } else {
         if (username.length < 2) {
           toast.error("Username must be more than 2 characters");
+          return;
+        }
+        const filter = new Filter()
+        if(filter.isProfane(username)){
+          toast.error("Please use an appropriate username")
           return;
         }
         if (!userReg.test(username)) {
@@ -85,7 +91,7 @@ const LogReg = () => {
 
       <div
         key="contents"
-        className="w-full select-none h-full text-[#1a1a2e] bg-[#fffbe6] font-bold flex justify-center items-center"
+        className="w-full select-none px-12 lg:px-0  h-full text-[#1a1a2e] bg-[#fffbe6] font-bold flex justify-center items-center"
       >
         <motion.div
           layout
@@ -159,15 +165,15 @@ const LogReg = () => {
                 className="bg-[#fffbe6] h-fit py-8 relatve flex flex-col justify-around items-center w-full border-8 rounded-xl"
               >
                 <motion.div className="w-full relative flex justify-center flex-col items-center gap-8">
-                  <div className="flex border-2 hover:cursor-pointer rounded-lg overflow-hidden w-fit relative">
+                  <div className="flex border-2 hover:cursor-pointer rounded-lg overflow-hidden w-fit max-w-full relative">
                     <motion.div
                       animate={{ x: loginState ? 0 : "100%" }}
                       transition={{ duration: 0.15, ease: "linear" }}
-                      className="absolute top-0 left-0 w-1/2 h-full bg-[#FF9A3C] z-0"
+                      className="absolute  top-0 left-0 w-1/2 h-full bg-[#FF9A3C] z-0"
                     />
                     <span
                       onClick={() => setLoginState(true)}
-                      className="relative select-none z-10 flex justify-center items-center py-2 w-1/2 px-10"
+                      className="relative select-none z-10 flex justify-center items-center py-2 w-1/2 px-5 lg:px-10"
                     >
                       Login
                     </span>
@@ -177,7 +183,7 @@ const LogReg = () => {
                     />
                     <span
                       onClick={() => setLoginState(false)}
-                      className="relative select-none z-10 flex justify-center items-center py-2 w-1/2 px-10"
+                      className="relative select-none z-10 flex justify-center items-center py-2 w-1/2 px-5 lg:px-10"
                     >
                       Register
                     </span>
@@ -315,8 +321,8 @@ const LogReg = () => {
                         }
                         className="bg-[#FF9A3C] select-none border-3 p-2 w-[70%] hover:cursor-pointer rounded-full flex justify-center text-xl items-center"
                       >
-                        Continue With{" "}
-                        <FcGoogle className="inline ml-3" size={48} />{" "}
+                        <span className="hidden lg:inline">Continue With </span>
+                        <FcGoogle className="inline lg:ml-3" size={48} />{" "}
                       </motion.button>
                     </>
                   ) : (
@@ -330,7 +336,7 @@ const LogReg = () => {
                           whileHover={{ opacity: 0.95 }}
                           transition={{ duration: 0.15 }}
                           whileTap={{ scale: 1.1 }}
-                          className="bg-[#FF9A3C] select-none z-10 h-full text-xl w-1/2 hover:cursor-pointer"
+                          className="bg-[#FF9A3C] select-none text-md lg:text-xl z-10 h-full w-1/2 hover:cursor-pointer"
                         >
                           Register
                         </motion.button>

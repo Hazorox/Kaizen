@@ -191,7 +191,7 @@ const LookUp = ({
             ref={subBarRef}
             id="subBar"
             layout
-            className={`h-full overflow-y-scroll scrollable bg-[#fffbe6]/50`}
+            className={`h-full overflow-x-clip flex-wrap overflow-y-scroll scrollable bg-[#fffbe6]/50`}
           >
             {sub.map((cue, index) => {
               let focused = false;

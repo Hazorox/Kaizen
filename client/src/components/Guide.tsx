@@ -131,7 +131,7 @@ const Guide = () => {
           <span
               className={
                 colors.immersion +
-                " w-1/3 flex-col absolute bottom-2 text-3xl left-1/2 -translate-x-1/2 justify-center items-center rounded-2xl border-2 p-4"
+                " w-1/3 flex-col absolute mt-4 left-1/2 -translate-x-1/2 justify-center items-center rounded-2xl border-2 p-4"
               }
             >
               <span className="flex gap-4 w-full justify-center items-center">

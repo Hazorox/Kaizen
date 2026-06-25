@@ -53,7 +53,7 @@ const Battle = () => {
           transition={{ duration: 0.5, ease: "backInOut" }}
           exit={{ scale: 0.01, opacity: 0 }}
           layout
-          className="bg-[#fffbe6] flex flex-col justify-around gap-12 relative border-2 w-[50%] h-[60%] p-8 rounded-xl"
+          className="bg-[#fffbe6] flex flex-col justify-around gap-12 relative border-2 w-[80%] lg:w-[55%] h-[60%] p-8 rounded-xl"
         >
           <FaX
             onClick={() => {
@@ -64,11 +64,11 @@ const Battle = () => {
           />
           <span
             key={"title"}
-            className="w-full flex justify-center items-center gap-6 text-4xl"
+            className="w-full flex justify-center items-center text-center gap-6 text-4xl"
           >
             {" "}
             <LuSwords size={"48"} className="mt-2" />
-            Match Creator <LuSwords size={"48"} className="mt-2" />{" "}
+            Match Creator <LuSwords size={"48"} className="mt-2 hidden lg:inline" />{" "}
           </span>
           <span
             className="w-full flex justify-around items-center"
@@ -84,7 +84,7 @@ const Battle = () => {
             >
               JLPT Level <MdInfoOutline size={36} className="inline mt-1" />
             </span>
-            <span className="flex w-1/2 justify-between items-center gap-6">
+            <span className="flex w-3/4 mx-2 lg:w-1/2 justify-between items-center gap-1 lg:gap-6">
               {["N5", "N4", "N3", "N2", "N1"].map((jlptLevel) => (
                 <motion.div
                   key={jlptLevel}
@@ -103,11 +103,11 @@ const Battle = () => {
               ))}
             </span>
           </span>
-          <span className="w-full flex justify-between px-12 items-center">
+          <span className="w-full flex justify-between px-4 lg:px-12 items-center">
             <span className="text-3xl">Rounds</span>
             <motion.span
               layout
-              className="min-w-[36%] max-h-fit overflow-clip max-w-fit relative border-2 flex justify-center items-center text-4xl rounded-full py-4"
+              className="min-w-1/2 lg:min-w-[36%] max-h-fit overflow-clip max-w-fit relative border-2 flex justify-center items-center text-4xl rounded-full py-4"
             >
               <motion.button
                 key={"-"}
@@ -123,7 +123,7 @@ const Battle = () => {
                 whileTap={{ scale: 1.1 }}
                 initial={{ opacity: 0.95 }}
                 whileHover={{ opacity: 1 }}
-                className="absolute  cursor-pointer text-[#fffbe6] text-6xl left-0  cursor-pointerflex items-center justify-center bg-[#1a1a2e] w-16 h-full rounded-full border"
+                className="absolute  cursor-pointer text-[#fffbe6] text-6xl left-0 flex items-center justify-center bg-[#1a1a2e] w-16 h-full rounded-full border"
               >
                 -
               </motion.button>
@@ -142,7 +142,7 @@ const Battle = () => {
                 whileTap={{ scale: 1.1 }}
                 initial={{ opacity: 0.95 }}
                 whileHover={{ opacity: 1 }}
-                className="absolute text-[#fffbe6]  cursor-pointer text-6xl right-0 cursor-pointer flex items-center justify-center bg-[#1a1a2e] w-16 h-full rounded-full border"
+                className="absolute text-[#fffbe6]  cursor-pointer text-6xl right-0 flex items-center justify-center bg-[#1a1a2e] w-16 h-full rounded-full border"
               >
                 +
               </motion.button>
@@ -150,7 +150,7 @@ const Battle = () => {
           </span>
           <span className="w-full flex justify-around items-center">
             <span className="text-3xl">Mode</span>
-            <span className="w-1/2 flex justify-between items-center">
+            <span className="min-w-2/3 px-2 gap-2 lg:w-1/2 flex  justify-between items-center">
               <Tooltip id="both" />
               {["Both", "Vocab", "Kanji"].map((modeStr) => (
                 <motion.div
@@ -163,7 +163,7 @@ const Battle = () => {
                       mode: modeStr.toLowerCase(),
                     }));
                   }}
-                  className={`${selections.mode === modeStr.toLowerCase() ? "bg-[#1a1a2e] text-[#fffbe6]" : "bg-[#fffbe6] text-[#1a1a2e]"} flex justify-center items-center gap-4 cursor-pointer border-2 rounded-full p-4 text-xl`}
+                  className={`${selections.mode === modeStr.toLowerCase() ? "bg-[#1a1a2e] text-[#fffbe6]" : "bg-[#fffbe6] text-[#1a1a2e]"} flex justify-center items-center gap-4 cursor-pointer border-2 rounded-full p-4 lg:text-xl`}
                   key={modeStr}
                 >
                   {modeStr} {modeStr == "Both" && <MdInfoOutline size={24} />}

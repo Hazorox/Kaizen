@@ -12,7 +12,7 @@ const Card = ({ title, icon, txt, txt2, style }: cardProps) => {
     <div
       className={
         style +
-        " flex h-30 border-4 w-100  self-center rounded-2xl p-2 gap-2 m-5"
+        " flex h-30 border-4 w-64 lg:w-90 self-center rounded-2xl p-2 gap-2 m-5"
       }
     >
       {typeof icon == "string" ? (
@@ -20,10 +20,10 @@ const Card = ({ title, icon, txt, txt2, style }: cardProps) => {
       ) : (
         icon
       )}
-      <span className="right flex justify-center items-center flex-col gap-3 text-center w-full">
-        <span className="text-4xl">{title}</span>
+      <span className="right flex justify-center items-center flex-col lg:gap-3 text-center w-full">
+        <span className="text-2xl lg:text-4xl">{title}</span>
         <span>
-          <span className="val text-xl text-center">
+          <span className="val lg:text-xl text-center">
             {txt}{" "}
             {txt2 ? (
               <span className="opacity-70 mx-2 text-xl">{txt2}</span>

@@ -119,10 +119,10 @@ const Battle = () => {
       <div className="w-full select-none h-full flex flex-col justify-around items-center bg-[#fffbe6]">
         {roomJoined && !waiting && (
           <AnimatePresence key={"idkfr"} mode="wait">
-            <div className="border-2 min-w-[40%] max-w-fit py-4 px-2 gap-2 rounded-3xl mt-4 text-3xl font-bold flex flex-col justify-center items-center bg-[#ff6b6b]">
+            <div className="border-2 w-fit py-4 px-2 gap-2 rounded-3xl my-2 text-3xl font-bold flex flex-col justify-center items-center bg-[#ff6b6b]">
               <span className="gap-4 flex justify-center items-center w-full">
                 <motion.span
-                  className="flex justify-center items-center w-1/2"
+                  className="flex justify-center text-center items-center w-1/2"
                   key={players[0]}
                   initial={{ x: -400, opacity: 0.2 }}
                   animate={{ x: 0, opacity: 1 }}
@@ -132,7 +132,7 @@ const Battle = () => {
                 </motion.span>
                 <span className="text-center">VS.</span>
                 <motion.span
-                  className="flex justify-center items-center w-1/2"
+                  className="flex justify-center text-center items-center w-1/2"
                   key={players[1]}
                   initial={{ x: 400, opacity: 0.2 }}
                   animate={{ x: 0, opacity: 1 }}
@@ -240,7 +240,7 @@ const Battle = () => {
                       <div className="w-[60%] mt-4 flex justify-center items-center">
                         {currentRound.correct.English}
                       </div>
-                      <div className="flex text-4xl h-[65%] p-16 w-full justify-around items-center gap-4 mb-4">
+                      <div className="flex text-4xl h-[65%] p-8 lg:p-12 w-full justify-around items-center gap-4 mb-4">
                         {[currentRound.correct, ...currentRound.distractors]
                           .sort(() => Math.random() - 0.5)
                           .map((entry, index) => (
@@ -270,7 +270,7 @@ const Battle = () => {
                                 });
                               }}
                               whileTap={{ scale: 1.25 }}
-                              className={`flex font-light ${ansSubmitted ? "cursor-not-allowed" : "cursor-pointer"} bg-[#ff6b6b] rounded-2xl h-full px-4 min-w-1/5 max-w-fit border-4 justify-center items-center ${ansSubmitted && entry.Original == currentRound.correct.Original && "bg-[#3dce3d]!"}`}
+                              className={`flex font-light flex-wrap ${ansSubmitted ? "cursor-not-allowed" : "cursor-pointer"} bg-[#ff6b6b] rounded-2xl h-full px-4 min-w-1/5 max-w-fit border-4 justify-center items-center ${ansSubmitted && entry.Original == currentRound.correct.Original && "bg-[#3dce3d]!"}`}
                               key={entry.Original}
                             >
                               <ruby key={index}>
@@ -331,7 +331,7 @@ const Battle = () => {
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               whileHover={{ scale: 1.1 }}
-              className="flex mb-4 p-4 rounded-full font-bold border-2 border-[#cc0000]! cursor-pointer bg-[#ff6b6b] justify-center items-center text-2xl"
+              className="flex mb-2 lg:mb-4 p-4 rounded-full font-bold border-2 border-[#cc0000]! cursor-pointer bg-[#ff6b6b] justify-center items-center text-2xl"
             >
               {results ? (
                 <>

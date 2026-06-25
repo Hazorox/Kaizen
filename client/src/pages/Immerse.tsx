@@ -19,7 +19,6 @@ import { getSub } from "../api/ytSub";
 import { LuShrink } from "react-icons/lu";
 import LookUp from "../components/lookUp";
 import {
-  RiMenuSearchLine,
   RiSidebarFoldLine,
   RiSidebarUnfoldLine,
 } from "react-icons/ri";
@@ -44,7 +43,7 @@ const Immerse = () => {
     "pdf" | "video" | "vidNoSub" | "YT" | ""
   >("");
   const [ytInput, setYtInput] = useState("");
-  const [ytPlaceholder, setYtPlaceholder] = useState("YouTube Video URL");
+  const [ytPlaceholder, setYtPlaceholder] = useState("YT URL");
   const [ytError, setYtError] = useState(false);
   // REFS
   const ytPlayerRef = useRef<any>(null);
@@ -185,7 +184,7 @@ const Immerse = () => {
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              className="w-[50%] border-4 rounded-3xl p-8 h-[50%] bg-[#4ecdc4] flex flex-col relative items-center text-3xl font-bold"
+              className="w-fit border-4 rounded-3xl p-8 h-[60%] bg-[#4ecdc4] flex flex-col gap-8 relative items-center justify-around text-3xl font-bold"
             >
               <FaX
                 onClick={() => {
@@ -195,14 +194,14 @@ const Immerse = () => {
                 size={36}
               />
               Upload Contents
-              <div className="flex w-full h-3/4 justify-center gap-20 items-center">
+              <div className="flex w-full h-1/3 justify-center gap-12 items-center">
                 <motion.button
                   whileHover={{ scale: 1.15 }}
                   whileTap={{ scale: 1.25 }}
                   onClick={() => {
                     videoInputRef.current?.click();
                   }}
-                  className="flex-col cursor-pointer h-1/2 border-4 rounded-4xl bg-[#fffbe6] flex justify-center items-center p-4"
+                  className="flex-col cursor-pointer h-full border-4 rounded-4xl bg-[#fffbe6] flex justify-center items-center p-4"
                 >
                   <FaFileVideo size={48} />
                   Upload Video
@@ -213,7 +212,7 @@ const Immerse = () => {
                   onClick={() => {
                     vttInputRef.current?.click();
                   }}
-                  className="flex-col text-2xl cursor-pointer h-1/2 border-4 rounded-4xl bg-[#fffbe6] flex justify-center items-center p-4"
+                  className="flex-col text-2xl cursor-pointer h-full border-4 rounded-4xl bg-[#fffbe6] flex justify-center items-center p-4"
                 >
                   <MdSubtitles size={48} />
                   Upload Subtitles
@@ -350,7 +349,7 @@ const Immerse = () => {
           layout
           className={
             dimensions +
-            ` flex-col gap-16 rounded-3xl flex justify-evenly border-4 items-center bg-[#4ecdc4] overflow-hidden`
+            ` flex-col gap-16 rounded-3xl flex justify-evenly border-4 items-center bg-[#4ecdc4] overflow-hidden ${preUpload && "px-4 h-fit md:w-fit md:mx-8 lg:w-[50%]"}`
           }
         >
           {/* Upload */}
@@ -359,7 +358,7 @@ const Immerse = () => {
               <motion.div className="w-full mt-4 select-none text-center font-bold text-4xl">
                 Upload Contents
               </motion.div>
-              <div className="flex select-none justify-around gap-6 w-full">
+              <div className="flex select-none justify-around gap-4 w-full">
                 <motion.div
                   onClick={() => {
                     pdfInputRef.current?.click();
@@ -371,10 +370,10 @@ const Immerse = () => {
                   }}
                   transition={{ duration: 0.2 }}
                   whileTap={{ scale: 1.25 }}
-                  className="flex bg-[#fffbe6] relative px-2 py-4 border-4 cursor-pointer rounded-3xl w-[25%] flex-col gap-2 justify-around items-center"
+                  className="flex bg-[#fffbe6] relative px-2 py-4 border-4 cursor-pointer rounded-3xl w-1/3 flex-col gap-2 justify-around items-center"
                 >
                   <PiFilePdfDuotone size={64} />
-                  <span className="font-bold">Upload PDF</span>
+                  <span className="font-bold text-center">Upload PDF</span>
                   <span className="opacity-90 text-center">
                     Upload a book, an article, or a scanned manga
                   </span>
@@ -390,10 +389,10 @@ const Immerse = () => {
                   }}
                   transition={{ duration: 0.2 }}
                   whileTap={{ scale: 1.25 }}
-                  className="flex bg-[#fffbe6] relative px-2 py-4 border-4 cursor-pointer rounded-3xl w-[25%] flex-col gap-2 justify-around items-center"
+                  className="flex bg-[#fffbe6] relative px-2 py-4 border-4 cursor-pointer rounded-3xl w-1/3 flex-col gap-2 justify-around items-center"
                 >
                   <PiFileVideoFill size={64} />
-                  <span className="font-bold">Upload Video</span>
+                  <span className="font-bold text-center">Upload Video</span>
                   <span className="opacity-90 text-center">
                     Upload a video and lookup the words yourself.
                   </span>
@@ -409,13 +408,12 @@ const Immerse = () => {
                     setVidSubShown(true);
                   }}
                   transition={{ duration: 0.2 }}
-                  className="flex bg-[#fffbe6] px-2 relative py-4 border-4 cursor-pointer rounded-3xl w-[25%] flex-col gap-2 justify-around items-center"
+                  className="flex bg-[#fffbe6] px-2 relative py-4 border-4 cursor-pointer rounded-3xl w-1/3 flex-col gap-2 justify-around items-center"
                 >
                   <span className="flex text-4xl justify-center items-center gap-4">
-                    <PiFileVideoFill size={64} /> +
                     <PiSubtitlesBold size={64} />
                   </span>
-                  <span className="font-bold">Upload Video + Subtitles</span>
+                  <span className="font-bold text-center">Upload Video + Subtitles</span>
                   <span className="opacity-90 text-center">
                     Upload a video with a supported subtitles file
                     <br />
