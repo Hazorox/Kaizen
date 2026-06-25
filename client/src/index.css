@@ -51,3 +51,10 @@ body {
   border-radius: 12px;
   margin-block: 6px;
 }
+
+.gutter {
+  background-color: rgba(0,0,0,0.5);
+}
+.gutter:hover {
+  background-color: rgba(0,0,0,0.8);
+}
