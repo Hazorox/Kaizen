@@ -108,6 +108,7 @@ const Immerse = () => {
       if (!ytInput) return;
 
       await getSub(ytInput).then((res) => {
+        console.log(res)
         if (!res || res === "invalid") {
           setYtPlaceholder("Unsupported URL");
           setYtError(true);
