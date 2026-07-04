@@ -21,13 +21,10 @@ const UserProfile = () => {
     mining: 0,
     matches: { total: 0, won: 0, tie: 0, lost: 0 },
   });
-  const { id } = useParams();
-  let username;
-  if (!id) {
-    username = getUsername();
-  } else {
-    username = id;
-  }
+  
+  
+
+  const username = getUsername();
   const [userPic, setUserPic] = useState<string | null>("/idk.jpg");
   useEffect(() => {
     const fetchStuff = async () => {
