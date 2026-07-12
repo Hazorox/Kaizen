@@ -7,7 +7,6 @@ const AuthCallback = () => {
   const [searchParams,setSearchParams] = useSearchParams()
   const token = searchParams.get("token")
   const next = searchParams.get("next")??"/"
-  console.log(next)
   useEffect(() => {
     
     if (token) {
