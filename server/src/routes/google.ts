@@ -50,16 +50,20 @@ passport.use(
     },
   ),
 );
-
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] }),
-);
+router.get("/google", (req, res, next) => {
+  const nextParam = (req.query.next as string) ?? "/";
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    state: nextParam,
+  })(req, res, next);
+});
 
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   (req, res) => {
+    const next = (req.query.state as string)??"/"
+    console.log(next)
     const user = req.user as any;
     const token = jwt.sign(
       {
@@ -69,7 +73,7 @@ router.get(
       process.env.JWT_SECRET ?? "secret",
       { expiresIn: "14d" },
     );
-    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}&next=${encodeURIComponent(next)}`);
   },
 );
 

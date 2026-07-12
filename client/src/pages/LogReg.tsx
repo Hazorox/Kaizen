@@ -10,10 +10,12 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { login, register } from "../api/auth";
 import { saveToken } from "../utils/token";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import {Filter} from "bad-words"
+import { Filter } from "bad-words";
 const LogReg = () => {
+  const [params, setParams] = useSearchParams();
+  const next = params.get("next") || "/";
   const nav = useNavigate();
   const [loginState, setLoginState] = useState(true);
   const [repeatedPass, setRepeatedPassInput] = useState("");
@@ -40,9 +42,9 @@ const LogReg = () => {
           toast.error("Username must be more than 2 characters");
           return;
         }
-        const filter = new Filter()
-        if(filter.isProfane(username)){
-          toast.error("Please use an appropriate username")
+        const filter = new Filter();
+        if (filter.isProfane(username)) {
+          toast.error("Please use an appropriate username");
           return;
         }
         if (!userReg.test(username)) {
@@ -70,7 +72,7 @@ const LogReg = () => {
         }
       }
       saveToken(data.token);
-      nav("/");
+      nav(next);
     } catch {
       toast.error("Something Went wrong during authentication");
     }
@@ -84,6 +86,7 @@ const LogReg = () => {
     document.addEventListener("keypress", listenForEnter);
     return () => document.removeEventListener("keypress", listenForEnter);
   });
+
   return (
     // LOGIN / Register
     <AnimatePresence key="logReg">
@@ -301,7 +304,7 @@ const LogReg = () => {
                   {loginState ? (
                     <>
                       <motion.button
-                      type="button"
+                        type="button"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 1.2 }}
                         onClick={() => {
@@ -312,12 +315,11 @@ const LogReg = () => {
                         Login
                       </motion.button>
                       <motion.button
-                      type="button"
+                        type="button"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 1.2 }}
                         onClick={() =>
-                          (window.location.href =
-                            `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`)
+                          (window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google?next=${next}`)
                         }
                         className="bg-[#FF9A3C] select-none border-3 p-2 w-[70%] hover:cursor-pointer rounded-full flex justify-center text-xl items-center"
                       >
@@ -329,7 +331,7 @@ const LogReg = () => {
                     <AnimatePresence key="submitButtons">
                       <motion.div className="flex w-[70%] border-4 rounded-xl h-16 justify-around items-center overflow-hidden">
                         <motion.button
-                        type="button"
+                          type="button"
                           onClick={() => {
                             handleSubmit();
                           }}
@@ -342,10 +344,9 @@ const LogReg = () => {
                         </motion.button>
                         <div className="h-full w-1 bg-[#1a1a2e] z-20" />
                         <motion.button
-                        type="button"
+                          type="button"
                           onClick={() =>
-                            (window.location.href =
-                              `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`)
+                            (window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google?next=${next}`)
                           }
                           whileHover={{ opacity: 0.95 }}
                           transition={{ duration: 0.15 }}
