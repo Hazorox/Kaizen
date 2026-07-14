@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { UserStat } from "../models/UserStat";
-
 const router = Router();
 
 router.post("/api/recents", async (req, res) => {

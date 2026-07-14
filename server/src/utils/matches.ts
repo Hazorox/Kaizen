@@ -22,14 +22,14 @@ interface VocabEntry {
 interface kanjiRound {
   Kanji: string;
   Level: number;
-  player1Ans: string[] | [];
-  player2Ans: string[] | [];
+  player1Ans?: string[] | [];
+  player2Ans?: string[] | [];
 }
 interface vocabRound {
   correct: VocabEntry;
   distractors: VocabEntry[];
-  player1Ans: string[] | [];
-  player2Ans: string[] | [];
+  player1Ans?: string[] | [];
+  player2Ans?: string[] | [];
 }
 type Round = vocabRound | kanjiRound;
 const loadVocab = (): VocabEntry[] => {
@@ -44,7 +44,7 @@ const loadKanji = (): KanjiEntry[] => {
   return parse(file, { columns: true, skip_empty_lines: true });
 };
 
-const generateVocab = (level: number): vocabRound => {
+const generateVocab = (level: number,solo:boolean): vocabRound => {
   const vocabData = loadVocab().filter(
     (entry) => Number(entry.Level.slice(1)) >= level,
   );
@@ -60,20 +60,29 @@ const generateVocab = (level: number): vocabRound => {
     }
     distractors.push(entry);
   }
+  if(solo) return { correct: correctEntry, distractors,}
   return { correct: correctEntry, distractors, player1Ans: [], player2Ans: [] };
 };
-const generateKanji = (level: number, rounds: number): kanjiRound[] => {
+const generateKanji = (
+  level: number,
+  rounds: number,
+  solo: boolean,
+): kanjiRound[] => {
   let data: kanjiRound[] = [];
   const kanjiData = loadKanji().filter((entry) => entry.Level >= level);
   for (let i = 0; i < rounds; i++) {
     const entry: KanjiEntry =
       kanjiData[Math.floor(Math.random() * kanjiData.length)];
-    data.push({
-      Kanji: entry.Kanji,
-      Level: entry.Level,
-      player1Ans: [],
-      player2Ans: [],
-    });
+    if (solo) {
+      data.push({ Kanji: entry.Kanji, Level: entry.Level });
+    } else {
+      data.push({
+        Kanji: entry.Kanji,
+        Level: entry.Level,
+        player1Ans: [],
+        player2Ans: [],
+      });
+    }
   }
   return data;
 };
@@ -82,25 +91,26 @@ const generateData = (
   mode: string,
   rounds: number,
   levelStr: string,
+  solo:boolean
 ): kanjiRound[] | vocabRound[] | Round[] | undefined => {
   const level = Number(levelStr.slice(1));
 
   if (mode == "both") {
     let data: Round[] = [];
     for (let i = 0; i < rounds; i++) {
-      const kanjiRound = generateKanji(level, 1)[0];
-      const vocabRound = generateVocab(level);
+      const kanjiRound = generateKanji(level, 1,solo)[0];
+      const vocabRound = generateVocab(level,solo);
       data.push(vocabRound, kanjiRound);
     }
     return data;
   }
   if (mode == "kanji") {
-    return generateKanji(level, rounds);
+    return generateKanji(level, rounds,solo);
   }
   if (mode == "vocab") {
     let data: vocabRound[] = [];
     for (let i = 0; i < rounds; i++) {
-      const returned = generateVocab(level);
+      const returned = generateVocab(level,solo);
       data.push(returned);
     }
     return data;
@@ -114,19 +124,26 @@ type modeTypes = "vocab" | "kanji" | "both";
 type jlptTypes = "N5" | "N4" | "N3" | "N2" | "N1";
 router.post("/api/create_match", async (req, res) => {
   try {
+    const {
+      mode,
+      jlptLevel,
+      rounds,
+      solo
+    }: { mode: modeTypes; jlptLevel: jlptTypes; rounds: number,solo?:boolean } = req.body;
+    if(solo){
+      let roundsData: kanjiRound[] | vocabRound[] | Round[] | undefined =
+      generateData(mode, rounds, jlptLevel,true);
+      return res.json(roundsData)
+    }
     let roomId = Math.random().toString(36).slice(2, 8);
     while (true) {
       const room = await Matches.findOne({ roomId });
       if (!room) break;
       roomId = Math.random().toString(36).slice(2, 8);
     }
-    const {
-      mode,
-      jlptLevel,
-      rounds,
-    }: { mode: modeTypes; jlptLevel: jlptTypes; rounds: number } = req.body;
+    
     let roundsData: kanjiRound[] | vocabRound[] | Round[] | undefined =
-      generateData(mode, rounds, jlptLevel);
+      generateData(mode, rounds, jlptLevel,false);
     await Matches.create({
       roomId,
       jlptLevel,

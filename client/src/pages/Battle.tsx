@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
 import { getUsername } from "../utils/getUsername";
 import { useEffect, useRef, useState } from "react";
@@ -6,77 +6,114 @@ import { getMatchData } from "../api/match";
 import toast, { Toaster } from "react-hot-toast";
 import { AnimatePresence, motion } from "motion/react";
 import { FourSquare, Riple } from "react-loading-indicators";
+import { Stage, Layer, Line, Rect } from "react-konva";
 import { FaKey, FaLink } from "react-icons/fa";
 import { IoExitOutline, IoFlagSharp } from "react-icons/io5";
-import { Stage, Layer, Line, Rect } from "react-konva";
 import { LuCrown } from "react-icons/lu";
+import { createPractce } from "../api/createPractice";
 const Battle = () => {
   const [lines, setLines] = useState<any[]>([]);
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [invalid, setInvalid] = useState(false);
   const isDrawing = useRef(false);
 
   const { id } = useParams();
+  const multi = id != "practice";
   const stageRef = useRef<any>(null);
   const [roomId, setRoomId] = useState("");
   const [questions, setQuestions] = useState([]);
   const [roomJoined, setRoomJoined] = useState(false);
   const [players, setPlayers] = useState<string[]>([]);
   const [ansSubmitted, setAnsSubmitted] = useState(false);
+  const[practiceFinished,setPracticeFinished]= useState(false)
+  const [practiceScore,setPracticeScore] = useState([])
   const [roundNum, setRoundNum] = useState(0);
   const currentRound = questions[roundNum];
   const [waiting, setWaiting] = useState(true);
   const [mode, setMode] = useState("");
   const currentMode =
     mode == "both" ? (roundNum % 2 == 0 ? "vocab" : "kanji") : mode;
-    const [results, setResults] = useState();
-    const scores = results ? results.scores : null;
-    const nav = useNavigate();
-    const username = getUsername();
-    const opponent = players.filter((player) => player != username)[0];
-    const socketRef = useRef<Socket | null>(null);
+  const [results, setResults] = useState();
+  const scores = results ? results.scores : null;
+  const nav = useNavigate();
+  const username = getUsername();
+  const opponent = players.filter((player) => player != username)[0];
+  const socketRef = useRef<Socket | null>(null);
   useEffect(() => {
-    socketRef.current = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:9898");
-    const socket = socketRef.current;
-    socket.on("notFound", () => {
-      nav("/battle");
-      toast.error("Room Not Found");
-    });
-    socket.on("room_joined", () => {
-      setRoomJoined(true);
-    });
-    socket.emit("join_match", { roomId: id, username });
-    socket.on("match_started", (playerNames: string[]) => {
-      setPlayers(playerNames);
-      setWaiting(false);
-    });
-    socket.on("next_round", () => {
-      setRoundNum((prev) => prev + 1);
-      setLines([]);
-      setAnsSubmitted(false);
-    });
-    socket.on("room_full", () => {
-      nav("/battle");
-      toast.error("Room Full");
-    });
-    socket.on("match_end", (stuff) => setResults(stuff));
-    socket.on("opponent_left", () => {
-      nav("/battle");
-      toast.error("Opponent Left");
-    });
-    return () => {
-      socket.disconnect();
-    };
-  }, [id]);
+    if (!multi) return;
+    else {
+      socketRef.current = io(
+        import.meta.env.VITE_BACKEND_URL || "http://localhost:9898",
+      );
+      const socket = socketRef.current;
+      socket.on("notFound", () => {
+        nav("/battle");
+        toast.error("Room Not Found");
+      });
+      socket.on("room_joined", () => {
+        setRoomJoined(true);
+      });
+      socket.emit("join_match", { roomId: id, username });
+      socket.on("match_started", (playerNames: string[]) => {
+        setPlayers(playerNames);
+        setWaiting(false);
+      });
+      socket.on("next_round", () => {
+        setRoundNum((prev) => prev + 1);
+        setLines([]);
+        setAnsSubmitted(false);
+      });
+      socket.on("room_full", () => {
+        nav("/battle");
+        toast.error("Room Full");
+      });
+      socket.on("match_end", (stuff) => setResults(stuff));
+      socket.on("opponent_left", () => {
+        nav("/battle");
+        toast.error("Opponent Left");
+      });
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [id, multi]);
+  useEffect(()=>{
+    if(multi) return;
+    const rounds = searchParams.get("rounds")||"2";
+    if (roundNum == Number(rounds)){
+      setPracticeFinished(true)
+    }
+  },[roundNum])
   useEffect(() => {
     const fetchStuff = async () => {
-      if (!roomJoined) return;
-      const matchData = await getMatchData(id);
-      if (!matchData) toast.error("An Error Occurred");
-      if (matchData) {
-        setMode(matchData.mode);
-        setQuestions(matchData.rounds);
+      if (!multi) {
+        const practiceMode = searchParams.get("mode");
+        if (!practiceMode) return setInvalid(true);
+        const level = searchParams.get("level") || "N5";
+        const rounds = searchParams.get("rounds") || "2";
+        const matchData = await createPractce({
+          mode: practiceMode,
+          rounds,
+          level,
+        });
+        if (matchData == "invalid") {
+          toast.error("Invalid practice Data");
+          nav("/battle");
+        }
+        setMode(practiceMode);
+        setRoomJoined(true);
+        setQuestions(matchData);
         setRoundNum(0);
-        setRoomId(matchData.roomId);
+      } else {
+        if (!roomJoined) return;
+        const matchData = await getMatchData(id);
+        if (!matchData) toast.error("An Error Occurred");
+        if (matchData) {
+          setMode(matchData.mode);
+          setQuestions(matchData.rounds);
+          setRoundNum(0);
+          setRoomId(matchData.roomId);
+        }
       }
     };
     fetchStuff();
@@ -117,34 +154,41 @@ const Battle = () => {
     <AnimatePresence key={"main"}>
       <Toaster position="bottom-center" />
       <div className="w-full select-none h-full flex flex-col justify-around items-center bg-[#fffbe6]">
-        {roomJoined && !waiting && (
+        {((roomJoined && !waiting) || (roomJoined && !invalid && !multi)) && (
           <AnimatePresence key={"idkfr"} mode="wait">
             <div className="border-2 w-fit py-4 px-2 gap-2 rounded-3xl my-2 text-3xl font-bold flex flex-col justify-center items-center bg-[#ff6b6b]">
-              <span className="gap-4 flex justify-center items-center w-full">
-                <motion.span
-                  className="flex justify-center text-center items-center w-1/2"
-                  key={players[0]}
-                  initial={{ x: -400, opacity: 0.2 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.7, ease: "linear", delay: 0.1 }}
-                >
-                  {players[0]}
-                </motion.span>
-                <span className="text-center">VS.</span>
-                <motion.span
-                  className="flex justify-center text-center items-center w-1/2"
-                  key={players[1]}
-                  initial={{ x: 400, opacity: 0.2 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.7, ease: "linear", delay: 0.1 }}
-                >
-                  {players[1]}
-                </motion.span>
-              </span>
+              {multi && (
+                <span className="gap-4 flex justify-center items-center w-full">
+                  <motion.span
+                    className="flex justify-center text-center items-center w-1/2"
+                    key={players[0]}
+                    initial={{ x: -400, opacity: 0.2 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.7, ease: "linear", delay: 0.1 }}
+                  >
+                    {players[0]}
+                  </motion.span>
+                  <span className="text-center">VS.</span>
+                  <motion.span
+                    className="flex justify-center text-center items-center w-1/2"
+                    key={players[1]}
+                    initial={{ x: 400, opacity: 0.2 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.7, ease: "linear", delay: 0.1 }}
+                  >
+                    {players[1]}
+                  </motion.span>
+                </span>
+              )}
+              {!multi && (
+                <span className="gap-4 flex justify-center px-4 items-center w-full">
+                  Practice
+                </span>
+              )}
               {!results && (
                 <motion.span className="flex">{`Round    ${roundNum + 1}`}</motion.span>
               )}
-              {results && "Match Done"}
+              {results && multi && "Match Done"}
             </div>
             <motion.div
               key={"matchContent"}
@@ -260,14 +304,18 @@ const Battle = () => {
                                 else {
                                   toast.success("Correct !");
                                 }
-                                setAnsSubmitted(true);
                                 const ans = entry.Original;
+                                if(multi){
+                                  setAnsSubmitted(true);
                                 socketRef.current?.emit("submit_answer", {
                                   roomId,
                                   username,
                                   ans,
                                   type: "vocab",
                                 });
+                                }else{
+
+                                }
                               }}
                               whileTap={{ scale: 1.25 }}
                               className={`flex font-light flex-wrap ${ansSubmitted ? "cursor-not-allowed" : "cursor-pointer"} bg-[#ff6b6b] rounded-2xl h-full px-4 min-w-1/5 max-w-fit border-4 justify-center items-center ${ansSubmitted && entry.Original == currentRound.correct.Original && "bg-[#3dce3d]!"}`}
@@ -333,13 +381,19 @@ const Battle = () => {
               whileHover={{ scale: 1.1 }}
               className="flex mb-2 lg:mb-4 p-4 rounded-full font-bold border-2 border-[#cc0000]! cursor-pointer bg-[#ff6b6b] justify-center items-center text-2xl"
             >
-              {results ? (
-                <>
-                  Leave <IoExitOutline size={36} />
-                </>
+              {multi ? (
+                results ? (
+                  <>
+                    Leave <IoExitOutline size={36} />
+                  </>
+                ) : (
+                  <>
+                    Forfeit <IoFlagSharp />
+                  </>
+                )
               ) : (
                 <>
-                  Forfeit <IoFlagSharp />
+                  Leave <IoExitOutline size={36} />
                 </>
               )}
             </motion.button>
@@ -355,7 +409,7 @@ const Battle = () => {
             Loading...
           </motion.div>
         )}
-        {waiting && roomJoined && (
+        {waiting && roomJoined && multi && (
           <motion.div
             key={"waiting"}
             className="flex font-bold flex-col text-4xl justify-center items-center gap-12"
@@ -364,7 +418,6 @@ const Battle = () => {
             Waiting For Opponent
             <motion.button
               onClick={() => {
-                //TODO: CHANGE THIS TO ONLINE URLZ
                 navigator.clipboard.writeText(
                   `${import.meta.env.VITE_FRONTEND_URL}/battle/${id}`,
                 );
