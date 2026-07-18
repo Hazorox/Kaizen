@@ -214,7 +214,7 @@ const Battle = () => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.4, ease: "linear" }}
-        key={practiceShown ? "practiceShown" : "makerHidden"}
+        key={practiceShown ? "practiceShown" : "practiceHidden"}
         layout
         className={`${!practiceShown && "hidden"} w-full font-bold h-full z-100 absolute bg-[#1a1a2e]/55 flex justify-center items-center`}
       >
@@ -257,7 +257,7 @@ const Battle = () => {
             <span className="flex w-3/4 mx-2 lg:w-1/2 justify-between items-center gap-1 lg:gap-6">
               {["N5", "N4", "N3", "N2", "N1"].map((jlptLevel) => (
                 <motion.div
-                  key={jlptLevel}
+                  key={jlptLevel+" practice"}
                   onClick={() => {
                     setPractice((prev) => {
                       return {
@@ -276,7 +276,6 @@ const Battle = () => {
           <span className="w-full flex justify-between px-4 lg:px-12 items-center">
             <span className="text-3xl w-1/4">Mode</span>
             <div className="flex border-2 hover:cursor-pointer rounded-lg overflow-hidden w-1/2 relative">
-                   
                     <motion.div
                       animate={{ x: practice.mode=="vocab" ? 0 : "100%" }}
                       transition={{ duration: 0.15, ease: "linear" }}
@@ -358,7 +357,7 @@ const Battle = () => {
               onClick={async () => {
                 if(practice.rounds>50) return toast.error("Rounds should be between 1 and 50")
                 nav(
-                  `/battle/practice?jlpt=${practice.jlptLevel}${practice.vocab ? `&vocab=${practice.vocab}` : ""}${practice.kanji ? `&kanji=${practice.kanji}` : ""}`,
+                  `/battle/practice?mode=${practice.mode}&level=${practice.jlptLevel}&rounds=${practice.rounds}`
                 );
               }}
               className="flex text-2xl border-4 p-2 py-4 cursor-pointer rounded-full w-1/3 bg-[#3dce3d] justify-center gap-6 items-center"

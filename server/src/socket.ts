@@ -20,7 +20,7 @@ function kanjiToBuffer(kanji: string) {
   return canvas.toBuffer();
 }
 
-const compareKanji = async (user:string, correct:string) => {
+export const compareKanji = async (user:string, correct:string) => {
   const correctKanji = kanjiToBuffer(correct);
   const userAns = await sharp(Buffer.from(user, "base64"))
     .resize(128, 128)
@@ -45,7 +45,6 @@ const compareKanji = async (user:string, correct:string) => {
   const acc = Math.round((1 - diff / maxDiff) * 100);
   return acc;
 };
-
 export const makeSocket = async (httpServer: httpServer) => {
   const io = new Server(httpServer, {
     cors: {
@@ -72,7 +71,6 @@ export const makeSocket = async (httpServer: httpServer) => {
           base64,
           room.rounds[room.currentRound].Kanji,
         );
-        console.log(acc)
         if (room.rounds[room.currentRound].player1Ans.length == 0) {
           room.rounds[room.currentRound].player1Ans = [username, acc ?? 0];
         } else {

@@ -11,6 +11,7 @@ import { FaKey, FaLink } from "react-icons/fa";
 import { IoExitOutline, IoFlagSharp } from "react-icons/io5";
 import { LuCrown } from "react-icons/lu";
 import { createPractce } from "../api/createPractice";
+import { compare_kanji } from "../api/compare_kanji";
 const Battle = () => {
   const [lines, setLines] = useState<any[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,8 +26,8 @@ const Battle = () => {
   const [roomJoined, setRoomJoined] = useState(false);
   const [players, setPlayers] = useState<string[]>([]);
   const [ansSubmitted, setAnsSubmitted] = useState(false);
-  const[practiceFinished,setPracticeFinished]= useState(false)
-  const [practiceScore,setPracticeScore] = useState([])
+  const [practiceFinished, setPracticeFinished] = useState(false);
+  const [practiceScore, setPracticeScore] = useState([]);
   const [roundNum, setRoundNum] = useState(0);
   const currentRound = questions[roundNum];
   const [waiting, setWaiting] = useState(true);
@@ -39,6 +40,7 @@ const Battle = () => {
   const username = getUsername();
   const opponent = players.filter((player) => player != username)[0];
   const socketRef = useRef<Socket | null>(null);
+  console.log(practiceScore)
   useEffect(() => {
     if (!multi) return;
     else {
@@ -77,13 +79,13 @@ const Battle = () => {
       };
     }
   }, [id, multi]);
-  useEffect(()=>{
-    if(multi) return;
-    const rounds = searchParams.get("rounds")||"2";
-    if (roundNum == Number(rounds)){
-      setPracticeFinished(true)
+  useEffect(() => {
+    if (multi) return;
+    const rounds = searchParams.get("rounds") || "2";
+    if (roundNum == Number(rounds)) {
+      setPracticeFinished(true);
     }
-  },[roundNum])
+  }, [roundNum]);
   useEffect(() => {
     const fetchStuff = async () => {
       if (!multi) {
@@ -185,10 +187,12 @@ const Battle = () => {
                   Practice
                 </span>
               )}
-              {!results && (
-                <motion.span className="flex">{`Round    ${roundNum + 1}`}</motion.span>
-              )}
+              {(multi && !results) ||
+                (!multi && !practiceFinished && (
+                  <motion.span className="flex">{`Round    ${roundNum + 1}`}</motion.span>
+                ))}
               {results && multi && "Match Done"}
+              {practiceFinished && !multi && "Finished"}
             </div>
             <motion.div
               key={"matchContent"}
@@ -197,144 +201,161 @@ const Battle = () => {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              {!results && (
-                <>
-                  {currentMode === "kanji" && (
-                    <>
-                      <div className="w-[60%] mt-4 flex text-4xl font-light justify-center items-center">
-                        Draw The Kanji : {currentRound.Kanji}
-                      </div>
-                      {/* Got Some Help from Claude with dis one */}
-                      <Stage
-                        onMouseDown={handleMouseDown}
-                        onMouseMove={handleMouseMove}
-                        onMouseUp={handleMouseUp}
-                        onTouchStart={handleMouseDown}
-                        onTouchMove={handleMouseMove}
-                        onTouchEnd={handleMouseUp}
-                        ref={stageRef}
-                        width={400}
-                        height={400}
-                        className="mt-16"
-                      >
-                        <Layer key={"base"}>
-                          {/* background */}
-                          <Rect width={400} height={400} fill="#fffbe6" />
-                          {/* vertical center line */}
-                          <Line
-                            key={"1"}
-                            points={[400 / 2, 0, 400 / 2, 400]}
-                            stroke="#1a1a2e"
-                            strokeWidth={1}
-                            opacity={0.2}
-                            dash={[6, 4]}
-                          />
-                          <Line
-                            key={"2"}
-                            points={[0, 400 / 2, 400, 400 / 2]}
-                            stroke="#1a1a2e"
-                            strokeWidth={1}
-                            opacity={0.2}
-                            dash={[6, 4]}
-                          />
-                        </Layer>
-                        <Layer key={"draw"}>
-                          {lines.map((line, i) => (
+              {(multi && !results) ||
+                (!multi && !practiceFinished && (
+                  <>
+                    {currentMode === "kanji" && (
+                      <>
+                        <div className="w-[60%] mt-4 flex text-4xl font-light justify-center items-center">
+                          Draw The Kanji : {currentRound.Kanji}
+                        </div>
+                        {/* Got Some Help from Claude with dis one */}
+                        <Stage
+                          onMouseDown={handleMouseDown}
+                          onMouseMove={handleMouseMove}
+                          onMouseUp={handleMouseUp}
+                          onTouchStart={handleMouseDown}
+                          onTouchMove={handleMouseMove}
+                          onTouchEnd={handleMouseUp}
+                          ref={stageRef}
+                          width={400}
+                          height={400}
+                          className="mt-16"
+                        >
+                          <Layer key={"base"}>
+                            {/* background */}
+                            <Rect width={400} height={400} fill="#fffbe6" />
+                            {/* vertical center line */}
                             <Line
-                              key={i}
-                              points={line.points}
+                              key={"1"}
+                              points={[400 / 2, 0, 400 / 2, 400]}
                               stroke="#1a1a2e"
-                              strokeWidth={8}
-                              tension={0.5}
-                              lineCap="round"
-                              lineJoin="round"
-                              globalCompositeOperation="source-over"
+                              strokeWidth={1}
+                              opacity={0.2}
+                              dash={[6, 4]}
                             />
-                          ))}
-                        </Layer>
-                      </Stage>
-                      <motion.button
-                        key={"submit"}
-                        onClick={async () => {
-                          if (!ansSubmitted) {
+                            <Line
+                              key={"2"}
+                              points={[0, 400 / 2, 400, 400 / 2]}
+                              stroke="#1a1a2e"
+                              strokeWidth={1}
+                              opacity={0.2}
+                              dash={[6, 4]}
+                            />
+                          </Layer>
+                          <Layer key={"draw"}>
+                            {lines.map((line, i) => (
+                              <Line
+                                key={i + " line"}
+                                points={line.points}
+                                stroke="#1a1a2e"
+                                strokeWidth={8}
+                                tension={0.5}
+                                lineCap="round"
+                                lineJoin="round"
+                                globalCompositeOperation="source-over"
+                              />
+                            ))}
+                          </Layer>
+                        </Stage>
+                        <motion.button
+                          key={"submit"}
+                          onClick={async () => {
                             const dataURL = await stageRef.current?.toDataURL({
                               mimeType: "image/png",
                             });
-                            socketRef.current?.emit("submit_answer", {
-                              roomId,
-                              username,
-                              ans: dataURL,
-                              type: "kanji",
-                            });
-                            setAnsSubmitted(true);
-                          } else {
-                            return toast.error("Already Submitted");
-                          }
-                        }}
-                        className={`${ansSubmitted ? "bg-[#c9b1ff] cursor-not-allowed" : "bg-[#3dce3d] cursor-pointer"} p-4 rounded-full border-2 flex justify-center items-center`}
-                        whileHover={{ scale: 1.15 }}
-                        whileTap={{ scale: 1.25 }}
-                      >
-                        {ansSubmitted ? "Waiting For Opponent..." : "Submit"}
-                      </motion.button>
-                    </>
-                  )}
-                  {currentMode === "vocab" && (
-                    <>
-                      <div className="w-[60%] mt-4 flex justify-center items-center">
-                        {currentRound.correct.English}
-                      </div>
-                      <div className="flex text-4xl h-[65%] p-8 lg:p-12 w-full justify-around items-center gap-4 mb-4">
-                        {[currentRound.correct, ...currentRound.distractors]
-                          .sort(() => Math.random() - 0.5)
-                          .map((entry, index) => (
-                            <motion.div
-                              initial={{ scale: 0, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 0.9 }}
-                              whileHover={{ scale: 1.15, opacity: 1 }}
-                              onClick={() => {
-                                if (ansSubmitted) {
-                                  return toast.error("already Submitted");
-                                }
-                                if (
-                                  entry.Original !=
-                                  currentRound.correct.Original
-                                )
-                                  toast.error("Wrong Answer >:(");
-                                else {
-                                  toast.success("Correct !");
-                                }
-                                const ans = entry.Original;
-                                if(multi){
-                                  setAnsSubmitted(true);
+                            if (multi) {
+                              if (!ansSubmitted) {
                                 socketRef.current?.emit("submit_answer", {
                                   roomId,
                                   username,
-                                  ans,
-                                  type: "vocab",
+                                  ans: dataURL,
+                                  type: "kanji",
                                 });
-                                }else{
-
+                                setAnsSubmitted(true);
+                              } else {
+                                return toast.error("Already Submitted");
+                              }
+                            } else {
+                              const result = await compare_kanji(
+                                dataURL.split(",")[1],
+                                currentRound.Kanji,
+                              );
+                              practiceScore.push(result);
+                              setRoundNum((prev) => {
+                                if (questions.length - prev == 1) {
+                                  setPracticeFinished(true);
+                                  return 0;
+                                } else {
+                                  setLines([])
+                                  return prev + 1;
                                 }
-                              }}
-                              whileTap={{ scale: 1.25 }}
-                              className={`flex font-light flex-wrap ${ansSubmitted ? "cursor-not-allowed" : "cursor-pointer"} bg-[#ff6b6b] rounded-2xl h-full px-4 min-w-1/5 max-w-fit border-4 justify-center items-center ${ansSubmitted && entry.Original == currentRound.correct.Original && "bg-[#3dce3d]!"}`}
-                              key={entry.Original}
-                            >
-                              <ruby key={index}>
-                                {entry.Original}
-                                <rt className="text-center text-xl opacity-90 ">
-                                  {entry.Furigana}
-                                </rt>
-                              </ruby>
-                            </motion.div>
-                          ))}
-                      </div>
-                      {ansSubmitted && <div> Waiting For Opponent...</div>}
-                    </>
-                  )}
-                </>
-              )}
+                              });
+                            }
+                          }}
+                          className={`${ansSubmitted ? "bg-[#c9b1ff] cursor-not-allowed" : "bg-[#3dce3d] cursor-pointer"} p-4 rounded-full border-2 flex justify-center items-center`}
+                          whileHover={{ scale: 1.15 }}
+                          whileTap={{ scale: 1.25 }}
+                        >
+                          {ansSubmitted ? "Waiting For Opponent..." : "Submit"}
+                        </motion.button>
+                      </>
+                    )}
+                    {currentMode === "vocab" && (
+                      <>
+                        <div className="w-[60%] mt-4 flex justify-center items-center">
+                          {currentRound.correct.English}
+                        </div>
+                        <div className="flex text-4xl h-[65%] p-8 lg:p-12 w-full justify-around items-center gap-4 mb-4">
+                          {[currentRound.correct, ...currentRound.distractors]
+                            .sort(() => Math.random() - 0.5)
+                            .map((entry, index) => (
+                              <motion.div
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 0.9 }}
+                                whileHover={{ scale: 1.15, opacity: 1 }}
+                                onClick={() => {
+                                  if (ansSubmitted) {
+                                    return toast.error("already Submitted");
+                                  }
+                                  if (
+                                    entry.Original !=
+                                    currentRound.correct.Original
+                                  )
+                                    toast.error("Wrong Answer >:(");
+                                  else {
+                                    toast.success("Correct !");
+                                  }
+                                  const ans = entry.Original;
+                                  if (multi) {
+                                    setAnsSubmitted(true);
+                                    socketRef.current?.emit("submit_answer", {
+                                      roomId,
+                                      username,
+                                      ans,
+                                      type: "vocab",
+                                    });
+                                  } else {
+                                  }
+                                }}
+                                whileTap={{ scale: 1.25 }}
+                                className={`flex font-light flex-wrap ${ansSubmitted ? "cursor-not-allowed" : "cursor-pointer"} bg-[#ff6b6b] rounded-2xl h-full px-4 min-w-1/5 max-w-fit border-4 justify-center items-center ${ansSubmitted && entry.Original == currentRound.correct.Original && "bg-[#3dce3d]!"}`}
+                                key={entry.Original}
+                              >
+                                <ruby key={index}>
+                                  {entry.Original}
+                                  <rt className="text-center text-xl opacity-90 ">
+                                    {entry.Furigana}
+                                  </rt>
+                                </ruby>
+                              </motion.div>
+                            ))}
+                        </div>
+                        {ansSubmitted && <div> Waiting For Opponent...</div>}
+                      </>
+                    )}
+                  </>
+                ))}
               {results && (
                 <>
                   <motion.div className="flex w-full h-full justify-around items-center gap-4">
@@ -368,6 +389,18 @@ const Battle = () => {
                     {results.winner}{" "}
                   </motion.div>
                 </>
+              )}
+              {practiceFinished && (
+                <motion.div className="flex w-full h-full justify-around items-center gap-4">
+                  <motion.div className="w-[50%] min-h-fit max-h-[50%] justify-around items-center p-4 text-3xl h-[50%] bg-[#ff9a3c] border-2 rounded-3xl flex flex-col gap-8">
+                    <span>{username} Score</span>
+
+                    <span>
+                      {mode.charAt(0).toUpperCase() + mode.slice(1)} :{" "}
+                      {practiceScore.filter((item) => item).length}
+                    </span>
+                  </motion.div>
+                </motion.div>
               )}
             </motion.div>
             <motion.button

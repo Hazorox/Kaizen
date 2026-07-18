@@ -14,7 +14,7 @@ import { immersion } from "./utils/immersion";
 import { getStats } from "./utils/getStats";
 import { authMiddleware } from "./middleware/auth";
 import { updateLastSeen } from "./middleware/updateLastSeen";
-import { makeSocket } from "./socket";
+import { compareKanji, makeSocket } from "./socket";
 import { matches } from "./utils/matches";
 import { recents } from "./utils/recents";
 const app = express();
@@ -48,7 +48,13 @@ app.get("/", (req, res) => {
   res.json("Kaizen is Running :D");
 });
 
-
+app.post("/api/compare_kanji",async (req,res)=>{
+  const {input,kanji} = req.body
+  if (!input) return res.json({error:"404"})
+  const acc:number = await compareKanji(input,kanji)
+  if (acc>=50) return res.json({result:true})
+  else return res.json({result:false})
+  })
 mongoose
   .connect(process.env.MONGO_URI ?? "")
   .then(() => {
