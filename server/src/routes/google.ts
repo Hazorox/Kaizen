@@ -63,7 +63,6 @@ router.get(
   passport.authenticate("google", { session: false }),
   (req, res) => {
     const next = (req.query.state as string)??"/"
-    console.log(next)
     const user = req.user as any;
     const token = jwt.sign(
       {
