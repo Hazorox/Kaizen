@@ -40,7 +40,7 @@ const Battle = () => {
   const username = getUsername();
   const opponent = players.filter((player) => player != username)[0];
   const socketRef = useRef<Socket | null>(null);
-  console.log(practiceScore)
+  console.log(practiceScore);
   useEffect(() => {
     if (!multi) return;
     else {
@@ -277,20 +277,30 @@ const Battle = () => {
                                 return toast.error("Already Submitted");
                               }
                             } else {
-                              const result = await compare_kanji(
-                                dataURL.split(",")[1],
-                                currentRound.Kanji,
+                              toast.promise(
+                                async () => {
+                                  const result = await compare_kanji(
+                                    dataURL.split(",")[1],
+                                    currentRound.Kanji,
+                                  );
+                                  practiceScore.push(result);
+                                  setRoundNum((prev) => {
+                                    if (questions.length - prev == 1) {
+                                      setPracticeFinished(true);
+                                      return 0;
+                                    } else {
+                                      setLines([]);
+                                      return prev + 1;
+                                    }
+                                  });
+                                },
+                                {
+                                  loading: "Submitting Answer",
+                                  success: "Submitted!",
+                                  error:
+                                    "Error submitting answer, try refreshing",
+                                },
                               );
-                              practiceScore.push(result);
-                              setRoundNum((prev) => {
-                                if (questions.length - prev == 1) {
-                                  setPracticeFinished(true);
-                                  return 0;
-                                } else {
-                                  setLines([])
-                                  return prev + 1;
-                                }
-                              });
                             }
                           }}
                           className={`${ansSubmitted ? "bg-[#c9b1ff] cursor-not-allowed" : "bg-[#3dce3d] cursor-pointer"} p-4 rounded-full border-2 flex justify-center items-center`}
@@ -336,6 +346,19 @@ const Battle = () => {
                                       type: "vocab",
                                     });
                                   } else {
+                                    setPracticeScore((prev) => [
+                                      ...prev,
+                                      ans == currentRound.correct.Original,
+                                    ]);
+                                    setRoundNum((prev) => {
+                                      if (questions.length - prev == 1) {
+                                        setPracticeFinished(true);
+                                        return 0;
+                                      } else {
+                                        setLines([]);
+                                        return prev + 1;
+                                      }
+                                    });
                                   }
                                 }}
                                 whileTap={{ scale: 1.25 }}
