@@ -201,8 +201,7 @@ const Battle = () => {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              {(multi && !results) ||
-                (!multi && !practiceFinished && (
+              {((multi && !results) || (!multi && !practiceFinished)) && (
                   <>
                     {currentMode === "kanji" && (
                       <>
@@ -378,7 +377,7 @@ const Battle = () => {
                       </>
                     )}
                   </>
-                ))}
+                )}
               {results && (
                 <>
                   <motion.div className="flex w-full h-full justify-around items-center gap-4">
