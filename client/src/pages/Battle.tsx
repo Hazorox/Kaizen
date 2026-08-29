@@ -40,7 +40,6 @@ const Battle = () => {
   const username = getUsername();
   const opponent = players.filter((player) => player != username)[0];
   const socketRef = useRef<Socket | null>(null);
-  console.log(practiceScore);
   useEffect(() => {
     if (!multi) return;
     else {
