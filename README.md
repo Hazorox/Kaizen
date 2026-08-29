@@ -41,8 +41,10 @@ cd client
 npm install
 npm run dev
 ```
-make a .env file with port,mongo_uri,jwt_secret,google_client_id,google_client_secret,cdn_key (hackclub cdn),hack_key (hackai, not used so ignore ig),frontend_url,yt_cookie (not used, ignore),sup_api_key (supadata key for fetching yt subtitles) inside ./server/
 ## Backend:
+
+make a .env file with port,mongo_uri,jwt_secret,google_client_id,google_client_secret,cdn_key (hackclub cdn),hack_key (hackai, not used so ignore ig),frontend_url,yt_cookie (not used, ignore),sup_api_key (supadata key for fetching yt subtitles) inside ./server/
+
 ```.sh
 cd server
 npm install
