@@ -36,7 +36,7 @@ To view all-time stats, check your user profile.
 # Setup (Node.js)
 ## FRONTEND :
 make a .env file with VITE_FRONTEND_URL and VITE_BACKEND_URL inside ./client/
-```.sh
+``sh
 cd client
 npm install
 npm run dev
